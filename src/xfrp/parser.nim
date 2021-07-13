@@ -152,5 +152,5 @@ when isMainModule:
   var l = xfrpLex.open(paramStr(1))
   l.ignoreIf = ignores
 
-  var parser = xfrpParser.newParser()
-  echo parser.parse(l)
+  var p = xfrpParser.newParser()
+  echo p.parse(l)
