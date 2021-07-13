@@ -63,6 +63,8 @@ niml xfrpLex[XfrpToken]:
     return Rt()
   r"module":
     return Module()
+  r"material":
+    return Material()
   r"in":
     return In()
   r"out":

@@ -31,6 +31,7 @@ variantp XfrpToken:
   # RShift
   Rt
   Module
+  Material
   In
   Out
   Use
