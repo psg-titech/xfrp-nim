@@ -16,7 +16,7 @@ niml xfrpLex[XfrpToken]:
   r"\(":
     return LParen()
   r"\)":
-    return LParen()
+    return RParen()
   r":":
     return Colon()
   # r";":
