@@ -39,7 +39,7 @@ variantp XfrpExpr:
 
 variantp XfrpDefinition:
   DefNode(nodeIdAndType: XfrpIdAndType, nodeInit: Option[XfrpExpr], nodeBody: XfrpExpr)
-  DefConst(constIdAndType: XfrpIdAndType, constBody: XfrpExpr)
+  # DefConst(constIdAndType: XfrpIdAndType, constBody: XfrpExpr)
   DefFunc(funId: XfrpId, funRetType: XfrpType, funArgs: seq[XfrpIdAndType], funBody: XfrpExpr)
 
 type
@@ -49,3 +49,11 @@ type
     outs: seq[XfrpIdAndType]
     uses: seq[XfrpModuleId]
     defs: seq[XfrpDefinition]
+
+proc id*(idAndType: XfrpIdAndType): XfrpId =
+  match idAndType:
+    IdWithExplicitType(i, _):
+      return i
+
+    IdWithoutAnyTypeAnnot(i):
+      return i
