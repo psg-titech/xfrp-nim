@@ -47,5 +47,4 @@ variantp XfrpToken:
   Id(idStr: string)
   FDigits(floatStr: string)
   Digits(intStr: string)
-  Eof
   Unknown
