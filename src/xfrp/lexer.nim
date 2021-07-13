@@ -87,7 +87,7 @@ niml xfrpLex[XfrpToken]:
     return Else()
   r"last":
     return Last()
-  r"function":
+  r"func(tion)?":
     return Function()
   r"[A-Za-z_][A-Za-z0-9_]*":
     return Id(token.token)
