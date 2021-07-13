@@ -1,6 +1,5 @@
 import options
 from strutils import parseInt, parseFloat
-from sequtils import unzip
 import nimly
 
 import tokens, syntax, types
@@ -25,7 +24,7 @@ nimy xfrpParser[XfrpToken]:
 
   idAndType[XfrpIdAndType]:
     Id Colon typeSpecific:
-      return (($1).idStr, $3)
+      return IdWithExplicitType(($1).idStr, $3)
 
   idAndTypes[seq[XfrpIdAndType]]:
     idAndType:
@@ -73,8 +72,7 @@ nimy xfrpParser[XfrpToken]:
       return DefNode($3, some($2), $5)
 
     Function Id LParen idAndTypes RParen Colon typeSpecific Equal expression:
-      let (argIds, argTypes) = unzip($4)
-      return DefFunc(($2).idStr, $7, argIds, argTypes, $9)
+      return DefFunc(($2).idStr, $7, $4, $9)
 
   expression[XfrpExpr]:
     constant:
@@ -100,7 +98,7 @@ nimy xfrpParser[XfrpToken]:
 
   annotation[XfrpAnnotation]:
     Last:
-      return atLast
+      return AnnotAtLast()
 
   appArguments[seq[ref XfrpExpr]]:
     expression:

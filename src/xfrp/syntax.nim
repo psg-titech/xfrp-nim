@@ -5,14 +5,13 @@ import types
 type
   XfrpId* = string
   XfrpModuleId* = string
-  XfrpIdAndType* = tuple
-    id: XfrpId
-    ty: XfrpType
-  XfrpIdAndTypeOpt* = tuple
-    id: XfrpId
-    tyOpt: Option[XfrpType]
-  XfrpAnnotation* = enum
-    atLast = "@last"
+
+variantp XfrpIdAndType:
+  IdWithExplicitType(idExplicit: XfrpId, tyExplicit: XfrpType)
+  IdWithoutAnyTypeAnnot(idImplicit: XfrpId)
+
+variantp XfrpAnnotation:
+  AnnotAtLast
 
 variantp XfrpConst:
   CUint
@@ -41,7 +40,7 @@ variantp XfrpExpr:
 variantp XfrpDefinition:
   DefNode(nodeIdAndType: XfrpIdAndType, nodeInit: Option[XfrpExpr], nodeBody: XfrpExpr)
   DefConst(constIdAndType: XfrpIdAndType, constBody: XfrpExpr)
-  DefFunc(funId: XfrpId, funRetType: XfrpType, funArgIds: seq[XfrpId], funArgTypes: seq[XfrpType], funBody: XfrpExpr)
+  DefFunc(funId: XfrpId, funRetType: XfrpType, funArgs: seq[XfrpIdAndType], funBody: XfrpExpr)
 
 type
   XfrpAst* = tuple
