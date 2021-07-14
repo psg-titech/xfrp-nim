@@ -1,103 +1,106 @@
 import nimly
-
 import tokens
 
 niml xfrpLex[XfrpToken]:
   r"\s+":
-    return Ignore()
+    return Ignore() from token
   "#[^\n]*":
-    return Comment(token.token)
+    return Comment(token.token) from token
   r",":
-    return Comma()
+    return Comma() from token
   r"\[":
-    return LBracket()
+    return LBracket() from token
   r"]":
-    return RBracket()
+    return RBracket() from token
   r"\(":
-    return LParen()
+    return LParen() from token
   r"\)":
-    return RParen()
+    return RParen() from token
   r":":
-    return Colon()
+    return Colon() from token
   # r";":
-  #   return Semicolon()
+  #   return Semicolon() from token
   r"@":
-    return At()
+    return At() from token
   r"\+":
-    return Plus()
+    return Plus() from token
   # r"-":
-  #   return Minus()
+  #   return Minus() from token
   # r"%":
-  #   return Percent()
+  #   return Percent() from token
   # r"*":
-  #   return Asterisk()
+  #   return Asterisk() from token
   # r"/":
-  #   return Slash()
+  #   return Slash() from token
   # r"^":
-  #   return Hat()
+  #   return Hat() from token
   r"\|\|":
-    return VertVert()
+    return VertVert() from token
   # r"&&":
-  #   return AndAnd()
+  #   return AndAnd() from token
   # r"|":
-  #   return LOr()
+  #   return LOr() from token
   # r"&":
-  #   return LAnd()
+  #   return LAnd() from token
   r"==":
-    return EqEq()
+    return EqEq() from token
   # r"!=":
-  #   return NotEq()
+  #   return NotEq() from token
   r"=":
-    return Equal()
+    return Equal() from token
   r"<=":
-    return Lte()
+    return Lte() from token
   # r"<<":
-  #   return LShift()
+  #   return LShift() from token
   r"<":
-    return Lt()
+    return Lt() from token
   r">=":
-    return Rte()
+    return Rte() from token
   # r">>":
-  #   return RShift()
+  #   return RShift() from token
   r">":
-    return Rt()
+    return Rt() from token
   r"module":
-    return Module()
+    return Module() from token
   r"material":
-    return Material()
+    return Material() from token
   r"in":
-    return In()
+    return In() from token
   r"out":
-    return Out()
+    return Out() from token
   r"use":
-    return Use()
+    return Use() from token
   r"node":
-    return Node()
+    return Node() from token
   r"init":
-    return Init()
+    return Init() from token
   r"true":
-    return True()
+    return True() from token
   r"false":
-    return False()
+    return False() from token
   r"if":
-    return If()
+    return If() from token
   r"then":
-    return Then()
+    return Then() from token
   r"else":
-    return Else()
+    return Else() from token
   r"last":
-    return Last()
+    return Last() from token
   r"func(tion)?":
-    return Function()
+    return Function() from token
   r"[A-Za-z_][A-Za-z0-9_]*":
-    return Id(token.token)
+    return Id(token.token) from token
   r"(0|[1-9][0-9]*)\.[0-9]+":
-    return FDigits(token.token)
+    return FDigits(token.token) from token
   r"0|[1-9][0-9]*":
-    return Digits(token.token)
+    return Digits(token.token) from token
 
 when isMainModule:
   import os
+  import codeinfos
+
   var l = xfrpLex.open(paramStr(1))
   for token in l.lexIter:
-    echo token
+    echo token.kind
+    if token.kind != XfrpTokenKind.Ignore:
+      echo pretty(token.line, token.startPos, token.endPos)
