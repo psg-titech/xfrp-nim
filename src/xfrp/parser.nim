@@ -4,12 +4,14 @@ import nimly
 
 import tokens, syntax, types, codeinfos, errors
 
-func ignores*(tk: XfrpToken): bool =
+func ignores(tk: XfrpToken): bool =
   tk.kind in {XfrpTokenKind.Ignore, XfrpTokenKind.Comment}
+
 
 proc `~`[T](x: T): ref T =
   new result
   result[] = x
+
 
 nimy xfrpParser[XfrpToken]:
   progModule[XfrpAst[XfrpModule]]:
@@ -41,7 +43,10 @@ nimy xfrpParser[XfrpToken]:
       of "Bool": return TBool() from $1
       of "Int": return TInt() from $1
       of "Float": return TFloat() from $1
-      else: raise XfrpSyntaxError.newException("Type error: Not defined")
+      else:
+        let err = XfrpTypeError.newException("No such type is defined.")
+        err.causedBy($1)
+        raise err
 
   useModules[seq[XfrpAst[XfrpModuleId]]]:
     Use modules:
@@ -138,6 +143,24 @@ nimy xfrpParser[XfrpToken]:
     FDigits:
       return LitFloat(($1).floatStr.parseFloat()) from $1
 
+
+proc parse*(l: var NimlLexer[XfrpToken]): XfrpAst[XfrpModule] {.raises: [XfrpLanguageError].} =
+  l.ignoreIf = ignores
+
+  var p = xfrpParser.newParser()
+
+  try:
+    result = p.parse(l)
+
+  except NimlEOFError as err:
+    var err0 = XfrpSyntaxError.newException("Unexpected EOF.", err)
+    raise err0
+
+  except Exception as err:
+    var err0 = XfrpLanguageError.newException(err.msg, err)
+    raise err0
+
+
 when isMainModule:
   import os, json, std/jsonutils
   import lexer
@@ -146,8 +169,20 @@ when isMainModule:
     echo "Usage: parser [filename]"
     quit QuitFailure
 
-  var l = xfrpLex.open(paramStr(1))
-  l.ignoreIf = ignores
+  try:
+    var l = xfrpLex.open(paramStr(1))
+    let ast = parse(l)
+    echo pretty(ast.toJson())
 
-  var p = xfrpParser.newParser()
-  echo pretty(p.parse(l).toJson())
+  except XfrpTypeError as err:
+    echo "[Type Error] ", err.msg
+    for info in err.causes:
+      stderr.writeLine pretty(info)
+
+  except XfrpSyntaxError as err:
+    echo "[Syntax Error] ", err.msg
+    for info in err.causes:
+      stderr.writeLine pretty(info)
+
+  except XfrpLanguageError as err:
+    echo "[Language Error] ", err.msg

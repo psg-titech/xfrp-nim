@@ -38,11 +38,19 @@ func line*[T](t: WithCodeInfo[T]): CodeLine = t.line
 func attachCodeInfo*[T](val: T; startPos, endPos: CodePos; line: CodeLine): WithCodeInfo[T] =
   WithCodeInfo[T](val: val, startPos: startPos, endPos: endPos, line: line)
 
-func pretty*[T](self: WithCodeInfo[T]): string =
-  self.line.pretty(self.startPos, self.endPos)
-
 func codeInfo*(startPos, endPos: CodePos; line: CodeLine): CodeInfo =
   CodeInfo(startPos: startPos, endPos: endPos, line: line)
+
+func codeInfo*[T](src: WithCodeInfo[T]): CodeInfo =
+  codeInfo(src.startPos, src.endPos, src.line)
+
+func codeInfo*(x: CodeInfo): CodeInfo = x
+
+func pretty*(info: CodeInfo): string =
+  info.line.pretty(info.startPos, info.endPos)
+
+func pretty*[T](data: WithCodeInfo[T]): string =
+  pretty(data.codeInfo)
 
 func `..`*[T, U](x: WithCodeInfo[T]; y: WithCodeInfo[U]): CodeInfo =
   codeInfo(x.startPos, y.endPos, x.line)
