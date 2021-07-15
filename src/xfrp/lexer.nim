@@ -1,5 +1,16 @@
+from strutils import splitLines
 import nimly
-import tokens
+import tokens, codeinfos
+
+converter lexTokenToCodeInfo(lexTok: LToken): CodeInfo =
+  let
+    startPos = (col: lexTok.colNum, line: lexTok.lineNum)
+    tokenStrSplitByLine = lexTok.token.splitLines()
+    endPosCol = (if tokenStrSplitByLine.len == 1: startPos.col + tokenStrSplitByLine[0].len else: tokenStrSplitByLine[^1].len)
+    endPosLine = startPos.line + high(tokenStrSplitByLine)
+    endPos = (col: endPosCol, line: endPosLine)
+
+  result = codeInfo(startPos, endPos, lexTok.lineInfo.splitLines()[0])
 
 niml xfrpLex[XfrpToken]:
   r"\s+":
@@ -103,4 +114,4 @@ when isMainModule:
   for token in l.lexIter:
     echo token.kind
     if token.kind != XfrpTokenKind.Ignore:
-      echo pretty(token.line, token.startPos, token.endPos)
+      echo pretty(token)
