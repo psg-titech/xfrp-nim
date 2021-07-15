@@ -144,7 +144,7 @@ nimy xfrpParser[XfrpToken]:
       return LitFloat(($1).floatStr.parseFloat()) from $1
 
 
-proc parse*(l: var NimlLexer[XfrpToken]): XfrpAst[XfrpModule] {.raises: [XfrpLanguageError].} =
+proc parse*(l: var NimlLexer[XfrpToken]): XfrpAst[XfrpModule] =
   l.ignoreIf = ignores
 
   var p = xfrpParser.newParser()
@@ -156,8 +156,16 @@ proc parse*(l: var NimlLexer[XfrpToken]): XfrpAst[XfrpModule] {.raises: [XfrpLan
     var err0 = XfrpSyntaxError.newException("Unexpected EOF.", err)
     raise err0
 
-  except Exception as err:
-    var err0 = XfrpLanguageError.newException(err.msg, err)
+  except LexError as err:
+    var err0 = XfrpSyntaxError.newException("Invalid token found.\p" & err.msg, err)
+    raise err0
+
+  except NimyActionError as err:
+    var err0 = XfrpSyntaxError.newException("Unexpected token is passed.\p" & err.msg, err)
+    raise err0
+
+  except NimyGotoError as err:
+    var err0 = XfrpSyntaxError.newException("Goto error.\p" & err.msg, err)
     raise err0
 
 

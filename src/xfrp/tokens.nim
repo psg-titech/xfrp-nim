@@ -61,3 +61,6 @@ func commentStr*(tok: XfrpToken): string = tok.val.commentStr
 func idStr*(tok: XfrpToken): string = tok.val.idStr
 func floatStr*(tok: XfrpToken): string = tok.val.floatStr
 func intStr*(tok: XfrpToken): string = tok.val.intStr
+
+func `$`*(tok: XfrpToken): string =
+  pretty(tok)
