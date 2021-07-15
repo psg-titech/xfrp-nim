@@ -49,3 +49,6 @@ func `..`*[T, U](x: WithCodeInfo[T]; y: WithCodeInfo[U]): CodeInfo =
 
 func `from`*[T](data: T; info: CodeInfo): WithCodeInfo[T] =
   WithCodeInfo[T](val: data, startPos: info.startPos, endPos: info.endPos, line: info.line)
+
+func `from`*[T, U](data: T; infoSrc: WithCodeInfo[U]): WithCodeInfo[T] =
+  WithCodeInfo[T](val: data, startPos: infoSrc.startPos, endPos: infoSrc.endPos, line: infoSrc.line)

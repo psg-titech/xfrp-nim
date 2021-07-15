@@ -1,23 +1,32 @@
 import options
 import patty
-import types
+import types, codeinfos
+
+# AST with code informations
+
+type
+  XfrpAst*[T] = WithCodeInfo[T]
+
+func ast*[T](t: XfrpAst[T]): T = t.val
+
+# Raw XFRP ASTs
 
 type
   XfrpId* = string
   XfrpModuleId* = string
 
 variantp XfrpIdAndType:
-  IdWithExplicitType(idExplicit: XfrpId, tyExplicit: XfrpType)
-  IdWithoutAnyTypeAnnot(idImplicit: XfrpId)
+  IdWithExplicitType(idExplicit: XfrpAst[XfrpId], tyExplicit: XfrpAst[XfrpType])
+  IdWithoutAnyTypeAnnot(idImplicit: XfrpAst[XfrpId])
 
 variantp XfrpAnnotation:
   AnnotAtLast
 
-variantp XfrpConst:
-  CUint
-  CBool(boolVal: bool)
-  CInt(intVal: int)
-  CFloat(floatVal: float)
+variantp XfrpLiteral:
+  LitUint
+  LitBool(boolVal: bool)
+  LitInt(intVal: int)
+  LitFloat(floatVal: float)
 
 type
   XfrpBinOp* = enum
@@ -30,30 +39,30 @@ type
     binRt = ">"
 
 variantp XfrpExpr:
-  ExprConst(constVal: XfrpConst)
-  ExprId(id: XfrpId)
-  ExprAnnot(annotId: XfrpId, annot: XfrpAnnotation)
-  ExprBin(binOp: XfrpBinOp, binLhs, binRhs: ref XfrpExpr)
-  ExprIf(ifExpr, thenExpr, elseExpr: ref XfrpExpr)
-  ExprApp(appId: XfrpId, appArgs: seq[ref XfrpExpr])
+  ExprLiteral(constVal: XfrpAst[XfrpLiteral])
+  ExprId(id: XfrpAst[XfrpId])
+  ExprAnnot(annotId: XfrpAst[XfrpId], annot: XfrpAst[XfrpAnnotation])
+  ExprBin(binOp: XfrpAst[XfrpBinOp], binLhs, binRhs: ref XfrpAst[XfrpExpr])
+  ExprIf(ifExpr, thenExpr, elseExpr: ref XfrpAst[XfrpExpr])
+  ExprApp(appId: XfrpAst[XfrpId], appArgs: seq[XfrpAst[XfrpExpr]])
 
 variantp XfrpDefinition:
-  DefNode(nodeIdAndType: XfrpIdAndType, nodeInit: Option[XfrpExpr], nodeBody: XfrpExpr)
+  DefNode(nodeIdAndType: XfrpAst[XfrpIdAndType], nodeInit: Option[XfrpAst[XfrpExpr]], nodeBody: XfrpAst[XfrpExpr])
   # DefConst(constIdAndType: XfrpIdAndType, constBody: XfrpExpr)
-  DefFunc(funId: XfrpId, funRetType: XfrpType, funArgs: seq[XfrpIdAndType], funBody: XfrpExpr)
+  DefFunc(funId: XfrpAst[XfrpId], funRetType: XfrpAst[XfrpType], funArgs: seq[XfrpAst[XfrpIdAndType]], funBody: XfrpAst[XfrpExpr])
 
 type
-  XfrpAst* = tuple
-    moduleId: XfrpModuleId
-    ins: seq[XfrpIdAndType]
-    outs: seq[XfrpIdAndType]
-    uses: seq[XfrpModuleId]
-    defs: seq[XfrpDefinition]
+  XfrpModule* = tuple
+    moduleId: XfrpAst[XfrpModuleId]
+    ins: seq[XfrpAst[XfrpIdAndType]]
+    outs: seq[XfrpAst[XfrpIdAndType]]
+    uses: seq[XfrpAst[XfrpModuleId]]
+    defs: seq[XfrpAst[XfrpDefinition]]
 
 proc id*(idAndType: XfrpIdAndType): XfrpId =
   match idAndType:
-    IdWithExplicitType(i, _):
-      return i
+    IdWithExplicitType(idAst, _):
+      return idAst.ast
 
-    IdWithoutAnyTypeAnnot(i):
-      return i
+    IdWithoutAnyTypeAnnot(idAst):
+      return idAst.ast
