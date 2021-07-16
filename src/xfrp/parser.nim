@@ -3,6 +3,9 @@ from strutils import parseInt, parseFloat
 import nimly
 
 import tokens, syntax, types, codeinfos, errors
+from lexer import XfrpLexer
+
+export lexer.XfrpLexer
 
 func ignores(tk: XfrpToken): bool =
   tk.kind in {XfrpTokenKind.Ignore, XfrpTokenKind.Comment}
@@ -144,7 +147,7 @@ nimy xfrpParser[XfrpToken]:
       return LitFloat(($1).floatStr.parseFloat()) from $1
 
 
-proc parse*(l: var NimlLexer[XfrpToken]): XfrpAst[XfrpModule] =
+proc parse*(l: var XfrpLexer): XfrpAst[XfrpModule] =
   l.ignoreIf = ignores
 
   var p = xfrpParser.newParser()
@@ -178,7 +181,7 @@ when isMainModule:
     quit QuitFailure
 
   try:
-    var l = xfrpLex.open(paramStr(1))
+    var l = buildLexerFromFilename(paramStr(1))
     let ast = parse(l)
     echo pretty(ast.toJson())
 

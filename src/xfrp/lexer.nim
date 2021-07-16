@@ -106,11 +106,24 @@ niml xfrpLex[XfrpToken]:
   r"0|[1-9][0-9]*":
     return Digits(token.token) from token
 
+
+type
+  XfrpLexer* = NimlLexer[XfrpToken]
+
+
+proc buildLexerFromFilename*(filename: string): XfrpLexer =
+  result = xfrpLex.open(filename)
+
+
+proc buildLexerFromString*(str: string): XfrpLexer =
+  result = xfrpLex.newWithString(str)
+
+
 when isMainModule:
   import os
   import codeinfos
 
-  var l = xfrpLex.open(paramStr(1))
+  var l = buildLexerFromFilename(paramStr(1))
   for token in l.lexIter:
     echo token.kind
     if token.kind != XfrpTokenKind.Ignore:
