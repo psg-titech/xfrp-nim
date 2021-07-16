@@ -25,6 +25,7 @@ type
 
 proc makeEnvironmentFromModule*(ast: XfrpModule): XfrpEnv =
   # Initialization
+  result.name = ast.moduleId
   # result.materials = newTable[XfrpId, XfrpEnv]()
   result.funcs = newTable[XfrpId, XfrpFuncDefinition]()
   result.innerNodes = newTable[XfrpId, XfrpNodeDefinition]()
