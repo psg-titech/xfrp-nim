@@ -63,4 +63,4 @@ func floatStr*(tok: XfrpToken): string = tok.val.floatStr
 func intStr*(tok: XfrpToken): string = tok.val.intStr
 
 func `$`*(tok: XfrpToken): string =
-  pretty(tok)
+  $tok.val & " (" & $tok.startPos & ")"
