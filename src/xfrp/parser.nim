@@ -18,21 +18,35 @@ proc `~`[T](x: T): ref T =
 
 nimy xfrpParser[XfrpToken]:
   progModule[XfrpAst[XfrpModule]]:
-    Module Id In idAndTypes Out idAndTypes definitions:
+    Module Id In idAndTypes Out idAndTypeOpts definitions:
       return (($2).idStr from $2, $4, $6, newSeq[XfrpAst[XfrpModuleId]](), $7) from ($1)..($7)[^1]
 
-    Module Id In idAndTypes Out idAndTypes useModules definitions:
+    Module Id In idAndTypes Out idAndTypeOpts useModules definitions:
       return (($2).idStr from $2, $4, $6, $7, $8) from ($1)..($8)[^1]
 
   idAndType[XfrpAst[XfrpIdAndType]]:
     Id Colon typeSpecific:
-      return IdWithExplicitType(($1).idStr from $1, $3) from ($1)..($3)
+      return (($1).idStr from $1, $3) from ($1)..($3)
 
   idAndTypes[seq[XfrpAst[XfrpIdAndType]]]:
     idAndType:
       return @[$1]
 
     idAndType Comma idAndTypes:
+      return $1 & $3
+
+  idAndTypeOpt[XfrpAst[XfrpIdAndTypeOpt]]:
+    Id Colon typeSpecific:
+      return IdWithExplicitType(($1).idStr from $1, $3) from ($1)..($3)
+
+    Id:
+      return IdWithoutAnyTypeAnnot(($1).idStr from $1) from $1
+
+  idAndTypeOpts[seq[XfrpAst[XfrpIdAndTypeOpt]]]:
+    idAndTypeOpt:
+      return @[$1]
+
+    idAndTypeOpt Comma idAndTypeOpts:
       return $1 & $3
 
   typeSpecific[XfrpAst[XfrpType]]:
@@ -70,10 +84,10 @@ nimy xfrpParser[XfrpToken]:
       return $1 & $2
 
   definition[XfrpAst[XfrpDefinition]]:
-    Node idAndType Equal expression:
+    Node idAndTypeOpt Equal expression:
       return DefNode($2, none(XfrpAst[XfrpExpr]), $4) from ($1)..($4)
 
-    Node nodeInitDef idAndType Equal expression:
+    Node nodeInitDef idAndTypeOpt Equal expression:
       return DefNode($3, some($2), $5) from ($1)..($5)
 
     Function Id LParen idAndTypes RParen Colon typeSpecific Equal expression:
@@ -114,7 +128,7 @@ nimy xfrpParser[XfrpToken]:
 
   nodeInitDef[XfrpAst[XfrpExpr]]:
     Init LBracket nodeInitExpr RBracket:
-      return ($3).ast from ($1)..($4)
+      return ($3).val from ($1)..($4)
 
   nodeInitExpr[XfrpAst[XfrpExpr]]:
     literal:

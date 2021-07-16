@@ -5,7 +5,13 @@ type
     causes: seq[CodeInfo]
 
   XfrpSyntaxError* = object of XfrpLanguageError
+    ## An error about lexing and parsing
+
   XfrpTypeError* = object of XfrpLanguageError
+    ## An error about type system
+
+  XfrpDefinitionError* = object of XfrpLanguageError
+    ## An error about constructing nodes, functions and any other definitions.
 
 func causes*(e: ref XfrpLanguageError): seq[CodeInfo] =
   e.causes
