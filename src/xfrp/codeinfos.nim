@@ -18,7 +18,7 @@ type
     line: CodeLine
 
 func `$`*(pos: CodePos): string =
-  "line: " & $pos.line & ", column: " & $pos.col
+  "line: " & $pos.line & ", column: " & $succ(pos.col)
 
 func `<`*(x, y: CodePos): bool =
   x.line < y.line or (x.line == y.line and x.col < y.col)
