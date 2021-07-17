@@ -13,9 +13,13 @@ type
   XfrpDefinitionError* = object of XfrpLanguageError
     ## An error about constructing nodes, functions and any other definitions.
 
-func causes*(e: ref XfrpLanguageError): seq[CodeInfo] =
-  e.causes
+  XfrpReferenceError* = object of XfrpLanguageError
+    ## An error about references
 
 proc causedBy*(e: ref XfrpLanguageError; cs: varargs[CodeInfo, codeInfo]) =
   for c in cs:
     e.causes.add c
+
+iterator causes*(e: ref XfrpLanguageError): CodeInfo =
+  for c in e.causes:
+    yield c

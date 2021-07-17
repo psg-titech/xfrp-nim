@@ -35,8 +35,8 @@ type
     refNow, refAtLast: seq[XfrpId]
 
 
-func extractNodeReferenceInfo(env: XfrpEnv; exp: XfrpExpr): NodeReferenceInfo =
-  match exp:
+func extractNodeReferenceInfo(env: XfrpEnv; exp: WithCodeInfo[XfrpExpr]): NodeReferenceInfo =
+  match exp.val:
     ExprLiteral(_):
       return
 
@@ -49,28 +49,52 @@ func extractNodeReferenceInfo(env: XfrpEnv; exp: XfrpExpr): NodeReferenceInfo =
       let id = idAst.val
       match annotAst:
         AnnotAtLast:
-          if (id in env.inputNodes) or (id in env.innerNodes):
+          if id in env.inputNodes:
+            let inputNode = env.inputNodes[id]
+
+            # check the existence of initial value for the input node
+            if inputNode.init.isNone:
+              let err = XfrpReferenceError.newException("The input node '" & id & "' has no initial value although its at-last value is referred.")
+              err.causedBy(inputNode.id, exp)
+              raise err
+
             result.refAtLast = @[id]
+
+          elif id in env.innerNodes:
+            let innerNode = env.innerNodes[id]
+
+            # check the existence of initial value for the inner node
+            if innerNode.init.isNone:
+              let err = XfrpReferenceError.newException("The node '" & id & "' has no initial value although its at-last value is referred.")
+              err.causedBy(innerNode.id, exp)
+              raise err
+
+            result.refAtLast = @[id]
+
+          else:
+            let err = XfrpReferenceError.newException("At-last reference is only for nodes, but '" & id & "' is not a node.")
+            err.causedBy(exp)
+            raise err
 
     ExprBin(_, lhsAst, rhsAst):
       let
-        (lhsRefNow, lhsRefAtLast) = env.extractNodeReferenceInfo(lhsAst[].val)
-        (rhsRefNow, rhsRefAtLast) = env.extractNodeReferenceInfo(rhsAst[].val)
+        (lhsRefNow, lhsRefAtLast) = env.extractNodeReferenceInfo(lhsAst[])
+        (rhsRefNow, rhsRefAtLast) = env.extractNodeReferenceInfo(rhsAst[])
 
       result.refNow = deduplicate(lhsRefnow & rhsRefNow)
       result.refAtLast = deduplicate(lhsRefAtLast & rhsRefAtLast)
 
     ExprIf(ifAst, thenAst, elseAst):
       let
-        (ifRefNow, ifRefAtLast) = env.extractNodeReferenceInfo(ifAst[].val)
-        (thenRefNow, thenRefAtLast) = env.extractNodeReferenceInfo(thenAst[].val)
-        (elseRefNow, elseRefAtLast) = env.extractNodeReferenceInfo(elseAst[].val)
+        (ifRefNow, ifRefAtLast) = env.extractNodeReferenceInfo(ifAst[])
+        (thenRefNow, thenRefAtLast) = env.extractNodeReferenceInfo(thenAst[])
+        (elseRefNow, elseRefAtLast) = env.extractNodeReferenceInfo(elseAst[])
 
       result.refNow = deduplicate(ifRefNow & thenRefNow & elseRefNow)
       result.refAtLast = deduplicate(ifRefAtLast & thenRefAtLast & elseRefAtLast)
 
     ExprApp(_, argAsts):
-      let (refsNow, refsAtLast) = argAsts.mapIt(env.extractNodeReferenceInfo(it.val)).unzip()
+      let (refsNow, refsAtLast) = argAsts.mapIt(env.extractNodeReferenceInfo(it)).unzip()
       result.refNow = deduplicate(concat(refsNow))
       result.refAtLast = deduplicate(concat(refsAtLast))
 
@@ -137,7 +161,7 @@ proc makeEnvironmentFromModule*(ast: XfrpModule): XfrpEnv =
 
   # Extract node references
   for nodeDef in mvalues(result.innerNodes):
-    (nodeDef.refNow, nodeDef.refAtLast) = result.extractNodeReferenceInfo(nodeDef.update.val)
+    (nodeDef.refNow, nodeDef.refAtLast) = result.extractNodeReferenceInfo(nodeDef.update)
 
 
 when isMainModule:
@@ -168,6 +192,11 @@ when isMainModule:
 
   except XfrpDefinitionError as err:
     stderr.writeLine "[Definition Error] ", err.msg
+    for info in err.causes:
+      stderr.writeLine pretty(info)
+
+  except XfrpReferenceError as err:
+    stderr.writeLine "[Reference Error] ", err.msg
     for info in err.causes:
       stderr.writeLine pretty(info)
 
