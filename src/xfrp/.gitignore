@@ -1,0 +1,12 @@
+# binary files
+lexer
+parser
+envs
+
+# sample files
+*.xfrp
+*.mfrp
+
+# sample output
+*.txt
+*.json
