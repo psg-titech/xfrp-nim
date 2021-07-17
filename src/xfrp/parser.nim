@@ -18,10 +18,10 @@ proc `~`[T](x: T): ref T =
 
 nimy xfrpParser[XfrpToken]:
   progModule[XfrpAst[XfrpModule]]:
-    Module Id In idAndTypes Out idAndTypeOpts definitions:
+    Module Id In inputIdAndTypes Out idAndTypeOpts definitions:
       return (($2).idStr from $2, $4, $6, newSeq[XfrpAst[XfrpModuleId]](), $7) from ($1)..($7)[^1]
 
-    Module Id In idAndTypes Out idAndTypeOpts useModules definitions:
+    Module Id In inputIdAndTypes Out idAndTypeOpts useModules definitions:
       return (($2).idStr from $2, $4, $6, $7, $8) from ($1)..($8)[^1]
 
   idAndType[XfrpAst[XfrpIdAndType]]:
@@ -33,6 +33,20 @@ nimy xfrpParser[XfrpToken]:
       return @[$1]
 
     idAndType Comma idAndTypes:
+      return $1 & $3
+
+  inputIdAndType[XfrpAst[XfrpInput]]:
+    idAndType:
+      return InputWithoutInit($1) from $1
+
+    Id LParen nodeInitExpr RParen Colon typeSpecific:
+      return InputWithInit((($1).idStr from $1, $6) from ($1)..($6), $3) from ($1)..($6)
+
+  inputIdAndTypes[seq[XfrpAst[XfrpInput]]]:
+    inputIdAndType:
+      return @[$1]
+
+    inputIdAndType Comma inputIdAndTypes:
       return $1 & $3
 
   idAndTypeOpt[XfrpAst[XfrpIdAndTypeOpt]]:

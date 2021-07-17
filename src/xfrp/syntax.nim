@@ -60,10 +60,15 @@ variantp XfrpDefinition:
   DefFunc(funId: XfrpAst[XfrpId], funRetType: XfrpAst[XfrpType], funArgs: seq[XfrpAst[XfrpIdAndType]], funBody: XfrpAst[XfrpExpr])
 
 
+variantp XfrpInput:
+  InputWithoutInit(idAndTypeNoInit: XfrpAst[XfrpIdAndType])
+  InputWithInit(idAndTypeWithInit: XfrpAst[XfrpIdAndType], init: XfrpAst[XfrpExpr])
+
+
 type
   XfrpModule* = tuple
     moduleId: XfrpAst[XfrpModuleId]
-    ins: seq[XfrpAst[XfrpIdAndType]]
+    ins: seq[XfrpAst[XfrpInput]]
     outs: seq[XfrpAst[XfrpIdAndTypeOpt]]
     uses: seq[XfrpAst[XfrpModuleId]]
     defs: seq[XfrpAst[XfrpDefinition]]
@@ -76,3 +81,13 @@ proc split*(idAndTypeOpt: XfrpIdAndTypeOpt): tuple[id: XfrpAst[XfrpId], typeOpt:
 
     IdWithoutAnyTypeAnnot(idAst):
       return (idAst, none(XfrpAst[XfrpType]))
+
+proc split*(input: XfrpInput): tuple[id: XfrpAst[XfrpId], ty: XfrpAst[XfrpType], initOpt: Option[XfrpAst[XfrpExpr]]] =
+  match input:
+    InputWithoutInit(idAndTypeAst):
+      let (idAst, tyAst) = idAndTypeAst.val
+      return (idAst, tyAst, none(XfrpAst[XfrpExpr]))
+
+    InputWithInit(idAndTypeAst, initAst):
+      let (idAst, tyAst) = idAndTypeAst.val
+      return (idAst, tyAst, some(initAst))

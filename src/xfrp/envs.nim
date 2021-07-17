@@ -18,12 +18,17 @@ type
     # additional info.
     refNow, refAtLast: seq[XfrpId]
 
+  XfrpInputNodeDefinition* = object
+    id: WithCodeInfo[XfrpId]
+    ty: WithCodeInfo[XfrpType]
+    init: Option[WithCodeInfo[XfrpExpr]]
+
   XfrpEnv* = object
     name: WithCodeInfo[XfrpModuleId]
     materials: TableRef[XfrpModuleId, ref XfrpEnv]
     funcs: TableRef[XfrpId, XfrpFuncDefinition]
     innerNodes: TableRef[XfrpId, XfrpNodeDefinition]
-    inputNodes: OrderedTableRef[XfrpId, WithCodeInfo[XfrpIdAndType]]
+    inputNodes: OrderedTableRef[XfrpId, XfrpInputNodeDefinition]
     outputNodes: seq[WithCodeInfo[XfrpIdAndTypeOpt]]
 
   NodeReferenceInfo = tuple
@@ -76,23 +81,23 @@ proc makeEnvironmentFromModule*(ast: XfrpModule): XfrpEnv =
   # result.materials = newTable[XfrpId, ref XfrpEnv]()
   result.funcs = newTable[XfrpId, XfrpFuncDefinition]()
   result.innerNodes = newTable[XfrpId, XfrpNodeDefinition]()
-  result.inputNodes = newOrderedTable[XfrpId, WithCodeInfo[XfrpIdAndType]]()
+  result.inputNodes = newOrderedTable[XfrpId, XfrpInputNodeDefinition]()
   result.outputNodes = ast.outs
 
   # Registration of input nodes
   for node in ast.ins:
     let
-      (idAst, _) = node.val
+      (idAst, tyAst, initAstOpt) = node.val.split()
       id = idAst.val
 
     if id in result.inputNodes:
       let
         conflictedNode = result.inputNodes[id]
         err = XfrpDefinitionError.newException("Redeclaration of an input node '" & id & "' is detected.")
-      err.causedBy(conflictedNode.val.id, idAst)
+      err.causedBy(conflictedNode.id, idAst)
       raise err
 
-    result.inputNodes[id] = node
+    result.inputNodes[id] = XfrpInputNodeDefinition(id: idAst, ty: tyAst, init: initAstOpt)
 
   # Registration of inner nodes
   for def in ast.defs:
@@ -106,7 +111,7 @@ proc makeEnvironmentFromModule*(ast: XfrpModule): XfrpEnv =
           let
             conflictedNode = result.inputNodes[id]
             err = XfrpDefinitionError.newException("Node '" & id & "' is already defined as an input node.")
-          err.causedBy(idAst, conflictedNode.val.id)
+          err.causedBy(idAst, conflictedNode.id)
           raise err
 
         if id in result.innerNodes:
