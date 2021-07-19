@@ -3,6 +3,8 @@ from sequtils import deduplicate, mapIt, unzip, concat
 import patty
 import syntax, types, codeinfos, errors
 
+export syntax.XfrpId
+
 type
   XfrpFuncDefinition* = object
     id: WithCodeInfo[XfrpId]
@@ -162,6 +164,24 @@ proc makeEnvironmentFromModule*(ast: XfrpModule): XfrpEnv =
   # Extract node references
   for nodeDef in mvalues(result.innerNodes):
     (nodeDef.refNow, nodeDef.refAtLast) = result.extractNodeReferenceInfo(nodeDef.update)
+
+
+func getInnerNode*(env: XfrpEnv; id: XfrpId): XfrpNodeDefinition =
+  env.innerNodes[id]
+
+func isInputNode*(env: XfrpEnv; id: XfrpId): bool =
+  id in env.inputNodes
+
+iterator innerNodeIds*(env: XfrpEnv): XfrpId =
+  for node in keys(env.innerNodes):
+    yield node
+
+iterator inputNodeIds*(env: XfrpEnv): XfrpId =
+  for node in keys(env.inputNodes):
+    yield node
+
+func id*(nodeDef: XfrpNodeDefinition): WithCodeInfo[XfrpId] = nodeDef.id
+func refNow*(nodeDef: XfrpNodeDefinition): seq[XfrpId] = nodeDef.refNow
 
 
 when isMainModule:

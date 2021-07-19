@@ -2,6 +2,7 @@
 lexer
 parser
 envs
+nodeprops
 
 # sample files
 *.xfrp
