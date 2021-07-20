@@ -1,9 +1,7 @@
-from strutils import join
 from sequtils import toSeq, allIt, filterIt, mapIt
-import envs, errors, codeinfos
 
 type
-  ReferencesOf[T] = (proc (x: T): seq[T] {.noSideEffect.})
+  ReferencesOf*[T] = (proc (x: T): seq[T] {.noSideEffect.})
   ReferenceGraph*[T] = tuple
     domain: seq[T]
     referencesOf: ReferencesOf[T]
@@ -27,7 +25,7 @@ func getAnyReferenceCycle[T](graph: ReferenceGraph[T]; x: T; trace: seq[T] = @[]
       return cycle
 
 
-func getAnyReferenceCycle[T](graph: ReferenceGraph[T]): seq[T] =
+func getAnyReferenceCycle*[T](graph: ReferenceGraph[T]): seq[T] =
   ## Check if the reference graph has any cycles.
   ## If a cycle is found, then return it (result.len > 0).
   for x in graph.domain:
@@ -59,30 +57,30 @@ func topologicallySorted*[T](graph: ReferenceGraph[T]; initVisited: seq[T] = @[]
     result.add x
 
 
-proc getTopologicallySortedNodeList*(env: XfrpEnv): seq[XfrpId] =
-  ## Return node ID list by topologically-sorterd ordering.
-  func referencesOf(n: XfrpId): seq[XfrpId] =
-    env.getInnerNode(n).refNow
-
-  let graph: ReferenceGraph[XfrpId] = (domain: toSeq(env.innerNodeIds), referencesOf: referencesOf)
-
-  # Before sorting, check the existence of any reference cycle.
-  let referenceCycle = graph.getAnyReferenceCycle()
-  if referenceCycle.len > 0:
-    let
-      referenceCycleDiagram = (referenceCycle & referenceCycle[0]).join(" -> ")
-      err = XfrpReferenceError.newException("A cycle reference is detected. At-last reference is useful for avoiding such a cycle reference. (" & referenceCycleDiagram & ")")
-    for nodeId in referenceCycle:
-      err.causedBy(env.getInnerNode(nodeId).id)
-    raise err
-
-  # Sorting main
-  result = graph.topologicallySorted(toSeq(env.inputNodeIds))
-
-
 when isMainModule:
   import os
-  import lexer, parser
+  from strutils import join
+  import lexer, parser, envs, errors, codeinfos
+
+  proc getTopologicallySortedNodeList(env: XfrpEnv): seq[XfrpId] =
+    ## Return node ID list by topologically-sorterd ordering.
+    func referencesOf(n: XfrpId): seq[XfrpId] =
+      env.getInnerNode(n).refNow
+
+    let graph: ReferenceGraph[XfrpId] = (domain: toSeq(env.innerNodeIds), referencesOf: referencesOf)
+
+    # Before sorting, check the existence of any reference cycle.
+    let referenceCycle = graph.getAnyReferenceCycle()
+    if referenceCycle.len > 0:
+      let
+        referenceCycleDiagram = (referenceCycle & referenceCycle[0]).join(" -> ")
+        err = XfrpReferenceError.newException("A cycle reference is detected. At-last reference is useful for avoiding such a cycle reference. (" & referenceCycleDiagram & ")")
+      for nodeId in referenceCycle:
+        err.causedBy(env.getInnerNode(nodeId).id)
+      raise err
+
+    # Sorting main
+    result = graph.topologicallySorted(toSeq(env.inputNodeIds))
 
   if paramCount() < 1:
     stderr.writeLine "usage: nodeprops [filename]"
