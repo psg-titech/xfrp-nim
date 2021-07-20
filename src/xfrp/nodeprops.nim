@@ -2,34 +2,72 @@ from strutils import join
 from sequtils import toSeq, allIt, filterIt, mapIt
 import envs, errors, codeinfos
 
+type
+  ReferencesOf[T] = (proc (x: T): seq[T] {.noSideEffect.})
+  ReferenceGraph*[T] = tuple
+    domain: seq[T]
+    referencesOf: ReferencesOf[T]
 
-func getAnyReferenceCycle(env: XfrpEnv; n: XfrpId; trace: seq[XfrpId] = @[]): seq[XfrpId] =
-  if trace.len > 0 and n == trace[0]:
+
+func getAnyReferenceCycle[T](graph: ReferenceGraph[T]; x: T; trace: seq[T] = @[]): seq[T] =
+  if trace.len > 0 and x == trace[0]:
+    # cycle (x -> ... -> x) detected
     return trace
 
-  elif n in trace: return
+  elif x in trace:
+    # cycle is detected, but the loop begins from the midpoint
+    return
 
-  for dependedNode in env.getInnerNode(n).refNow:
-    if env.isInputNode(dependedNode):
-      continue
+  for y in graph.referencesOf(x):
+    if y notin graph.domain: continue
 
-    let refCycle = env.getAnyReferenceCycle(dependedNode, trace & n)
-    if refCycle.len > 0:
-      return refCycle
+    let cycle = graph.getAnyReferenceCycle(y, trace & x)
+    if cycle.len > 0:
+      # a cycle has already been detected
+      return cycle
 
 
-func getAnyReferenceCycle(env: XfrpEnv): seq[XfrpId] =
-  # check if the environment has any reference cycles
-  # if a cycle is found, then return it (len > 0)
-  for n in env.innerNodeIds:
-    let refCycle = env.getAnyReferenceCycle(n)
-    if refCycle.len > 0:
-      return refCycle
+func getAnyReferenceCycle[T](graph: ReferenceGraph[T]): seq[T] =
+  ## Check if the reference graph has any cycles.
+  ## If a cycle is found, then return it (result.len > 0).
+  for x in graph.domain:
+    let cycle = graph.getAnyReferenceCycle(x)
+    if cycle.len > 0:
+      return cycle
+
+
+func topologicallySorted*[T](graph: ReferenceGraph[T]; initVisited: seq[T] = @[]): seq[T] =
+  ## Apply topological sorting for the given graph.
+  ## You should check the graph has no cycle before calling it.
+  assert(graph.getAnyReferenceCycle().len == 0)
+
+  func isAllRefIn(x: T; xs: seq[T]): bool =
+    graph.referencesOf(x).allIt(it in xs)
+
+  var
+    visited = initVisited
+    accessibles = graph.domain.filterIt(it.isAllRefIn(visited))
+    idx = low(accessibles)
+
+  while accessibles.len > idx:
+    let x = accessibles[idx]
+    inc idx
+    visited.add x
+
+    accessibles.add graph.domain.filterIt(it notin accessibles).filterIt(it.isAllRefIn(visited))
+
+    result.add x
 
 
 proc getTopologicallySortedNodeList*(env: XfrpEnv): seq[XfrpId] =
-  # return node ID list by topologically-sorterd ordering
-  let referenceCycle = env.getAnyReferenceCycle()
+  ## Return node ID list by topologically-sorterd ordering.
+  func referencesOf(n: XfrpId): seq[XfrpId] =
+    env.getInnerNode(n).refNow
+
+  let graph: ReferenceGraph[XfrpId] = (domain: toSeq(env.innerNodeIds), referencesOf: referencesOf)
+
+  # Before sorting, check the existence of any reference cycle.
+  let referenceCycle = graph.getAnyReferenceCycle()
   if referenceCycle.len > 0:
     let
       referenceCycleDiagram = (referenceCycle & referenceCycle[0]).join(" -> ")
@@ -38,27 +76,8 @@ proc getTopologicallySortedNodeList*(env: XfrpEnv): seq[XfrpId] =
       err.causedBy(env.getInnerNode(nodeId).id)
     raise err
 
-  func allRefNowIncludes(n: XfrpNodeDefinition; ns: openArray[XfrpId]): bool =
-    refNow(n).allIt(it in ns)
-
-  let innerNodes = toSeq(env.innerNodeIds)
-  var
-    evaluated = toSeq(env.inputNodeIds) # input nodes are already evaluated
-    evaluables = innerNodes.mapIt(env.getInnerNode(it)).filterIt(it.allRefNowIncludes(evaluated)).mapIt(it.id.val)
-    idx = low(evaluables)
-
-  while evaluables.len > idx:
-    let n = evaluables[idx]
-    inc idx
-    evaluated.add n
-
-    evaluables.add innerNodes
-      .filterIt(it notin evaluables)
-      .mapIt(env.getInnerNode(it))
-      .filterIt(it.allRefNowIncludes(evaluated))
-      .mapIt(it.id.val)
-
-    result.add n
+  # Sorting main
+  result = graph.topologicallySorted(toSeq(env.inputNodeIds))
 
 
 when isMainModule:
