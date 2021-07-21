@@ -49,6 +49,11 @@ func extractNodeReferenceInfo(env: XfrpEnv; exp: WithCodeInfo[XfrpExpr]): NodeRe
       if (id in env.inputNodes) or (id in env.innerNodes):
         result.refNow = @[id]
 
+      else:
+        let err = XfrpReferenceError.newException("Variable '" & id & "' is not declared.")
+        err.causedBy(exp)
+        raise err
+
     ExprAnnot(idAst, annotAst):
       let id = idAst.val
       match annotAst:
@@ -97,7 +102,13 @@ func extractNodeReferenceInfo(env: XfrpEnv; exp: WithCodeInfo[XfrpExpr]): NodeRe
       result.refNow = deduplicate(ifRefNow & thenRefNow & elseRefNow)
       result.refAtLast = deduplicate(ifRefAtLast & thenRefAtLast & elseRefAtLast)
 
-    ExprApp(_, argAsts):
+    ExprApp(idAst, argAsts):
+      let id = idAst.val
+      if id notin env.funcs:
+        let err = XfrpReferenceError.newException("Function '" & id & "' is not declared.")
+        err.causedBy(idAst)
+        raise err
+
       let (refsNow, refsAtLast) = argAsts.mapIt(env.extractNodeReferenceInfo(it)).unzip()
       result.refNow = deduplicate(concat(refsNow))
       result.refAtLast = deduplicate(concat(refsAtLast))
@@ -125,9 +136,15 @@ func extractFuncDependencyInfo(env: XfrpEnv; exp: WithCodeInfo[XfrpExpr]): seq[X
 
       result = deduplicate(ifDeps & thenDeps & elseDeps)
 
-    ExprApp(id, argAsts):
+    ExprApp(idAst, argAsts):
+      let id = idAst.val
+      if id notin env.funcs:
+        let err = XfrpReferenceError.newException("Function '" & id & "' is not declared.")
+        err.causedBy(idAst)
+        raise err
+
       let argDeps = argAsts.mapIt(env.extractFuncDependencyInfo(it)).concat()
-      result = deduplicate(id.val & argDeps)
+      result = deduplicate(id & argDeps)
 
 
 proc makeEnvironmentFromModule*(ast: XfrpModule): XfrpEnv =
@@ -154,7 +171,7 @@ proc makeEnvironmentFromModule*(ast: XfrpModule): XfrpEnv =
 
     result.inputNodes[id] = XfrpInputNodeDefinition(id: idAst, ty: tyAst, init: initAstOpt)
 
-  # Registration of inner nodes
+  # Registration of inner nodes and functions
   for def in ast.defs:
     match def.val:
       DefNode(idAndTypeOptAst, initAstOpt, bodyAst):
@@ -189,6 +206,19 @@ proc makeEnvironmentFromModule*(ast: XfrpModule): XfrpEnv =
           raise err
 
         result.funcs[id] = XfrpFuncDefinition(id: idAst, retType: retTypeAst, args: argAsts, body: bodyAst)
+
+  # Check validation of output nodes
+  for outAst in result.outputNodes:
+    let (idAst, _) = outAst.val.split()
+    if idAst.val in result.inputNodes:
+      let err = XfrpReferenceError.newException("Outputting an input node '" & idAst.val & "' is prohibited.")
+      err.causedBy(idAst)
+      raise err
+
+    elif idAst.val notin result.innerNodes:
+      let err = XfrpReferenceError.newException("Output node '" & idAst.val & "' is not declared.")
+      err.causedBy(idAst)
+      raise err
 
   # Extract node references
   for nodeDef in mvalues(result.innerNodes):
