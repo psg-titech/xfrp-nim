@@ -1,0 +1,7 @@
+# generated binaries
+xfrp
+
+# generated c codes
+*.c
+*.h
+a.out
