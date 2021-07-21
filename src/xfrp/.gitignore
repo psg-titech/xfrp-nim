@@ -3,6 +3,7 @@ lexer
 parser
 envs
 topsort
+typecheck
 
 # sample files
 *.xfrp

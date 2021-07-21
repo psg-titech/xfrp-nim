@@ -11,6 +11,8 @@ type
     retType: WithCodeInfo[XfrpType]
     args: seq[WithCodeInfo[XfrpIdAndType]]
     body: WithCodeInfo[XfrpExpr]
+    # additional info.
+    deps: seq[XfrpId]
 
   XfrpNodeDefinition* = object
     id: WithCodeInfo[XfrpId]
@@ -101,6 +103,33 @@ func extractNodeReferenceInfo(env: XfrpEnv; exp: WithCodeInfo[XfrpExpr]): NodeRe
       result.refAtLast = deduplicate(concat(refsAtLast))
 
 
+func extractFuncDependencyInfo(env: XfrpEnv; exp: WithCodeInfo[XfrpExpr]): seq[XfrpId] =
+  match exp.val:
+    ExprLiteral(_): return
+    ExprId(_):
+      # constant variables are also dependencies
+      return
+    ExprAnnot(_, _): return
+    ExprBin(_, lhsAst, rhsAst):
+      let
+        lhsDeps = env.extractFuncDependencyInfo(lhsAst[])
+        rhsDeps = env.extractFuncDependencyInfo(rhsAst[])
+
+      result = deduplicate(lhsDeps & rhsDeps)
+
+    ExprIf(ifAst, thenAst, elseAst):
+      let
+        ifDeps = env.extractFuncDependencyInfo(ifAst[])
+        thenDeps = env.extractFuncDependencyInfo(thenAst[])
+        elseDeps = env.extractFuncDependencyInfo(elseAst[])
+
+      result = deduplicate(ifDeps & thenDeps & elseDeps)
+
+    ExprApp(id, argAsts):
+      let argDeps = argAsts.mapIt(env.extractFuncDependencyInfo(it)).concat()
+      result = deduplicate(id.val & argDeps)
+
+
 proc makeEnvironmentFromModule*(ast: XfrpModule): XfrpEnv =
   # Initialization
   result.name = ast.moduleId
@@ -165,9 +194,19 @@ proc makeEnvironmentFromModule*(ast: XfrpModule): XfrpEnv =
   for nodeDef in mvalues(result.innerNodes):
     (nodeDef.refNow, nodeDef.refAtLast) = result.extractNodeReferenceInfo(nodeDef.update)
 
+  # Extract function dependencies
+  for funcDef in mvalues(result.funcs):
+    funcDef.deps = result.extractFuncDependencyInfo(funcDef.body)
+
 
 func getInnerNode*(env: XfrpEnv; id: XfrpId): XfrpNodeDefinition =
   env.innerNodes[id]
+
+func getInputNode*(env: XfrpEnv; id: XfrpId): XfrpInputNodeDefinition =
+  env.inputNodes[id]
+
+func getFunction*(env: XfrpEnv; id: XfrpId): XfrpFuncDefinition =
+  env.funcs[id]
 
 func isInputNode*(env: XfrpEnv; id: XfrpId): bool =
   id in env.inputNodes
@@ -180,9 +219,29 @@ iterator inputNodeIds*(env: XfrpEnv): XfrpId =
   for node in keys(env.inputNodes):
     yield node
 
+iterator functionIds*(env: XfrpEnv): XfrpId =
+  for f in keys(env.funcs):
+    yield f
+
+iterator outputNodeIdAndTypeOptAsts*(env: XfrpEnv): WithCodeInfo[XfrpIdAndTypeOpt] =
+  for idAndTyOptAst in env.outputNodes:
+    yield idAndTyOptAst
+
 func id*(nodeDef: XfrpNodeDefinition): WithCodeInfo[XfrpId] = nodeDef.id
+func typeOpt*(nodeDef: XfrpNodeDefinition): Option[WithCodeInfo[XfrpType]] = nodeDef.typeOpt
+func init*(nodeDef: XfrpNodeDefinition): Option[WithCodeInfo[XfrpExpr]] = nodeDef.init
+func update*(nodeDef: XfrpNodeDefinition): WithCodeInfo[XfrpExpr] = nodeDef.update
 func refNow*(nodeDef: XfrpNodeDefinition): seq[XfrpId] = nodeDef.refNow
 
+func id*(funcDef: XfrpFuncDefinition): WithCodeInfo[XfrpId] = funcDef.id
+func retType*(funcDef: XfrpFuncDefinition): WithCodeInfo[XfrpType] = funcDef.retType
+func args*(funcDef: XfrpFuncDefinition): seq[WithCodeInfo[XfrpIdAndType]] = funcDef.args
+func body*(funcDef: XfrpFuncDefinition): WithCodeInfo[XfrpExpr] = funcDef.body
+func deps*(funcDef: XfrpFuncDefinition): seq[XfrpId] = funcDef.deps
+
+func id*(inputDef: XfrpInputNodeDefinition): WithCodeInfo[XfrpId] = inputDef.id
+func ty*(inputDef: XfrpInputNodeDefinition): WithCodeInfo[XfrpType] = inputDef.ty
+func init*(inputDef: XfrpInputNodeDefinition): Option[WithCodeInfo[XfrpExpr]] = inputDef.init
 
 when isMainModule:
   import os, json, std/jsonutils
