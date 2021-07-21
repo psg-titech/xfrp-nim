@@ -1,7 +1,8 @@
 import tables, options
-from sequtils import deduplicate, mapIt, unzip, concat
+from sequtils import deduplicate, mapIt, unzip, concat, toSeq
+from strutils import join
 import patty
-import syntax, types, codeinfos, errors
+import syntax, types, codeinfos, errors, topsort
 
 export syntax.XfrpId
 
@@ -34,6 +35,9 @@ type
     innerNodes: TableRef[XfrpId, XfrpNodeDefinition]
     inputNodes: OrderedTableRef[XfrpId, XfrpInputNodeDefinition]
     outputNodes: seq[WithCodeInfo[XfrpIdAndTypeOpt]]
+    # topologically sorted IDs
+    sortedInnerNodeIds: seq[XfrpId]
+    sortedFuncIds: seq[XfrpId]
 
   NodeReferenceInfo = tuple
     refNow, refAtLast: seq[XfrpId]
@@ -147,6 +151,47 @@ func extractFuncDependencyInfo(env: XfrpEnv; exp: WithCodeInfo[XfrpExpr]): seq[X
       result = deduplicate(id & argDeps)
 
 
+proc getTopologicallySortedNodeList(env: XfrpEnv): seq[XfrpId] =
+  ## Return node ID list by topologically-sorterd ordering.
+  func referencesOf(n: XfrpId): seq[XfrpId] =
+    env.innerNodes[n].refNow
+
+  let graph: ReferenceGraph[XfrpId] = (domain: toSeq(keys(env.innerNodes)), referencesOf: referencesOf)
+
+  # Before sorting, check the existence of any reference cycle.
+  let referenceCycle = graph.getAnyReferenceCycle()
+  if referenceCycle.len > 0:
+    let
+      referenceCycleDiagram = (referenceCycle & referenceCycle[0]).join(" -> ")
+      err = XfrpReferenceError.newException("A cycle reference is detected. At-last reference is useful for avoiding such a cycle reference. (" & referenceCycleDiagram & ")")
+    for nodeId in referenceCycle:
+      err.causedBy(env.innerNodes[nodeId].id)
+    raise err
+
+  # Sorting main
+  result = graph.topologicallySorted(toSeq(keys(env.inputNodes)))
+
+proc getTopologicallySortedFuncList(env: XfrpEnv): seq[XfrpId] =
+  ## Return function ID list by topologically-sorterd ordering.
+  func referencesOf(n: XfrpId): seq[XfrpId] =
+    env.funcs[n].deps
+
+  let graph: ReferenceGraph[XfrpId] = (domain: toSeq(keys(env.funcs)), referencesOf: referencesOf)
+
+  # Before sorting, check the existence of any reference cycle.
+  let referenceCycle = graph.getAnyReferenceCycle()
+  if referenceCycle.len > 0:
+    let
+      referenceCycleDiagram = (referenceCycle & referenceCycle[0]).join(" -> ")
+      err = XfrpReferenceError.newException("Definition of any recursive functions is prohibited. (" & referenceCycleDiagram & ")")
+    for funcId in referenceCycle:
+      err.causedBy(env.funcs[funcId].id)
+    raise err
+
+  # Sorting main
+  result = graph.topologicallySorted()
+
+
 proc makeEnvironmentFromModule*(ast: XfrpModule): XfrpEnv =
   # Initialization
   result.name = ast.moduleId
@@ -228,6 +273,10 @@ proc makeEnvironmentFromModule*(ast: XfrpModule): XfrpEnv =
   for funcDef in mvalues(result.funcs):
     funcDef.deps = result.extractFuncDependencyInfo(funcDef.body)
 
+  # Topologically sorting
+  result.sortedInnerNodeIds = result.getTopologicallySortedNodeList()
+  result.sortedFuncIds = result.getTopologicallySortedFuncList()
+
 
 func getInnerNode*(env: XfrpEnv; id: XfrpId): XfrpNodeDefinition =
   env.innerNodes[id]
@@ -242,7 +291,8 @@ func isInputNode*(env: XfrpEnv; id: XfrpId): bool =
   id in env.inputNodes
 
 iterator innerNodeIds*(env: XfrpEnv): XfrpId =
-  for node in keys(env.innerNodes):
+  ## Iterate inner node ID by topologically-sorted ordering
+  for node in env.sortedInnerNodeIds:
     yield node
 
 iterator inputNodeIds*(env: XfrpEnv): XfrpId =
@@ -250,7 +300,8 @@ iterator inputNodeIds*(env: XfrpEnv): XfrpId =
     yield node
 
 iterator functionIds*(env: XfrpEnv): XfrpId =
-  for f in keys(env.funcs):
+  ## Iterate function ID by topologically-sorted ordering
+  for f in env.sortedFuncIds:
     yield f
 
 iterator outputNodeIdAndTypeOptAsts*(env: XfrpEnv): WithCodeInfo[XfrpIdAndTypeOpt] =

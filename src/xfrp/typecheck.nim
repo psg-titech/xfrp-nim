@@ -1,17 +1,18 @@
-import tables, ropes
+import tables, ropes, options
+from sequtils import mapIt
 from strutils import join
 import patty
-import types, errors, codeinfos, syntax
+import types, errors, codeinfos, syntax, envs
 
 type
-  FuncType = tuple
+  FuncType* = tuple
     argTypes: seq[XfrpType]
     retType: XfrpType
 
   XfrpFuncTypeEnv = Table[XfrpId, FuncType]
   XfrpVarTypeEnv = Table[XfrpId, XfrpType]
 
-  XfrpTypeEnv = object
+  XfrpTypeEnv* = object
     fenv: XfrpFuncTypeEnv
     venv: XfrpVarTypeEnv
 
@@ -67,7 +68,7 @@ proc xfrpTypeOf*(env: XfrpTypeEnv; lit: WithCodeInfo[XfrpLiteral]): XfrpType =
       return TFloat()
 
 
-template xfrpTypeCheck(env: XfrpTypeEnv; exp: WithCodeInfo[XfrpExpr]; ty: XfrpType): untyped =
+template xfrpTypeCheck(env: XfrpTypeEnv; exp: WithCodeInfo[XfrpExpr]; ty: XfrpType) =
   let expTy = env.xfrpTypeOf(exp)
   if expTy != ty:
     let err = XfrpTypeError.newException("Expected type " & $ty & ", but got " & $expTy & ".")
@@ -75,7 +76,7 @@ template xfrpTypeCheck(env: XfrpTypeEnv; exp: WithCodeInfo[XfrpExpr]; ty: XfrpTy
     raise err
 
 
-proc xfrpTypeOf*(env: XfrpTypeEnv; exp: WithCodeInfo[XfrpExpr]): XfrpType =
+proc xfrpTypeOf(env: XfrpTypeEnv; exp: WithCodeInfo[XfrpExpr]): XfrpType =
   match exp.val:
     ExprLiteral(lit):
       return env.xfrpTypeOf(lit)
@@ -141,50 +142,90 @@ proc xfrpTypeOf*(env: XfrpTypeEnv; exp: WithCodeInfo[XfrpExpr]): XfrpType =
 
       return funTy.retType
 
+
+proc makeTypeEnvironmentFromEnvironment*(env: XfrpEnv): XfrpTypeEnv =
+  result = initXfrpTypeEnv()
+
+  # store function types into type environment
+  for funcId in env.functionIds:
+    let f = env.getFunction(funcId)
+    var argsTypeEnv = result
+    for argAst in f.args:
+      argsTypeEnv.addVar(argAst.val.id.val, argAst.val.ty.val)
+
+    let exprTy = argsTypeEnv.xfrpTypeOf(f.body)
+    if f.retType.val != exprTy:
+      let err = XfrpTypeError.newException("Type " & $f.retType.val & " expected, but the expression has type " & $exprTy & ".")
+      err.causedBy(f.body)
+      raise err
+
+    result.addFunc(f.id.val, f.args.mapIt(it.val.ty.val), f.retType.val)
+
+  # store input node types into type environment
+  for inputNodeId in env.inputNodeIds:
+    let n = env.getInputNode(inputNodeId)
+
+    # check initial value is the same type as type annotation
+    if n.init.isSome:
+      let initExprAst = unsafeGet(n.init)
+      result.xfrpTypeCheck(initExprAst, n.ty.val)
+
+    result.addVar(n.id.val, n.ty.val)
+
+  # store inner node types into type environment
+  # firstly, check types of each nodes with initial value
+  # for at-last references
+  for nodeId in env.innerNodeIds:
+    let n = env.getInnerNode(nodeId)
+
+    if n.init.isSome:
+      let initExprAst = unsafeGet(n.init)
+      let initTy = result.xfrpTypeOf(initExprAst)
+
+      n.typeOpt.map do (explicitType: WithCodeInfo[XfrpType]):
+        if explicitType.val != initTy:
+          let err = XfrpTypeError.newException("Type " & $explicitType.val & " expected, but the initial value has type " & $initTy & ".")
+          err.causedBy(initExprAst)
+          raise err
+
+      result.addVar(n.id.val, initTy)
+
+  # then check types of all nodes by topologically-sorting ordering
+  for nodeId in env.innerNodeIds:
+    let
+      n = env.getInnerNode(nodeId)
+      updateTy = result.xfrpTypeOf(n.update)
+
+    if n.typeOpt.isSome:
+      let explicitType = unsafeGet(n.typeOpt)
+      if explicitType.val != updateTy:
+        let err = XfrpTypeError.newException("Type " & $explicitType.val & " expected, but the expression has type " & $updateTy & ".")
+        err.causedBy(n.update)
+        raise err
+
+    if result.hasVarOrAdd(n.id.val, updateTy):
+      let initTy = result.venv[n.id.val]
+      if updateTy != initTy:
+        let err = XfrpTypeError.newException("The expression has type " & $updateTy & ", but the initial value has type " & $initTy & ".")
+        err.causedBy(n.update, n.init.unsafeGet())
+        raise err
+
+  # finally, check types of output nodes
+  for outputNodeAst in env.outputNodeIdAndTypeOptAsts:
+    match outputNodeAst.val:
+      IdWithExplicitType(idAst, tyAst):
+        let actualType = result.getVarType(idAst.val)
+        if actualType != tyAst.val:
+          let err = XfrpTypeError.newException("Output node '" & idAst.val & "' expects type " & $tyAst.val & " as its own type, but actually the type is " & $actualType & ".")
+          err.causedBy(tyAst, env.getInnerNode(idAst.val).update)
+          raise err
+
+      IdWithoutAnyTypeAnnot(_):
+        discard
+
 when isMainModule:
-  import os, options
-  from sequtils import mapIt, toSeq
-  import lexer, parser, envs, topsort
-
-  proc getTopologicallySortedNodeList(env: XfrpEnv): seq[XfrpId] =
-    ## Return node ID list by topologically-sorterd ordering.
-    func referencesOf(n: XfrpId): seq[XfrpId] =
-      env.getInnerNode(n).refNow
-
-    let graph: ReferenceGraph[XfrpId] = (domain: toSeq(env.innerNodeIds), referencesOf: referencesOf)
-
-    # Before sorting, check the existence of any reference cycle.
-    let referenceCycle = graph.getAnyReferenceCycle()
-    if referenceCycle.len > 0:
-      let
-        referenceCycleDiagram = (referenceCycle & referenceCycle[0]).join(" -> ")
-        err = XfrpReferenceError.newException("A cycle reference is detected. At-last reference is useful for avoiding such a cycle reference. (" & referenceCycleDiagram & ")")
-      for nodeId in referenceCycle:
-        err.causedBy(env.getInnerNode(nodeId).id)
-      raise err
-
-    # Sorting main
-    result = graph.topologicallySorted(toSeq(env.inputNodeIds))
-
-  proc getTopologicallySortedFuncList(env: XfrpEnv): seq[XfrpId] =
-    ## Return function ID list by topologically-sorterd ordering.
-    func referencesOf(n: XfrpId): seq[XfrpId] =
-      env.getFunction(n).deps
-
-    let graph: ReferenceGraph[XfrpId] = (domain: toSeq(env.functionIds), referencesOf: referencesOf)
-
-    # Before sorting, check the existence of any reference cycle.
-    let referenceCycle = graph.getAnyReferenceCycle()
-    if referenceCycle.len > 0:
-      let
-        referenceCycleDiagram = (referenceCycle & referenceCycle[0]).join(" -> ")
-        err = XfrpReferenceError.newException("Definition of any recursive functions is prohibited. (" & referenceCycleDiagram & ")")
-      for funcId in referenceCycle:
-        err.causedBy(env.getFunction(funcId).id)
-      raise err
-
-    # Sorting main
-    result = graph.topologicallySorted()
+  import os
+  import lexer, parser, envs
 
   if paramCount() < 1:
     stderr.writeLine "usage: nodeprops [filename]"
@@ -196,84 +237,7 @@ when isMainModule:
     let
       ast = parse(l)
       env = makeEnvironmentFromModule(ast.val)
-      sortedNodes = env.getTopologicallySortedNodeList()
-      sortedFuncs = env.getTopologicallySortedFuncList()
-
-    var typeEnv = initXfrpTypeEnv()
-
-    # store function types into type environment
-    for funcId in sortedFuncs:
-      let f = env.getFunction(funcId)
-      var argsTypeEnv = typeEnv
-      for argAst in f.args:
-        argsTypeEnv.addVar(argAst.val.id.val, argAst.val.ty.val)
-
-      let exprTy = argsTypeEnv.xfrpTypeOf(f.body)
-      if f.retType.val != exprTy:
-        let err = XfrpTypeError.newException("Type " & $f.retType.val & " expected, but the expression has type " & $exprTy & ".")
-        err.causedBy(f.body)
-        raise err
-
-      typeEnv.addFunc(f.id.val, f.args.mapIt(it.val.ty.val), f.retType.val)
-
-    # store input node types into type environment
-    for inputNodeId in env.inputNodeIds:
-      let n = env.getInputNode(inputNodeId)
-
-      # check initial value is the same type as type annotation
-      n.init.map do (initExprAst: WithCodeInfo[XfrpExpr]):
-        typeEnv.xfrpTypeCheck(initExprAst, n.ty.val)
-
-      typeEnv.addVar(n.id.val, n.ty.val)
-
-    # store inner node types into type environment
-    # firstly, check types of each nodes with initial value
-    # for at-last references
-    for nodeId in sortedNodes:
-      let n = env.getInnerNode(nodeId)
-
-      n.init.map do (initExprAst: WithCodeInfo[XfrpExpr]):
-        let initTy = typeEnv.xfrpTypeOf(initExprAst)
-
-        n.typeOpt.map do (explicitType: WithCodeInfo[XfrpType]):
-          if explicitType.val != initTy:
-            let err = XfrpTypeError.newException("Type " & $explicitType.val & " expected, but the initial value has type " & $initTy & ".")
-            err.causedBy(initExprAst)
-            raise err
-
-        typeEnv.addVar(n.id.val, initTy)
-
-    # then check types of all nodes by topologically-sorting ordering
-    for nodeId in sortedNodes:
-      let
-        n = env.getInnerNode(nodeId)
-        updateTy = typeEnv.xfrpTypeOf(n.update)
-
-      n.typeOpt.map do (explicitType: WithCodeInfo[XfrpType]):
-        if explicitType.val != updateTy:
-          let err = XfrpTypeError.newException("Type " & $explicitType.val & " expected, but the expression has type " & $updateTy & ".")
-          err.causedBy(n.update)
-          raise err
-
-      if typeEnv.hasVarOrAdd(n.id.val, updateTy):
-        let initTy = typeEnv.venv[n.id.val]
-        if updateTy != initTy:
-          let err = XfrpTypeError.newException("The expression has type " & $updateTy & ", but the initial value has type " & $initTy & ".")
-          err.causedBy(n.update, n.init.unsafeGet())
-          raise err
-
-    # finally, check types of output nodes
-    for outputNodeAst in env.outputNodeIdAndTypeOptAsts:
-      match outputNodeAst.val:
-        IdWithExplicitType(idAst, tyAst):
-          let actualType = typeEnv.getVarType(idAst.val)
-          if actualType != tyAst.val:
-            let err = XfrpTypeError.newException("Output node '" & idAst.val & "' expects type " & $tyAst.val & " as its own type, but actually the type is " & $actualType & ".")
-            err.causedBy(tyAst, env.getInnerNode(idAst.val).update)
-            raise err
-
-        IdWithoutAnyTypeAnnot(_):
-          discard
+      typeEnv = makeTypeEnvironmentFromEnvironment(env)
 
     echo typeEnv
 
