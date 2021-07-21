@@ -28,7 +28,7 @@ variantp XfrpAnnotation:
 
 
 variantp XfrpLiteral:
-  LitUint
+  LitUnit
   LitBool(boolVal: bool)
   LitInt(intVal: int)
   LitFloat(floatVal: float)
@@ -46,7 +46,7 @@ type
 
 
 variantp XfrpExpr:
-  ExprLiteral(constVal: XfrpAst[XfrpLiteral])
+  ExprLiteral(litVal: XfrpAst[XfrpLiteral])
   ExprId(id: XfrpAst[XfrpId])
   ExprAnnot(annotId: XfrpAst[XfrpId], annot: XfrpAst[XfrpAnnotation])
   ExprBin(binOp: XfrpAst[XfrpBinOp], binLhs, binRhs: ref XfrpAst[XfrpExpr])
