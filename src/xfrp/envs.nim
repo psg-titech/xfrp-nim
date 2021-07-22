@@ -278,6 +278,8 @@ proc makeEnvironmentFromModule*(ast: XfrpModule): XfrpEnv =
   result.sortedFuncIds = result.getTopologicallySortedFuncList()
 
 
+func name*(env: XfrpEnv): WithCodeInfo[XfrpModuleId] = env.name
+
 func getInnerNode*(env: XfrpEnv; id: XfrpId): XfrpNodeDefinition =
   env.innerNodes[id]
 
@@ -299,6 +301,12 @@ iterator inputNodeIds*(env: XfrpEnv): XfrpId =
   for node in keys(env.inputNodes):
     yield node
 
+iterator nodeIds*(env: XfrpEnv): XfrpId =
+  for node in inputNodeIds(env):
+    yield node
+  for node in innerNodeIds(env):
+    yield node
+
 iterator functionIds*(env: XfrpEnv): XfrpId =
   ## Iterate function ID by topologically-sorted ordering
   for f in env.sortedFuncIds:
@@ -308,11 +316,17 @@ iterator outputNodeIdAndTypeOptAsts*(env: XfrpEnv): WithCodeInfo[XfrpIdAndTypeOp
   for idAndTyOptAst in env.outputNodes:
     yield idAndTyOptAst
 
+iterator outputNodeIds*(env: XfrpEnv): XfrpId =
+  for idAndTyOptAst in env.outputNodes:
+    let (idAst, _) = split(idAndTyOptAst.val)
+    yield idAst.val
+
 func id*(nodeDef: XfrpNodeDefinition): WithCodeInfo[XfrpId] = nodeDef.id
 func typeOpt*(nodeDef: XfrpNodeDefinition): Option[WithCodeInfo[XfrpType]] = nodeDef.typeOpt
 func init*(nodeDef: XfrpNodeDefinition): Option[WithCodeInfo[XfrpExpr]] = nodeDef.init
 func update*(nodeDef: XfrpNodeDefinition): WithCodeInfo[XfrpExpr] = nodeDef.update
 func refNow*(nodeDef: XfrpNodeDefinition): seq[XfrpId] = nodeDef.refNow
+func refAtLast*(nodeDef: XfrpNodeDefinition): seq[XfrpId] = nodeDef.refAtLast
 
 func id*(funcDef: XfrpFuncDefinition): WithCodeInfo[XfrpId] = funcDef.id
 func retType*(funcDef: XfrpFuncDefinition): WithCodeInfo[XfrpType] = funcDef.retType
