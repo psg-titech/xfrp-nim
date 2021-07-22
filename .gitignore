@@ -1,5 +1,6 @@
 # generated binaries
 xfrp
+!xfrp/
 
 # generated c codes
 *.c
