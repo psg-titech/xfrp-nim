@@ -66,11 +66,11 @@ niml xfrpLex[XfrpToken]:
   r"<":
     return Lt() from token
   r">=":
-    return Rte() from token
+    return Gte() from token
   # r">>":
   #   return RShift() from token
   r">":
-    return Rt() from token
+    return Gt() from token
   r"module":
     return Module() from token
   r"material":

@@ -117,7 +117,7 @@ proc xfrpTypeOf(env: XfrpTypeEnv; exp: WithCodeInfo[XfrpExpr]): XfrpType =
         env.xfrpTypeCheck(rhs, TBool())
         return TBool()
 
-      of binLte, binLt, binRte, binRt:
+      of binLte, binLt, binGte, binGt:
         env.xfrpTypeCheck(lhs, TInt())
         env.xfrpTypeCheck(rhs, TInt())
         return TBool()

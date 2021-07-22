@@ -159,10 +159,10 @@ nimy xfrpParser[XfrpToken]:
       return binLte from $1
     Lt:
       return binLt from $1
-    Rte:
-      return binRte from $1
-    Rt:
-      return binRt from $1
+    Gte:
+      return binGte from $1
+    Gt:
+      return binGt from $1
 
   literal[XfrpAst[XfrpLiteral]]:
     True:

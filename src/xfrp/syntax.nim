@@ -41,8 +41,8 @@ type
     binVertVert = "||"
     binLte = "<="
     binLt = "<"
-    binRte = ">="
-    binRt = ">"
+    binGte = ">="
+    binGt = ">"
 
 
 variantp XfrpExpr:

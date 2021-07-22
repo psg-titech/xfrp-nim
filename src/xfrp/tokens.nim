@@ -28,9 +28,9 @@ variantp XfrpRawToken:
   Lte
   # LShift
   Lt
-  Rte
+  Gte
   # RShift
-  Rt
+  Gt
   Module
   Material
   In
