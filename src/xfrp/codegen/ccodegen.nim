@@ -121,7 +121,7 @@ proc codegenExp(exp: WithCodeInfo[XfrpExpr]; typeEnv: XfrpTypeEnv; nameTbl: Name
         freshVar = genFreshVariableInCode()
 
       return (lhsCalc ?\ rhsCalc ?\ (?ty & " " & freshVar & " = " &
-        ?opAst.val & "(" & lhsResult & "," & rhsResult & ");")) ?-> freshVar
+        ?opAst.val & "(" & lhsResult & ", " & rhsResult & ");")) ?-> freshVar
 
     ExprIf(ifExprAstRef, thenExprAstRef, elseExprAstRef):
       let
@@ -217,6 +217,27 @@ proc genFrpFile(env: XfrpEnv; typeEnv: XfrpTypeEnv; nameTbl: NameTables): string
     r.add "void _init" & nameTbl.varNameTable[nodeId] & "(" & ?ty & " *output) {\p"
     if initCalc.len > 0: r.add indent(initCalc, 2) & "\p"
     r.add "  *output = " & initResult & ";\p}\p\p"
+
+  r.add "/* node updater */\p"
+  for nodeId in env.innerNodeIds:
+    let
+      nodeDef = env.getInnerNode(nodeId)
+      ty = typeEnv.getVarType(nodeId)
+      updateExprAst = nodeDef.update
+      (updateCalc, updateResult) = codegenExp(updateExprAst, typeEnv, nameTbl)
+
+    r.add "void _update" & nameTbl.varNameTable[nodeId] & "("
+    for refNowNodeId in nodeDef.refNow:
+      let refNodeTy = typeEnv.getVarType(refNowNodeId)
+      r.add ?refNodeTy & " " & nameTbl.varNameTable[refNowNodeId] & ", "
+
+    for refAtLastNodeId in nodeDef.refAtLast:
+      let refNodeTy = typeEnv.getVarType(refAtLastNodeId)
+      r.add ?refNodeTy & " " & nameTbl.varNameTable[refAtLastNodeId] & "_atlast, "
+
+    r.add ?ty & " *output) {\p"
+    if updateCalc.len > 0: r.add indent(updateCalc, 2) & "\p"
+    r.add "  *output = " & updateResult & ";\p}\p\p"
 
   r.add "void ActivateExample(void) {\p"
   r.add "  int turn = 0;\p"
