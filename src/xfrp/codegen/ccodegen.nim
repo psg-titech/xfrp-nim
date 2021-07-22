@@ -47,9 +47,9 @@ func `?`(op: XfrpBinOp): string =
 
 
 const xfrpTypeDefinitionCode = """
-#define XFRP_UNIT uint8_t
-#define XFRP_BOOL _Bool
-#define XFRP_INT int32_t
+#define XFRP_UNIT int
+#define XFRP_BOOL int
+#define XFRP_INT int
 #define XFRP_FLOAT float
 """
 
@@ -162,7 +162,6 @@ proc codegenExp(exp: WithCodeInfo[XfrpExpr]; typeEnv: XfrpTypeEnv; nameTbl: Name
 proc genFrpFile(env: XfrpEnv; typeEnv: XfrpTypeEnv; nameTbl: NameTables): string =
   var r: Rope
 
-  r.add "#include <stdint.h>\p"
   r.add "#include \"Example.h\"\p\p"
 
   r.add xfrpTypeDefinitionCode
