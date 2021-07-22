@@ -247,18 +247,43 @@ proc genFrpFile(env: XfrpEnv; typeEnv: XfrpTypeEnv; nameTbl: NameTables): string
 
   r.add "void ActivateExample(void) {\p"
   r.add "  int current_side = 0, last_side = 1;\p\p"
+  r.add "  /* Initialize nodes */\p"
+  for inputId in env.inputNodeIds:
+    let inputDef = env.getInputNode(inputId)
+
+    if inputDef.init.isNone: continue
+
+    r.add "  _init" & nameTbl.varNameTable[inputId] & "(&_memory" & nameTbl.varNameTable[inputId] & "[current_side]);\p"
+  for nodeId in env.innerNodeIds:
+    let nodeDef = env.getInnerNode(nodeId)
+
+    if nodeDef.init.isNone: continue
+
+    r.add "  _init" & nameTbl.varNameTable[nodeId] & "(&_memory" & nameTbl.varNameTable[nodeId] & "[current_side]);\p"
+  r.add "\p"
   r.add "XFRP_LOOP_BEGIN:\p"
   r.add "  /* Get input values */\p"
   r.add "  Input("
   r.add toSeq(env.inputNodeIds).mapIt("&_memory" & nameTbl.varNameTable[it] & "[current_side]").join(", ")
   r.add ");\p\p"
   r.add "  /* Update nodes by topologically-sorted ordering */\p"
+  for nodeId in env.innerNodeIds:
+    let nodeDef = env.getInnerNode(nodeId)
+
+    r.add "  _update" & nameTbl.varNameTable[nodeId] & "("
+
+    for refNowId in nodeDef.refNow:
+      r.add "_memory" & nameTbl.varNameTable[refNowId] & "[current_side], "
+    for refAtLastId in nodeDef.refAtLast:
+      r.add "_memory" & nameTbl.varNameTable[refAtLastId] & "[last_side], "
+
+    r.add "&_memory" & nameTbl.varNameTable[nodeId] & "[current_side]);\p"
   r.add "  /* Output values */\p"
   r.add "  Output("
   r.add toSeq(env.outputNodeIds).mapIt("&_memory" & nameTbl.varNameTable[it] & "[current_side]").join(", ")
   r.add ");\p\p"
   r.add "  /* Prepare for the next iteration */\p"
-  r.add "  current_side ^= 1;\plast_side ^= 1;\p\p"
+  r.add "  current_side ^= 1;\p  last_side ^= 1;\p\p"
   r.add "  goto XFRP_LOOP_BEGIN;\p"
   r.add "}\p"
 
