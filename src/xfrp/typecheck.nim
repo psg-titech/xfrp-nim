@@ -76,7 +76,7 @@ template xfrpTypeCheck(env: XfrpTypeEnv; exp: WithCodeInfo[XfrpExpr]; ty: XfrpTy
     raise err
 
 
-proc xfrpTypeOf(env: XfrpTypeEnv; exp: WithCodeInfo[XfrpExpr]): XfrpType =
+proc xfrpTypeOf*(env: XfrpTypeEnv; exp: WithCodeInfo[XfrpExpr]): XfrpType =
   match exp.val:
     ExprLiteral(lit):
       return env.xfrpTypeOf(lit)
