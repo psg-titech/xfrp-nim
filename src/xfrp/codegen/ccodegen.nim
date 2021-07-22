@@ -1,7 +1,7 @@
 ## Code generation to C.
 ## Generated code is based on ISO/IEC 9899:1999 (also known as C99).
 
-import ropes, strtabs, random
+import ropes, strtabs, random, options
 from strutils import indent, join
 from sequtils import mapIt, zip, foldl
 import patty
@@ -65,14 +65,15 @@ const xfrpBinaryOperatorDefinitionCode = """
 
 
 proc genFunctionNameInCode(funcId: XfrpId): string =
-  var uid {.global.} = rand(uint16)
-
-  result = "_func_" & funcId & "_" & $uid
-  inc uid
+  result = "_func_" & funcId
 
 
 proc genArgNameInCode(argId: XfrpId): string =
   result = "_arg_" & argId
+
+
+proc genNodeNameInCode(nodeId: XfrpId): string =
+  result = "_node_" & nodeId
 
 
 proc genFreshVariableInCode: string =
@@ -185,8 +186,37 @@ proc genFrpFile(env: XfrpEnv; typeEnv: XfrpTypeEnv; nameTbl: NameTables): string
     r.add ?retType & " " & nameTbl.funcNameTable[funcId] & "("
     r.add funcDef.args.mapIt(?it.val.ty.val & " " & argsTbl[it.val.id.val]).join(", ")
     r.add ") {\p"
-    if bodyCalc.len > 0: r.add indent(bodyCalc, 2)
-    r.add "\p  return " & bodyResult & ";\p}\p\p"
+    if bodyCalc.len > 0: r.add indent(bodyCalc, 2) & "\p"
+    r.add "  return " & bodyResult & ";\p}\p\p"
+
+  r.add "/* node initializers */\p"
+  for nodeId in env.inputNodeIds:
+    let inputDef = env.getInputNode(nodeId)
+
+    if inputDef.init.isNone: continue
+
+    let
+      ty = typeEnv.getVarType(inputDef.id.val)
+      initExprAst = inputDef.init.unsafeGet()
+      (initCalc, initResult) = codegenExp(initExprAst, typeEnv, nameTbl)
+
+    r.add "void _init" & nameTbl.varNameTable[nodeId] & "(" & ?ty & " *output) {\p"
+    if initCalc.len > 0: r.add indent(initCalc, 2) & "\p"
+    r.add "  *output = " & initResult & ";\p}\p\p"
+
+  for nodeId in env.innerNodeIds:
+    let nodeDef = env.getInnerNode(nodeId)
+
+    if nodeDef.init.isNone: continue
+
+    let
+      ty = typeEnv.getVarType(nodeDef.id.val)
+      initExprAst = nodeDef.init.unsafeGet()
+      (initCalc, initResult) = codegenExp(initExprAst, typeEnv, nameTbl)
+
+    r.add "void _init" & nameTbl.varNameTable[nodeId] & "(" & ?ty & " *output) {\p"
+    if initCalc.len > 0: r.add indent(initCalc, 2) & "\p"
+    r.add "  *output = " & initResult & ";\p}\p\p"
 
   r.add "void ActivateExample(void) {\p"
   r.add "  int turn = 0;\p"
@@ -246,6 +276,9 @@ proc codegen*(env: XfrpEnv; typeEnv: XfrpTypeEnv): CCodeFiles =
 
   for funcId in env.functionIds:
     funcNameTable[funcId] = genFunctionNameInCode(funcId)
+
+  for nodeId in env.nodeIds:
+    varNameTable[nodeId] = genNodeNameInCode(nodeId)
 
   result.frpFile = genFrpFile(env, typeEnv, (funcNameTable, varNameTable))
   result.frpHeaderFile = genHeaderFile()
