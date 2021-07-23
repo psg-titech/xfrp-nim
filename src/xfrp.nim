@@ -55,8 +55,8 @@ when isMainModule:
     of "c":
       let (frpFile, headerFile, mainFile) = ccodegen.codegen(env, typeEnv)
 
-      writeFile("Example.c", frpFile)
-      writeFile("Example.h", headerFile)
+      writeFile(env.name.val & ".c", frpFile)
+      writeFile(env.name.val & ".h", headerFile)
       writeFile("main.c", mainFile)
 
     else:
