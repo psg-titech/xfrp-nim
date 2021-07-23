@@ -7,15 +7,17 @@ proc writeHelp =
   echo "options:"
   echo "  -h, --help           show help message"
   echo "  -t, --target=TARGET  change target to TARGET (default: c)"
+  echo "      --nomain         prevent compiler from generating an entrypoint file"
 
 when isMainModule:
   var
     showHelpFlag = false
     entryFileName: string
     target = "c"
+    noMainFlag = false
 
   let params = commandLineParams()
-  var optParser = initOptParser(params, {'h'}, @["help"])
+  var optParser = initOptParser(params, {'h'}, @["help", "nomain"])
 
   for paramKind, paramKey, paramValue in optParser.getopt:
     case paramKind
@@ -29,6 +31,9 @@ when isMainModule:
 
       of "t", "target":
         target = paramValue
+
+      of "nomain":
+        noMainFlag = true
 
       else:
         stderr.writeLine "Unknown option: " , paramKey
@@ -57,7 +62,12 @@ when isMainModule:
 
       writeFile(env.name.val & ".c", frpFile)
       writeFile(env.name.val & ".h", headerFile)
-      writeFile("main.c", mainFile)
+      if noMainFlag:
+        discard
+      elif fileExists("main.c"):
+        writeFile("main.c.gen", mainFile)
+      else:
+        writeFile("main.c", mainFile)
 
     else:
       stderr.writeLine "Unknown target: ", target
