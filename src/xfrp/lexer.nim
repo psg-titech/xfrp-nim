@@ -1,8 +1,11 @@
+## XFRP lexer.
+
 from strutils import splitLines
 import nimly
 import tokens, codeinfos
 
 converter lexTokenToCodeInfo(lexTok: LToken): CodeInfo =
+  # Implicitly convert nimly's token (LToken) to a code information (CodeInfo).
   let
     startPos = (col: lexTok.colNum, line: lexTok.lineNum)
     tokenStrSplitByLine = lexTok.token.splitLines()

@@ -1,3 +1,5 @@
+## Generic topological sorting algorithm.
+
 from sequtils import toSeq, allIt, filterIt, mapIt
 
 type

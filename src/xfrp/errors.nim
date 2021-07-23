@@ -1,3 +1,5 @@
+## XFRP errors.
+
 import codeinfos
 
 type
@@ -17,6 +19,7 @@ type
     ## An error about references
 
 proc causedBy*(e: ref XfrpLanguageError; cs: varargs[CodeInfo, codeInfo]) =
+  ## Register erroneous codes.
   for c in cs:
     e.causes.add c
 

@@ -1,3 +1,5 @@
+## XFRP parser.
+
 import options
 from strutils import parseInt, parseFloat
 import nimly

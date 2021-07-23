@@ -1,3 +1,5 @@
+## XFRP abstract syntax trees (ASTs).
+
 import options
 import patty
 import types, codeinfos

@@ -1,3 +1,5 @@
+# XFRP name environments.
+
 import tables, options
 from sequtils import deduplicate, mapIt, unzip, concat, toSeq
 from strutils import join

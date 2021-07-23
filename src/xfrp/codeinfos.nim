@@ -1,3 +1,5 @@
+## Additional information about XFRP codes.
+
 from strutils import indent, align, repeat
 
 const maxLineNumDigits = 4

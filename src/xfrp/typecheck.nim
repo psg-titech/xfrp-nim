@@ -1,3 +1,5 @@
+## XFRP type checking and type environments.
+
 import tables, ropes, options
 from sequtils import mapIt
 from strutils import join

@@ -1,3 +1,5 @@
+## XFRP primitive types.
+
 from strutils import join
 import patty
 
