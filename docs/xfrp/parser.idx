@@ -1,0 +1,3 @@
+xfrpParser	xfrp/parser.html#xfrpParser	parser: xfrpParser	
+parse	xfrp/parser.html#parse,Parser[S],NimlLexer[T]	parser: parse[T, S](parser: var Parser[S]; lexer: var NimlLexer[T]): XfrpAst[XfrpModule]	
+parse	xfrp/parser.html#parse,XfrpLexer	parser: parse(l: var XfrpLexer): XfrpAst[XfrpModule]	

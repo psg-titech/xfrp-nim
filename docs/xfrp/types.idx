@@ -1,0 +1,9 @@
+XfrpTypeKind	xfrp/types.html#XfrpTypeKind	types: XfrpTypeKind	
+XfrpType	xfrp/types.html#XfrpType	types: XfrpType	
+`==`	xfrp/types.html#==,XfrpType,XfrpType	types: `==`(a: XfrpType; b: XfrpType): bool	
+TUnit	xfrp/types.html#TUnit	types: TUnit(): XfrpType	
+TBool	xfrp/types.html#TBool	types: TBool(): XfrpType	
+TInt	xfrp/types.html#TInt	types: TInt(): XfrpType	
+TFloat	xfrp/types.html#TFloat	types: TFloat(): XfrpType	
+TTuple	xfrp/types.html#TTuple,seq[XfrpType]	types: TTuple(tupleParams: seq[XfrpType]): XfrpType	
+`$`	xfrp/types.html#$,XfrpType	types: `$`(ty: XfrpType): string	

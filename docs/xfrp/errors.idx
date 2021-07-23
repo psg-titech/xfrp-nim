@@ -1,0 +1,7 @@
+XfrpLanguageError	xfrp/errors.html#XfrpLanguageError	errors: XfrpLanguageError	
+XfrpSyntaxError	xfrp/errors.html#XfrpSyntaxError	errors: XfrpSyntaxError	
+XfrpTypeError	xfrp/errors.html#XfrpTypeError	errors: XfrpTypeError	
+XfrpDefinitionError	xfrp/errors.html#XfrpDefinitionError	errors: XfrpDefinitionError	
+XfrpReferenceError	xfrp/errors.html#XfrpReferenceError	errors: XfrpReferenceError	
+causedBy	xfrp/errors.html#causedBy,ref.XfrpLanguageError,varargs[CodeInfo,codeInfo]	errors: causedBy(e: ref XfrpLanguageError; cs: varargs[CodeInfo, codeInfo])	
+causes	xfrp/errors.html#causes.i,ref.XfrpLanguageError	errors: causes(e: ref XfrpLanguageError): CodeInfo	

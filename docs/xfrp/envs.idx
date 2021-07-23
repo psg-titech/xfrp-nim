@@ -1,0 +1,30 @@
+XfrpFuncDefinition	xfrp/envs.html#XfrpFuncDefinition	envs: XfrpFuncDefinition	
+XfrpNodeDefinition	xfrp/envs.html#XfrpNodeDefinition	envs: XfrpNodeDefinition	
+XfrpInputNodeDefinition	xfrp/envs.html#XfrpInputNodeDefinition	envs: XfrpInputNodeDefinition	
+XfrpEnv	xfrp/envs.html#XfrpEnv	envs: XfrpEnv	
+makeEnvironmentFromModule	xfrp/envs.html#makeEnvironmentFromModule,XfrpModule	envs: makeEnvironmentFromModule(ast: XfrpModule): XfrpEnv	
+name	xfrp/envs.html#name,XfrpEnv	envs: name(env: XfrpEnv): WithCodeInfo[XfrpModuleId]	
+getInnerNode	xfrp/envs.html#getInnerNode,XfrpEnv,XfrpId	envs: getInnerNode(env: XfrpEnv; id: XfrpId): XfrpNodeDefinition	
+getInputNode	xfrp/envs.html#getInputNode,XfrpEnv,XfrpId	envs: getInputNode(env: XfrpEnv; id: XfrpId): XfrpInputNodeDefinition	
+getFunction	xfrp/envs.html#getFunction,XfrpEnv,XfrpId	envs: getFunction(env: XfrpEnv; id: XfrpId): XfrpFuncDefinition	
+isInputNode	xfrp/envs.html#isInputNode,XfrpEnv,XfrpId	envs: isInputNode(env: XfrpEnv; id: XfrpId): bool	
+innerNodeIds	xfrp/envs.html#innerNodeIds.i,XfrpEnv	envs: innerNodeIds(env: XfrpEnv): XfrpId	
+inputNodeIds	xfrp/envs.html#inputNodeIds.i,XfrpEnv	envs: inputNodeIds(env: XfrpEnv): XfrpId	
+nodeIds	xfrp/envs.html#nodeIds.i,XfrpEnv	envs: nodeIds(env: XfrpEnv): XfrpId	
+functionIds	xfrp/envs.html#functionIds.i,XfrpEnv	envs: functionIds(env: XfrpEnv): XfrpId	
+outputNodeIdAndTypeOptAsts	xfrp/envs.html#outputNodeIdAndTypeOptAsts.i,XfrpEnv	envs: outputNodeIdAndTypeOptAsts(env: XfrpEnv): WithCodeInfo[XfrpIdAndTypeOpt]	
+outputNodeIds	xfrp/envs.html#outputNodeIds.i,XfrpEnv	envs: outputNodeIds(env: XfrpEnv): XfrpId	
+id	xfrp/envs.html#id,XfrpNodeDefinition	envs: id(nodeDef: XfrpNodeDefinition): WithCodeInfo[XfrpId]	
+typeOpt	xfrp/envs.html#typeOpt,XfrpNodeDefinition	envs: typeOpt(nodeDef: XfrpNodeDefinition): Option[WithCodeInfo[XfrpType]]	
+init	xfrp/envs.html#init,XfrpNodeDefinition	envs: init(nodeDef: XfrpNodeDefinition): Option[WithCodeInfo[XfrpExpr]]	
+update	xfrp/envs.html#update,XfrpNodeDefinition	envs: update(nodeDef: XfrpNodeDefinition): WithCodeInfo[XfrpExpr]	
+refNow	xfrp/envs.html#refNow,XfrpNodeDefinition	envs: refNow(nodeDef: XfrpNodeDefinition): seq[XfrpId]	
+refAtLast	xfrp/envs.html#refAtLast,XfrpNodeDefinition	envs: refAtLast(nodeDef: XfrpNodeDefinition): seq[XfrpId]	
+id	xfrp/envs.html#id,XfrpFuncDefinition	envs: id(funcDef: XfrpFuncDefinition): WithCodeInfo[XfrpId]	
+retType	xfrp/envs.html#retType,XfrpFuncDefinition	envs: retType(funcDef: XfrpFuncDefinition): WithCodeInfo[XfrpType]	
+args	xfrp/envs.html#args,XfrpFuncDefinition	envs: args(funcDef: XfrpFuncDefinition): seq[WithCodeInfo[XfrpIdAndType]]	
+body	xfrp/envs.html#body,XfrpFuncDefinition	envs: body(funcDef: XfrpFuncDefinition): WithCodeInfo[XfrpExpr]	
+deps	xfrp/envs.html#deps,XfrpFuncDefinition	envs: deps(funcDef: XfrpFuncDefinition): seq[XfrpId]	
+id	xfrp/envs.html#id,XfrpInputNodeDefinition	envs: id(inputDef: XfrpInputNodeDefinition): WithCodeInfo[XfrpId]	
+ty	xfrp/envs.html#ty,XfrpInputNodeDefinition	envs: ty(inputDef: XfrpInputNodeDefinition): WithCodeInfo[XfrpType]	
+init	xfrp/envs.html#init,XfrpInputNodeDefinition	envs: init(inputDef: XfrpInputNodeDefinition): Option[WithCodeInfo[XfrpExpr]]	

@@ -1,0 +1,20 @@
+CodePos	xfrp/codeinfos.html#CodePos	codeinfos: CodePos	
+CodeLine	xfrp/codeinfos.html#CodeLine	codeinfos: CodeLine	
+WithCodeInfo	xfrp/codeinfos.html#WithCodeInfo	codeinfos: WithCodeInfo	
+CodeInfo	xfrp/codeinfos.html#CodeInfo	codeinfos: CodeInfo	
+`$`	xfrp/codeinfos.html#$,CodePos	codeinfos: `$`(pos: CodePos): string	
+`&lt;`	xfrp/codeinfos.html#<,CodePos,CodePos	codeinfos: `&lt;`(x, y: CodePos): bool	
+pretty	xfrp/codeinfos.html#pretty,CodeLine,CodePos,CodePos	codeinfos: pretty(line: CodeLine; startPos, endPos: CodePos): string	
+val	xfrp/codeinfos.html#val,WithCodeInfo[T]	codeinfos: val[T](t: WithCodeInfo[T]): T	
+startPos	xfrp/codeinfos.html#startPos,WithCodeInfo[T]	codeinfos: startPos[T](t: WithCodeInfo[T]): CodePos	
+endPos	xfrp/codeinfos.html#endPos,WithCodeInfo[T]	codeinfos: endPos[T](t: WithCodeInfo[T]): CodePos	
+line	xfrp/codeinfos.html#line,WithCodeInfo[T]	codeinfos: line[T](t: WithCodeInfo[T]): CodeLine	
+attachCodeInfo	xfrp/codeinfos.html#attachCodeInfo,T,CodePos,CodePos,CodeLine	codeinfos: attachCodeInfo[T](val: T; startPos, endPos: CodePos; line: CodeLine): WithCodeInfo[\n    T]	
+codeInfo	xfrp/codeinfos.html#codeInfo,CodePos,CodePos,CodeLine	codeinfos: codeInfo(startPos, endPos: CodePos; line: CodeLine): CodeInfo	
+codeInfo	xfrp/codeinfos.html#codeInfo,WithCodeInfo[T]	codeinfos: codeInfo[T](src: WithCodeInfo[T]): CodeInfo	
+codeInfo	xfrp/codeinfos.html#codeInfo,CodeInfo	codeinfos: codeInfo(x: CodeInfo): CodeInfo	
+pretty	xfrp/codeinfos.html#pretty,CodeInfo	codeinfos: pretty(info: CodeInfo): string	
+pretty	xfrp/codeinfos.html#pretty,WithCodeInfo[T]	codeinfos: pretty[T](data: WithCodeInfo[T]): string	
+`..`	xfrp/codeinfos.html#..,WithCodeInfo[T],WithCodeInfo[U]	codeinfos: `..`[T, U](x: WithCodeInfo[T]; y: WithCodeInfo[U]): CodeInfo	
+`from`	xfrp/codeinfos.html#from,T,CodeInfo	codeinfos: `from`[T](data: T; info: CodeInfo): WithCodeInfo[T]	
+`from`	xfrp/codeinfos.html#from,T,WithCodeInfo[U]	codeinfos: `from`[T, U](data: T; infoSrc: WithCodeInfo[U]): WithCodeInfo[T]	

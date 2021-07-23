@@ -1,0 +1,4 @@
+ReferencesOf	xfrp/topsort.html#ReferencesOf	topsort: ReferencesOf	
+ReferenceGraph	xfrp/topsort.html#ReferenceGraph	topsort: ReferenceGraph	
+getAnyReferenceCycle	xfrp/topsort.html#getAnyReferenceCycle,ReferenceGraph[T]	topsort: getAnyReferenceCycle[T](graph: ReferenceGraph[T]): seq[T]	
+topologicallySorted	xfrp/topsort.html#topologicallySorted,ReferenceGraph[T],seq[T]	topsort: topologicallySorted[T](graph: ReferenceGraph[T]; initVisited: seq[T] = @[]): seq[\n    T]	

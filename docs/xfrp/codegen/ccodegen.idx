@@ -1,0 +1,2 @@
+CCodeFiles	xfrp/codegen/ccodegen.html#CCodeFiles	ccodegen: CCodeFiles	
+codegen	xfrp/codegen/ccodegen.html#codegen,XfrpEnv,XfrpTypeEnv	ccodegen: codegen(env: XfrpEnv; typeEnv: XfrpTypeEnv): CCodeFiles	

@@ -1,0 +1,12 @@
+FuncType	xfrp/typecheck.html#FuncType	typecheck: FuncType	
+XfrpTypeEnv	xfrp/typecheck.html#XfrpTypeEnv	typecheck: XfrpTypeEnv	
+initXfrpTypeEnv	xfrp/typecheck.html#initXfrpTypeEnv	typecheck: initXfrpTypeEnv(): XfrpTypeEnv	
+addFunc	xfrp/typecheck.html#addFunc,XfrpTypeEnv,XfrpId,seq[XfrpType],XfrpType	typecheck: addFunc(typeEnv: var XfrpTypeEnv; id: XfrpId; argTypes: seq[XfrpType];\n        retType: XfrpType)	
+addVar	xfrp/typecheck.html#addVar,XfrpTypeEnv,XfrpId,XfrpType	typecheck: addVar(typeEnv: var XfrpTypeEnv; id: XfrpId; ty: XfrpType)	
+hasVarOrAdd	xfrp/typecheck.html#hasVarOrAdd,XfrpTypeEnv,XfrpId,XfrpType	typecheck: hasVarOrAdd(typeEnv: var XfrpTypeEnv; id: XfrpId; ty: XfrpType): bool	
+getFuncType	xfrp/typecheck.html#getFuncType,XfrpTypeEnv,XfrpId	typecheck: getFuncType(typeEnv: XfrpTypeEnv; id: XfrpId): FuncType	
+getVarType	xfrp/typecheck.html#getVarType,XfrpTypeEnv,XfrpId	typecheck: getVarType(typeEnv: XfrpTypeEnv; id: XfrpId): XfrpType	
+`$`	xfrp/typecheck.html#$,XfrpTypeEnv	typecheck: `$`(typeEnv: XfrpTypeEnv): string	
+xfrpTypeOf	xfrp/typecheck.html#xfrpTypeOf,XfrpTypeEnv,WithCodeInfo[XfrpLiteral]	typecheck: xfrpTypeOf(env: XfrpTypeEnv; lit: WithCodeInfo[XfrpLiteral]): XfrpType	
+xfrpTypeOf	xfrp/typecheck.html#xfrpTypeOf,XfrpTypeEnv,WithCodeInfo[XfrpExpr]	typecheck: xfrpTypeOf(env: XfrpTypeEnv; exp: WithCodeInfo[XfrpExpr]): XfrpType	
+makeTypeEnvironmentFromEnvironment	xfrp/typecheck.html#makeTypeEnvironmentFromEnvironment,XfrpEnv	typecheck: makeTypeEnvironmentFromEnvironment(env: XfrpEnv): XfrpTypeEnv	
