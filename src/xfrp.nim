@@ -1,5 +1,5 @@
 import os, parseopt
-import xfrp/[lexer, parser, envs, typecheck, codeinfos, errors]
+import xfrp/[lexer, parser, envs, operators, typecheck, codeinfos, errors]
 import xfrp/codegen/ccodegen
 
 proc writeHelp =
@@ -53,7 +53,9 @@ when isMainModule:
     var l = buildLexerFromFilename(entryFileName)
     let
       ast = parse(l)
-      env = makeEnvironmentFromModule(ast.val)
+      opEnv = makeOperatorEnvironmentFromModule(ast.val)
+      env = makeEnvironmentFromModule(ast.val).mapForExpr do (expAst: auto) -> auto:
+        opEnv.reparseBinaryExpression(expAst)
       typeEnv = makeTypeEnvironmentFromEnvironment(env)
 
     case target

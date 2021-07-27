@@ -28,11 +28,9 @@ func `?\`(x, y: string): string =
 
 func `?`(ty: XfrpType): string =
   result = match ty:
-    TUnit: "XFRP_UNIT"
     TBool: "XFRP_BOOL"
     TInt: "XFRP_INT"
     TFloat: "XFRP_FLOAT"
-    TTuple(_): "XFRP_TUPLE" # TODO
 
 
 func `?`(op: XfrpBinOp): string =
@@ -40,9 +38,9 @@ func `?`(op: XfrpBinOp): string =
     of binAdd: "_op_plus"
     of binEqEq: "_op_eq_eq"
     of binVertVert: "_op_vert_vert"
-    of binLte: "_op_lte"
+    of binLte: "_op_lt_eq"
     of binLt: "_op_lt"
-    of binGte: "_op_gte"
+    of binGte: "_op_gt_eq"
     of binGt: "_op_gt"
 
 
@@ -57,9 +55,9 @@ const xfrpBinaryOperatorDefinitionCode = """
 #define _op_plus(lhs, rhs) ((lhs) + (rhs))
 #define _op_eq_eq(lhs, rhs) ((lhs) == (rhs))
 #define _op_vert_vert(lhs, rhs) ((lhs) || (rhs))
-#define _op_lte(lhs, rhs) ((lhs) <= (rhs))
+#define _op_lt_eq(lhs, rhs) ((lhs) <= (rhs))
 #define _op_lt(lhs, rhs) ((lhs) < (rhs))
-#define _op_gte(lhs, rhs) ((lhs) >= (rhs))
+#define _op_gt_eq(lhs, rhs) ((lhs) >= (rhs))
 #define _op_gt(lhs, rhs) ((lhs) > (rhs))
 """
 
@@ -87,8 +85,6 @@ proc codegenExp(exp: WithCodeInfo[XfrpExpr]; typeEnv: XfrpTypeEnv; nameTbl: Name
   match exp.val:
     ExprLiteral(litAst):
       match litAst.val:
-        LitUnit:
-          return "" ?-> ("(" & ?TUnit() & ")0")
         LitBool(val):
           return "" ?-> ("(" & ?TBool() & ")" & (if val: "1" else: "0"))
         LitInt(val):
@@ -112,16 +108,16 @@ proc codegenExp(exp: WithCodeInfo[XfrpExpr]; typeEnv: XfrpTypeEnv; nameTbl: Name
 
           return "" ?-> (nameTbl.varNameTable[id] & "_atlast")
 
-    ExprBin(opAst, lhsAstRef, rhsAstRef):
+    ExprBin(opAsts, termAsts):
       let
-        (lhsCalc, lhsResult) = codegenExp(lhsAstRef[], typeEnv, nameTbl, extraVarTbl)
-        (rhsCalc, rhsResult) = codegenExp(rhsAstRef[], typeEnv, nameTbl, extraVarTbl)
+        (lhsCalc, lhsResult) = codegenExp(termAsts[0], typeEnv, nameTbl, extraVarTbl)
+        (rhsCalc, rhsResult) = codegenExp(termAsts[1], typeEnv, nameTbl, extraVarTbl)
 
         ty = typeEnv.xfrpTypeOf(exp)
         freshVar = genFreshVariableInCode()
 
       return (lhsCalc ?\ rhsCalc ?\ (?ty & " " & freshVar & " = " &
-        ?opAst.val & "(" & lhsResult & ", " & rhsResult & ");")) ?-> freshVar
+        ?opAsts[0].val & "(" & lhsResult & ", " & rhsResult & ");")) ?-> freshVar
 
     ExprIf(ifExprAstRef, thenExprAstRef, elseExprAstRef):
       let
