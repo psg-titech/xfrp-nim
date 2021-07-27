@@ -57,9 +57,6 @@ proc `$`*(typeEnv: XfrpTypeEnv): string =
 
 proc xfrpTypeOf*(env: XfrpTypeEnv; lit: WithCodeInfo[XfrpLiteral]): XfrpType =
   match lit.val:
-    LitUnit:
-      return TUnit()
-
     LitBool(_):
       return TBool()
 
@@ -101,27 +98,28 @@ proc xfrpTypeOf*(env: XfrpTypeEnv; exp: WithCodeInfo[XfrpExpr]): XfrpType =
 
           return env.venv[id.val]
 
-    ExprBin(op, lhsRef, rhsRef):
-      let (lhs, rhs) = (lhsRef[], rhsRef[])
-      case op.val
+    ExprBin(ops, terms):
+      assert(ops.len == 1 and terms.len == 2)
+
+      case ops[0].val
       of binAdd:
-        env.xfrpTypeCheck(lhs, TInt())
-        env.xfrpTypeCheck(rhs, TInt())
+        env.xfrpTypeCheck(terms[0], TInt())
+        env.xfrpTypeCheck(terms[1], TInt())
         return TInt()
 
       of binEqEq:
-        let lhsTy = env.xfrpTypeOf(lhs)
-        env.xfrpTypeCheck(rhs, lhsTy)
+        let lhsTy = env.xfrpTypeOf(terms[0])
+        env.xfrpTypeCheck(terms[1], lhsTy)
         return TBool()
 
       of binVertVert:
-        env.xfrpTypeCheck(lhs, TBool())
-        env.xfrpTypeCheck(rhs, TBool())
+        env.xfrpTypeCheck(terms[0], TBool())
+        env.xfrpTypeCheck(terms[1], TBool())
         return TBool()
 
       of binLte, binLt, binGte, binGt:
-        env.xfrpTypeCheck(lhs, TInt())
-        env.xfrpTypeCheck(rhs, TInt())
+        env.xfrpTypeCheck(terms[0], TInt())
+        env.xfrpTypeCheck(terms[1], TInt())
         return TBool()
 
     ExprIf(ifExprRef, thenExprRef, elseExprRef):
@@ -227,7 +225,7 @@ proc makeTypeEnvironmentFromEnvironment*(env: XfrpEnv): XfrpTypeEnv =
 
 when isMainModule:
   import os
-  import lexer, parser, envs
+  import lexer, parser, envs, operators
 
   if paramCount() < 1:
     stderr.writeLine "usage: nodeprops [filename]"
@@ -238,7 +236,9 @@ when isMainModule:
   try:
     let
       ast = parse(l)
-      env = makeEnvironmentFromModule(ast.val)
+      opEnv = makeOperatorEnvironmentFromModule(ast.val)
+      env = makeEnvironmentFromModule(ast.val).mapForExpr do (expAst: WithCodeInfo[XfrpExpr]) -> WithCodeInfo[XfrpExpr]:
+        opEnv.reparseBinaryExpression(expAst)
       typeEnv = makeTypeEnvironmentFromEnvironment(env)
 
     echo typeEnv

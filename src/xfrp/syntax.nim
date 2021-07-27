@@ -30,7 +30,6 @@ variantp XfrpAnnotation:
 
 
 variantp XfrpLiteral:
-  LitUnit
   LitBool(boolVal: bool)
   LitInt(intVal: int)
   LitFloat(floatVal: float)

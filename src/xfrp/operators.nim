@@ -88,9 +88,11 @@ proc reparseBinaryExpression*(opEnv: XfrpOpEnv; exp: WithCodeInfo[XfrpExpr]): Wi
 
       assert(exprBinReparsed.val.binOps.len == 1 and termsReparsed.len == 2)
 
-      let singleBinOpAst = exprBinReparsed.val.binOps[0]
+      # let singleBinOpAst = exprBinReparsed.val.binOps[0]
 
-      return ExprApp($singleBinOpAst.val from singleBinOpAst, termsReparsed) from termsReparsed[0]..termsReparsed[1]
+      # return ExprApp($singleBinOpAst.val from singleBinOpAst, termsReparsed) from termsReparsed[0]..termsReparsed[1]
+
+      return ExprBin(exprBinReparsed.val.binOps, termsReparsed) from exp
 
     ExprIf(ifAst, thenAst, elseAst):
       let
