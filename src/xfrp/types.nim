@@ -1,19 +1,20 @@
 ## XFRP primitive types.
 
-from strutils import join
 import patty
 
 variantp XfrpType:
-  TUnit
   TBool
   TInt
   TFloat
-  TTuple(tupleParams: seq[XfrpType])
 
 func `$`*(ty: XfrpType): string =
   match ty:
-    TUnit: return "Unit"
     TBool: return "Bool"
     TInt: return "Int"
     TFloat: return "Float"
-    TTuple(params): return "(" & params.join(", ") & ")"
+
+func short*(ty: XfrpType): string =
+  match ty:
+    TBool: return "B"
+    TInt: return "I"
+    TFloat: return "F"

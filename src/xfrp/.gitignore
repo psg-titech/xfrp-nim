@@ -4,6 +4,7 @@ parser
 envs
 topsort
 typecheck
+operators
 
 # sample files
 *.xfrp

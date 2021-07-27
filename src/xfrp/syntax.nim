@@ -51,7 +51,7 @@ variantp XfrpExpr:
   ExprLiteral(litVal: XfrpAst[XfrpLiteral])
   ExprId(id: XfrpAst[XfrpId])
   ExprAnnot(annotId: XfrpAst[XfrpId], annot: XfrpAst[XfrpAnnotation])
-  ExprBin(binOp: XfrpAst[XfrpBinOp], binLhs, binRhs: ref XfrpAst[XfrpExpr])
+  ExprBin(binOps: seq[XfrpAst[XfrpBinOp]], binTerms: seq[XfrpAst[XfrpExpr]])
   ExprIf(ifExpr, thenExpr, elseExpr: ref XfrpAst[XfrpExpr])
   ExprApp(appId: XfrpAst[XfrpId], appArgs: seq[XfrpAst[XfrpExpr]])
 

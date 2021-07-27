@@ -44,6 +44,8 @@ type
   NodeReferenceInfo = tuple
     refNow, refAtLast: seq[XfrpId]
 
+  XfrpExprConverter = (proc (exp: WithCodeInfo[XfrpExpr]): WithCodeInfo[XfrpExpr])
+
 
 func extractNodeReferenceInfo(env: XfrpEnv; exp: WithCodeInfo[XfrpExpr]): NodeReferenceInfo =
   match exp.val:
@@ -91,13 +93,10 @@ func extractNodeReferenceInfo(env: XfrpEnv; exp: WithCodeInfo[XfrpExpr]): NodeRe
             err.causedBy(exp)
             raise err
 
-    ExprBin(_, lhsAst, rhsAst):
-      let
-        (lhsRefNow, lhsRefAtLast) = env.extractNodeReferenceInfo(lhsAst[])
-        (rhsRefNow, rhsRefAtLast) = env.extractNodeReferenceInfo(rhsAst[])
-
-      result.refNow = deduplicate(lhsRefnow & rhsRefNow)
-      result.refAtLast = deduplicate(lhsRefAtLast & rhsRefAtLast)
+    ExprBin(_, termAsts):
+      let (refsNow, refsAtLast) = termAsts.mapIt(env.extractNodeReferenceInfo(it)).unzip()
+      result.refNow = deduplicate(concat(refsNow))
+      result.refAtLast = deduplicate(concat(refsAtLast))
 
     ExprIf(ifAst, thenAst, elseAst):
       let
@@ -127,12 +126,11 @@ func extractFuncDependencyInfo(env: XfrpEnv; exp: WithCodeInfo[XfrpExpr]): seq[X
       # constant variables are also dependencies
       return
     ExprAnnot(_, _): return
-    ExprBin(_, lhsAst, rhsAst):
+    ExprBin(opAsts, termAsts):
       let
-        lhsDeps = env.extractFuncDependencyInfo(lhsAst[])
-        rhsDeps = env.extractFuncDependencyInfo(rhsAst[])
-
-      result = deduplicate(lhsDeps & rhsDeps)
+        opIds = opAsts.mapIt($it.val)
+        termDeps = termAsts.mapIt(env.extractFuncDependencyInfo(it)).concat()
+      result = deduplicate(opIds & termDeps)
 
     ExprIf(ifAst, thenAst, elseAst):
       let
@@ -293,6 +291,35 @@ func getFunction*(env: XfrpEnv; id: XfrpId): XfrpFuncDefinition =
 
 func isInputNode*(env: XfrpEnv; id: XfrpId): bool =
   id in env.inputNodes
+
+
+proc mapForExpr(funcDef: XfrpFuncDefinition; f: XfrpExprConverter): XfrpFuncDefinition =
+  result = funcDef
+  result.body = f(funcDef.body)
+
+
+proc mapForExpr(nodeDef: XfrpNodeDefinition; f: XfrpExprConverter): XfrpNodeDefinition =
+  result = nodeDef
+  result.update = f(nodeDef.update)
+  result.init = nodeDef.init.map(f)
+
+
+proc mapForExpr(inputDef: XfrpInputNodeDefinition; f: XfrpExprConverter): XfrpInputNodeDefinition =
+  result = inputDef
+  result.init = inputDef.init.map(f)
+
+
+proc mapForExpr*(env: XfrpEnv; f: XfrpExprConverter): XfrpEnv =
+  ## Apply a function to every expressions which the environment have.
+  result = env
+  for (funcId, funcDef) in pairs(env.funcs):
+    result.funcs[funcId] = funcDef.mapForExpr(f)
+
+  for (nodeId, nodeDef) in pairs(env.innerNodes):
+    result.innerNodes[nodeId] = nodeDef.mapForExpr(f)
+
+  for (nodeId, nodeDef) in pairs(env.inputNodes):
+    result.inputNodes[nodeId] = nodeDef.mapForExpr(f)
 
 iterator innerNodeIds*(env: XfrpEnv): XfrpId =
   ## Iterate inner node ID by topologically-sorted ordering

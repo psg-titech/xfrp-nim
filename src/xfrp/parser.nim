@@ -72,7 +72,6 @@ nimy xfrpParser[XfrpToken]:
   primTypeSpecific[XfrpAst[XfrpType]]:
     Id:
       case ($1).idStr
-      of "Unit": return TUnit() from $1
       of "Bool": return TBool() from $1
       of "Int": return TInt() from $1
       of "Float": return TFloat() from $1
@@ -110,6 +109,23 @@ nimy xfrpParser[XfrpToken]:
       return DefFunc(($2).idStr from $2, $7, $4, $9) from ($1)..($9)
 
   expression[XfrpAst[XfrpExpr]]:
+    binaryExpression:
+      return $1
+
+    If expression Then expression Else expression:
+      return ExprIf(~($2), ~($4), ~($6)) from ($1)..($6)
+
+  binaryExpression[XfrpAst[XfrpExpr]]:
+    primitiveExpression:
+      return $1
+
+    primitiveExpression binOp binaryExpression:
+      if ($3).val.kind == XfrpExprKind.ExprBin:
+        return ExprBin(($2) & ($3).val.binOps, ($1) & ($3).val.binTerms) from ($1)..($3)
+      else:
+        return ExprBin(@[$2], @[$1, $3]) from ($1)..($3)
+
+  primitiveExpression[XfrpAst[XfrpExpr]]:
     literal:
       return ExprLiteral($1) from $1
 
@@ -118,12 +134,6 @@ nimy xfrpParser[XfrpToken]:
 
     Id At annotation:
       return ExprAnnot(($1).idStr from $1, $3) from ($1)..($3)
-
-    expression binOp expression:
-      return ExprBin($2, ~($1), ~($3)) from ($1)..($3)
-
-    If expression Then expression Else expression:
-      return ExprIf(~($2), ~($4), ~($6)) from ($1)..($6)
 
     LParen expression RParen:
       return $2
