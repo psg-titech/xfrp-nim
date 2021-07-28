@@ -44,7 +44,7 @@ proc load*(loader: XfrpLoader; name: string; traversal = true): XfrpAst[XfrpModu
 
   if traversal:
     for includePath in loader.includePaths:
-      let filePath = includePath / moduleFileName
+      let filePath = includePath / moduleDir / moduleFileName
 
       if fileExists(filePath):
         result = loadFromExistingFile(filePath)
