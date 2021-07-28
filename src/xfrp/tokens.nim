@@ -14,6 +14,7 @@ variantp XfrpRawToken:
   Colon
   At
   Slash # for path
+  Equal
   Module
   Material
   In

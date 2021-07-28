@@ -36,6 +36,8 @@ niml xfrpLex[XfrpToken]:
     return At() from token
   r"/":
     return Slash() from token
+  r"=":
+    return Equal() from token
   r"module":
     return Module() from token
   r"material":
