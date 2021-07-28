@@ -32,7 +32,7 @@ type
 
   XfrpEnv* = object
     name: WithCodeInfo[XfrpModuleId]
-    materials: TableRef[XfrpModuleId, ref XfrpEnv]
+    materials: TableRef[XfrpModuleId, XfrpEnv]
     funcs: TableRef[XfrpId, XfrpFuncDefinition]
     innerNodes: TableRef[XfrpId, XfrpNodeDefinition]
     inputNodes: OrderedTableRef[XfrpId, XfrpInputNodeDefinition]
@@ -45,6 +45,10 @@ type
     refNow, refAtLast: seq[XfrpId]
 
   XfrpExprConverter = (proc (exp: WithCodeInfo[XfrpExpr]): WithCodeInfo[XfrpExpr])
+
+  XfrpLoad = (proc (name: XfrpModuleId): WithCodeInfo[XfrpModule])
+
+  XfrpEnvPostProcessor = (proc (env: XfrpEnv): XfrpEnv)
 
 
 func extractNodeReferenceInfo(env: XfrpEnv; exp: WithCodeInfo[XfrpExpr]): NodeReferenceInfo =
@@ -192,14 +196,29 @@ proc getTopologicallySortedFuncList(env: XfrpEnv): seq[XfrpId] =
   result = graph.topologicallySorted()
 
 
-proc makeEnvironmentFromModule*(ast: XfrpModule): XfrpEnv =
+proc makeEnvironmentFromModule*(ast: XfrpModule; load: XfrpLoad; postProcess: XfrpEnvPostProcessor; ancestors: seq[XfrpmoduleId] = @[]): XfrpEnv =
   # Initialization
   result.name = ast.moduleId
-  # result.materials = newTable[XfrpId, ref XfrpEnv]()
+  result.materials = newTable[XfrpModuleId, XfrpEnv]()
   result.funcs = newTable[XfrpId, XfrpFuncDefinition]()
   result.innerNodes = newTable[XfrpId, XfrpNodeDefinition]()
   result.inputNodes = newOrderedTable[XfrpId, XfrpInputNodeDefinition]()
   result.outputNodes = ast.outs
+
+  # load material files
+  for moduleIdAst in ast.uses:
+    let moduleId = moduleIdAst.val
+    if moduleId in ancestors:
+      let err = XfrpReferenceError.newException("Material chain should be unidirectional.")
+      err.causedBy(moduleIdAst)
+      raise err
+
+    try:
+      result.materials[moduleId] = load(moduleId).val.makeEnvironmentFromModule(load, postProcess, ancestors & ast.moduleId.val).postProcess()
+
+    except XfrpLoadError as err:
+      err.causedBy(moduleIdAst)
+      raise err
 
   # Registration of input nodes
   for node in ast.ins:
@@ -369,39 +388,46 @@ func init*(inputDef: XfrpInputNodeDefinition): Option[WithCodeInfo[XfrpExpr]] = 
 
 when isMainModule:
   import os, json, std/jsonutils
-  import lexer, parser
+  import loaders, operators
 
   if paramCount() < 1:
     echo "Usage: envs [filename]"
     quit QuitFailure
 
   try:
-    var l = buildLexerFromFilename(paramStr(1))
     let
-      ast = parse(l)
-      env = makeEnvironmentFromModule(ast.val)
+      (entryDir, entryName, entryExt) = absolutePath(paramStr(1)).splitFile()
+      loader = newXfrpLoader(@[entryDir])
+      ast = loader.load(entryName & entryExt, false)
+      opEnv = makeOperatorEnvironmentFromModule(ast.val)
+
+    proc load(name: auto): auto =
+      loader.load(name)
+
+    proc postProcessor(env: XfrpEnv): XfrpEnv =
+      env.mapForExpr do (expAst: auto) -> auto:
+        opEnv.reparseBinaryExpression(expAst)
+
+    let
+      env = makeEnvironmentFromModule(ast.val, load, postProcessor)
 
     echo pretty(env.toJson())
 
-  except XfrpTypeError as err:
-    stderr.writeLine "[Type Error] ", err.msg
+  except XfrpLoadError as err:
+    stderr.writeLine "[", err.name, "]", err.msg
+    stderr.writeLine "Search paths:"
+    for path in err.searchPaths:
+      stderr.writeLine "  ", path
+
     for info in err.causes:
       stderr.writeLine pretty(info)
 
-  except XfrpSyntaxError as err:
-    stderr.writeLine "[Syntax Error] ", err.msg
-    for info in err.causes:
-      stderr.writeLine pretty(info)
-
-  except XfrpDefinitionError as err:
-    stderr.writeLine "[Definition Error] ", err.msg
-    for info in err.causes:
-      stderr.writeLine pretty(info)
-
-  except XfrpReferenceError as err:
-    stderr.writeLine "[Reference Error] ", err.msg
-    for info in err.causes:
-      stderr.writeLine pretty(info)
+    quit QuitFailure
 
   except XfrpLanguageError as err:
-    stderr.writeLine "[Language Error] ", err.msg
+    stderr.writeLine "[", err.name, "] ", err.msg
+
+    for info in err.causes:
+      stderr.writeLine pretty(info)
+
+    quit QuitFailure
