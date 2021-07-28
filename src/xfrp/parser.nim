@@ -21,10 +21,41 @@ proc `~`[T](x: T): ref T =
 nimy xfrpParser[XfrpToken]:
   progModule[XfrpAst[XfrpModule]]:
     Module Id In inputIdAndTypes Out idAndTypeOpts definitions:
-      return (($2).idStr from $2, $4, $6, newSeq[XfrpAst[XfrpModuleId]](), $7) from ($1)..($7)[^1]
+      return (modModule, ($2).idStr from $2, $4, $6, newSeq[XfrpAst[XfrpModuleId]](), newSeq[XfrpAst[XfrpEmit]](), $7) from ($1)..($7)[^1]
+
+    Module Id In inputIdAndTypes Out idAndTypeOpts emitStmts definitions:
+      return (modModule, ($2).idStr from $2, $4, $6, newSeq[XfrpAst[XfrpModuleId]](), $7, $8) from ($1)..($8)[^1]
 
     Module Id In inputIdAndTypes Out idAndTypeOpts useModules definitions:
-      return (($2).idStr from $2, $4, $6, $7, $8) from ($1)..($8)[^1]
+      return (modModule, ($2).idStr from $2, $4, $6, $7, newSeq[XfrpAst[XfrpEmit]](), $8) from ($1)..($8)[^1]
+
+    Module Id In inputIdAndTypes Out idAndTypeOpts useModules emitStmts definitions:
+      return (modModule, ($2).idStr from $2, $4, $6, $7, $8, $9) from ($1)..($9)[^1]
+
+    Material Id useModules[] definitions:
+      if ($3).len > 0:
+        return (modMaterial, ($2).idStr from $2,newSeq[XfrpAst[XfrpInput]](), newSeq[XfrpAst[XfrpIdAndTypeOpt]](), ($3)[0], newSeq[XfrpAst[XfrpEmit]](), $4) from ($1)..($4)[^1]
+
+      else:
+        return (modMaterial, ($2).idStr from $2,newSeq[XfrpAst[XfrpInput]](), newSeq[XfrpAst[XfrpIdAndTypeOpt]](), newSeq[XfrpAst[XfrpModuleId]](), newSeq[XfrpAst[XfrpEmit]](), $4) from ($1)..($4)[^1]
+
+    Material Id useModules[] emitStmts definitions:
+      if ($3).len > 0:
+        return (modMaterial, ($2).idStr from $2,newSeq[XfrpAst[XfrpInput]](), newSeq[XfrpAst[XfrpIdAndTypeOpt]](), ($3)[0], $4, $5) from ($1)..($5)[^1]
+
+      else:
+        return (modMaterial, ($2).idStr from $2,newSeq[XfrpAst[XfrpInput]](), newSeq[XfrpAst[XfrpIdAndTypeOpt]](), newSeq[XfrpAst[XfrpModuleId]](), $4, $5) from ($1)..($5)[^1]
+
+  emitStmts[seq[XfrpAst[XfrpEmit]]]:
+    emitStmt:
+      return @[$1]
+
+    emitStmt emitStmts:
+      return ($1) & $2
+
+  emitStmt[XfrpAst[XfrpEmit]]:
+    Emit In Id TripleQuoted:
+      return (($3).idStr, ($4).tqStr[3..^4]) from ($1)..($4)
 
   idAndType[XfrpAst[XfrpIdAndType]]:
     Id Colon typeSpecific:
@@ -85,11 +116,18 @@ nimy xfrpParser[XfrpToken]:
       return $2
 
   modules[seq[XfrpAst[XfrpModuleId]]]:
-    Id:
-      return @[($1).idStr from $1]
+    moduleId:
+      return @[$1]
 
-    Id Comma modules:
-      return (($1).idStr from $1) & $3
+    moduleId Comma modules:
+      return ($1) & $3
+
+  moduleId[XfrpAst[XfrpModuleId]]:
+    Id:
+      return ($1).idStr from $1
+
+    Id Slash moduleId:
+      return (($1).idStr & "/" & ($3).val) from ($1)..($3)
 
   definitions[seq[XfrpAst[XfrpDefinition]]]:
     definition:
@@ -108,6 +146,9 @@ nimy xfrpParser[XfrpToken]:
     Function Id LParen idAndTypes RParen Colon typeSpecific Equal expression:
       return DefFunc(($2).idStr from $2, $7, $4, $9) from ($1)..($9)
 
+    Function operator LParen idAndTypes RParen Colon typeSpecific Equal expression:
+      return DefOp($2, $7, $4, $9) from ($1)..($9)
+
   expression[XfrpAst[XfrpExpr]]:
     binaryExpression:
       return $1
@@ -119,7 +160,7 @@ nimy xfrpParser[XfrpToken]:
     primitiveExpression:
       return $1
 
-    primitiveExpression binOp binaryExpression:
+    primitiveExpression operator binaryExpression:
       if ($3).val.kind == XfrpExprKind.ExprBin:
         return ExprBin(($2) & ($3).val.binOps, ($1) & ($3).val.binTerms) from ($1)..($3)
       else:
@@ -141,6 +182,12 @@ nimy xfrpParser[XfrpToken]:
     Id LParen appArguments RParen:
       return ExprApp(($1).idStr from $1, $3) from ($1)..($4)
 
+    Magic LParen idAndType RParen:
+      return ExprMagic($3, @[]) from ($1)..($4)
+
+    Magic LParen idAndType Comma appArguments RParen:
+      return ExprMagic($3, $5) from ($1)..($6)
+
   annotation[XfrpAst[XfrpAnnotation]]:
     Last:
       return AnnotAtLast() from $1
@@ -160,21 +207,12 @@ nimy xfrpParser[XfrpToken]:
     literal:
       return ExprLiteral($1) from $1
 
-  binOp[XfrpAst[XfrpBinOp]]:
-    Plus:
-      return binAdd from $1
-    EqEq:
-      return binEqEq from $1
-    VertVert:
-      return binVertVert from $1
-    Lte:
-      return binLte from $1
-    Lt:
-      return binLt from $1
-    Gte:
-      return binGte from $1
-    Gt:
-      return binGt from $1
+  operator[XfrpAst[XfrpOperator]]:
+    Operator:
+      return ($1).opStr from $1
+
+    Slash:
+      return "/" from $1
 
   literal[XfrpAst[XfrpLiteral]]:
     True:

@@ -1,1 +1,1 @@
-switch("maxLoopIterationsVM", $80_000_000)
+switch("maxLoopIterationsVM", $150_000_000)

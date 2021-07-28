@@ -36,29 +36,24 @@ variantp XfrpLiteral:
 
 
 type
-  XfrpBinOp* = enum
-    binAdd = "+"
-    binEqEq = "=="
-    binVertVert = "||"
-    binLte = "<="
-    binLt = "<"
-    binGte = ">="
-    binGt = ">"
+  XfrpOperator* = string
 
 
 variantp XfrpExpr:
   ExprLiteral(litVal: XfrpAst[XfrpLiteral])
   ExprId(id: XfrpAst[XfrpId])
   ExprAnnot(annotId: XfrpAst[XfrpId], annot: XfrpAst[XfrpAnnotation])
-  ExprBin(binOps: seq[XfrpAst[XfrpBinOp]], binTerms: seq[XfrpAst[XfrpExpr]])
+  ExprBin(binOps: seq[XfrpAst[XfrpOperator]], binTerms: seq[XfrpAst[XfrpExpr]])
   ExprIf(ifExpr, thenExpr, elseExpr: ref XfrpAst[XfrpExpr])
   ExprApp(appId: XfrpAst[XfrpId], appArgs: seq[XfrpAst[XfrpExpr]])
+  ExprMagic(magicIdAndType: XfrpAst[XfrpIdAndType], magicArgs: seq[XfrpAst[XfrpExpr]])
 
 
 variantp XfrpDefinition:
   DefNode(nodeIdAndTypeOpt: XfrpAst[XfrpIdAndTypeOpt], nodeInit: Option[XfrpAst[XfrpExpr]], nodeBody: XfrpAst[XfrpExpr])
   # DefConst(constIdAndType: XfrpIdAndType, constBody: XfrpExpr)
   DefFunc(funId: XfrpAst[XfrpId], funRetType: XfrpAst[XfrpType], funArgs: seq[XfrpAst[XfrpIdAndType]], funBody: XfrpAst[XfrpExpr])
+  DefOp(operator: XfrpAst[XfrpOperator], opRetType: XfrpAst[XfrpType], opArgs: seq[XfrpAst[XfrpIdAndType]], opBody: XfrpAst[XfrpExpr])
 
 
 variantp XfrpInput:
@@ -67,11 +62,20 @@ variantp XfrpInput:
 
 
 type
+  XfrpEmit* = tuple
+    target, body: string
+
+  XfrpModuleKind* = enum
+    modModule
+    modMaterial
+
   XfrpModule* = tuple
+    kind: XfrpModuleKind
     moduleId: XfrpAst[XfrpModuleId]
     ins: seq[XfrpAst[XfrpInput]]
     outs: seq[XfrpAst[XfrpIdAndTypeOpt]]
     uses: seq[XfrpAst[XfrpModuleId]]
+    emits: seq[XfrpAst[XfrpEmit]]
     defs: seq[XfrpAst[XfrpDefinition]]
 
 
