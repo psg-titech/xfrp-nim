@@ -12,27 +12,8 @@ variantp XfrpRawToken:
   LParen
   RParen
   Colon
-  # Semicolon
   At
-  Plus
-  # Minus
-  # Percent
-  # Asterisk
-  # Slash
-  # Hat
-  VertVert
-  # AndAnd
-  # LOr
-  # LAnd
-  EqEq
-  # NotEq
-  Equal
-  Lte
-  # LShift
-  Lt
-  Gte
-  # RShift
-  Gt
+  Slash # for path
   Module
   Material
   In
@@ -47,9 +28,13 @@ variantp XfrpRawToken:
   Else
   Last
   Function
+  Magic
+  Emit
   Id(idStr: string)
+  Operator(opStr: string)
   FDigits(floatStr: string)
   Digits(intStr: string)
+  TripleQuoted(tqStr: string)
   Unknown
 
 type
@@ -61,8 +46,10 @@ func kind*(tok: XfrpToken): XfrpTokenKind = tok.val.kind
 
 func commentStr*(tok: XfrpToken): string = tok.val.commentStr
 func idStr*(tok: XfrpToken): string = tok.val.idStr
+func opStr*(tok: XfrpToken): string = tok.val.opStr
 func floatStr*(tok: XfrpToken): string = tok.val.floatStr
 func intStr*(tok: XfrpToken): string = tok.val.intStr
+func tqStr*(tok: XfrpToken): string = tok.val.tqStr
 
 func `$`*(tok: XfrpToken): string =
   $tok.val & " (" & $tok.startPos & ")"

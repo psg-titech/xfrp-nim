@@ -32,48 +32,10 @@ niml xfrpLex[XfrpToken]:
     return RParen() from token
   r":":
     return Colon() from token
-  # r";":
-  #   return Semicolon() from token
   r"@":
     return At() from token
-  r"\+":
-    return Plus() from token
-  # r"-":
-  #   return Minus() from token
-  # r"%":
-  #   return Percent() from token
-  # r"*":
-  #   return Asterisk() from token
-  # r"/":
-  #   return Slash() from token
-  # r"^":
-  #   return Hat() from token
-  r"\|\|":
-    return VertVert() from token
-  # r"&&":
-  #   return AndAnd() from token
-  # r"|":
-  #   return LOr() from token
-  # r"&":
-  #   return LAnd() from token
-  r"==":
-    return EqEq() from token
-  # r"!=":
-  #   return NotEq() from token
-  r"=":
-    return Equal() from token
-  r"<=":
-    return Lte() from token
-  # r"<<":
-  #   return LShift() from token
-  r"<":
-    return Lt() from token
-  r">=":
-    return Gte() from token
-  # r">>":
-  #   return RShift() from token
-  r">":
-    return Gt() from token
+  r"/":
+    return Slash() from token
   r"module":
     return Module() from token
   r"material":
@@ -102,13 +64,20 @@ niml xfrpLex[XfrpToken]:
     return Last() from token
   r"func(tion)?":
     return Function() from token
+  r"magic":
+    return Magic() from token
+  r"emit":
+    return Emit() from token
   r"[A-Za-z_][A-Za-z0-9_]*":
     return Id(token.token) from token
+  r"[!#$%&*+./<=>?@\\^|\-~]+":
+    return Operator(token.token) from token
   r"(0|[1-9][0-9]*)\.[0-9]+":
     return FDigits(token.token) from token
   r"0|[1-9][0-9]*":
     return Digits(token.token) from token
-
+  "\"\"\"([^\"]|\"[^\"]|\"\"[^\"])*\"\"\"":
+    return TripleQuoted(token.token) from token
 
 type
   XfrpLexer* = NimlLexer[XfrpToken]
