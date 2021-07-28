@@ -85,6 +85,8 @@ when isMainModule:
     for info in err.causes:
       stderr.writeLine pretty(info)
 
+    quit QuitFailure
+
   except XfrpLanguageError as err:
     stderr.writeLine "[", err.name, "] ", err.msg
 
