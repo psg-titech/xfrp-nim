@@ -18,6 +18,10 @@ type
   XfrpReferenceError* = object of XfrpLanguageError
     ## An error about references
 
+  XfrpLoadError* = object of XfrpLanguageError
+    ## An error while loading files.
+    searchPaths*: seq[string]
+
 proc causedBy*(e: ref XfrpLanguageError; cs: varargs[CodeInfo, codeInfo]) =
   ## Register erroneous codes.
   for c in cs:

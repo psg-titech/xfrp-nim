@@ -1,5 +1,5 @@
 import os, parseopt
-import xfrp/[lexer, parser, envs, operators, typecheck, codeinfos, errors]
+import xfrp/[loaders, envs, operators, typecheck, codeinfos, errors]
 import xfrp/codegen/ccodegen
 
 proc writeHelp =
@@ -50,9 +50,10 @@ when isMainModule:
     quit QuitFailure
 
   try:
-    var l = buildLexerFromFilename(entryFileName)
     let
-      ast = parse(l)
+      (entryDir, entryName, entryExt) = absolutePath(entryFileName).splitFile()
+      loader = newXfrpLoader(@[entryDir])
+      ast = loader.load(entryName & entryExt, false)
       opEnv = makeOperatorEnvironmentFromModule(ast.val)
       env = makeEnvironmentFromModule(ast.val).mapForExpr do (expAst: auto) -> auto:
         opEnv.reparseBinaryExpression(expAst)
@@ -74,6 +75,15 @@ when isMainModule:
     else:
       stderr.writeLine "Unknown target: ", target
       quit QuitFailure
+
+  except XfrpLoadError as err:
+    stderr.writeLine "[", err.name, "]", err.msg
+    stderr.writeLine "Search paths:"
+    for path in err.searchPaths:
+      stderr.writeLine "  ", path
+
+    for info in err.causes:
+      stderr.writeLine pretty(info)
 
   except XfrpLanguageError as err:
     stderr.writeLine "[", err.name, "] ", err.msg
