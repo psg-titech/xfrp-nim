@@ -66,6 +66,12 @@ niml xfrpLex[XfrpToken]:
     return Last() from token
   r"func(tion)?":
     return Function() from token
+  r"infixl":
+    return InfixLeft() from token
+  r"infixr":
+    return InfixRight() from token
+  r"infix":
+    return InfixNone() from token
   r"magic":
     return Magic() from token
   r"emit":
