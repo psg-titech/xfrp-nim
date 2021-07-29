@@ -19,88 +19,88 @@ proc `~`[T](x: T): ref T =
 
 
 nimy xfrpParser[XfrpToken]:
-  progModule[XfrpAst[XfrpModule]]:
+  progModule[WithCodeInfo[XfrpModule]]:
     Module Id In inputIdAndTypes Out idAndTypeOpts definitions:
-      return (modModule, ($2).idStr from $2, $4, $6, newSeq[XfrpAst[XfrpModuleId]](), newSeq[XfrpAst[XfrpEmit]](), $7) from ($1)..($7)[^1]
+      return makeXfrpModule(($2).idStr from $2, $4, $6, defs = $7) from ($1)..($7)[^1]
 
     Module Id In inputIdAndTypes Out idAndTypeOpts emitStmts definitions:
-      return (modModule, ($2).idStr from $2, $4, $6, newSeq[XfrpAst[XfrpModuleId]](), $7, $8) from ($1)..($8)[^1]
+      return makeXfrpModule(($2).idStr from $2, $4, $6, emits = $7, defs = $8) from ($1)..($8)[^1]
 
     Module Id In inputIdAndTypes Out idAndTypeOpts useModules definitions:
-      return (modModule, ($2).idStr from $2, $4, $6, $7, newSeq[XfrpAst[XfrpEmit]](), $8) from ($1)..($8)[^1]
+      return makeXfrpModule(($2).idStr from $2, $4, $6, uses = $7, defs = $8) from ($1)..($8)[^1]
 
     Module Id In inputIdAndTypes Out idAndTypeOpts useModules emitStmts definitions:
-      return (modModule, ($2).idStr from $2, $4, $6, $7, $8, $9) from ($1)..($9)[^1]
+      return makeXfrpModule(($2).idStr from $2, $4, $6, $7, $8, $9) from ($1)..($9)[^1]
 
     Material Id useModules[] definitions:
       if ($3).len > 0:
-        return (modMaterial, ($2).idStr from $2,newSeq[XfrpAst[XfrpInput]](), newSeq[XfrpAst[XfrpIdAndTypeOpt]](), ($3)[0], newSeq[XfrpAst[XfrpEmit]](), $4) from ($1)..($4)[^1]
+        return makeXfrpMaterial(($2).idStr from $2, uses = ($3)[0], defs = $4) from ($1)..($4)[^1]
 
       else:
-        return (modMaterial, ($2).idStr from $2,newSeq[XfrpAst[XfrpInput]](), newSeq[XfrpAst[XfrpIdAndTypeOpt]](), newSeq[XfrpAst[XfrpModuleId]](), newSeq[XfrpAst[XfrpEmit]](), $4) from ($1)..($4)[^1]
+        return makeXfrpMaterial(($2).idStr from $2, defs = $4) from ($1)..($4)[^1]
 
     Material Id useModules[] emitStmts definitions:
       if ($3).len > 0:
-        return (modMaterial, ($2).idStr from $2,newSeq[XfrpAst[XfrpInput]](), newSeq[XfrpAst[XfrpIdAndTypeOpt]](), ($3)[0], $4, $5) from ($1)..($5)[^1]
+        return makeXfrpMaterial(($2).idStr from $2, ($3)[0], $4, $5) from ($1)..($5)[^1]
 
       else:
-        return (modMaterial, ($2).idStr from $2,newSeq[XfrpAst[XfrpInput]](), newSeq[XfrpAst[XfrpIdAndTypeOpt]](), newSeq[XfrpAst[XfrpModuleId]](), $4, $5) from ($1)..($5)[^1]
+        return makeXfrpMaterial(($2).idStr from $2, emits = $4, defs = $5) from ($1)..($5)[^1]
 
-  emitStmts[seq[XfrpAst[XfrpEmit]]]:
+  emitStmt[WithCodeInfo[XfrpEmit]]:
+    Emit In Id TripleQuoted:
+      return (($3).idStr, ($4).tqStr[3..^4]) from ($1)..($4)
+
+  emitStmts[seq[WithCodeInfo[XfrpEmit]]]:
     emitStmt:
       return @[$1]
 
     emitStmt emitStmts:
       return ($1) & $2
 
-  emitStmt[XfrpAst[XfrpEmit]]:
-    Emit In Id TripleQuoted:
-      return (($3).idStr, ($4).tqStr[3..^4]) from ($1)..($4)
-
-  idAndType[XfrpAst[XfrpIdAndType]]:
+  idAndType[WithCodeInfo[XfrpIdAndType]]:
     Id Colon typeSpecific:
       return (($1).idStr from $1, $3) from ($1)..($3)
 
-  idAndTypes[seq[XfrpAst[XfrpIdAndType]]]:
+  idAndTypes[seq[WithCodeInfo[XfrpIdAndType]]]:
     idAndType:
       return @[$1]
 
     idAndType Comma idAndTypes:
       return $1 & $3
 
-  inputIdAndType[XfrpAst[XfrpInput]]:
+  inputIdAndType[WithCodeInfo[XfrpInput]]:
     idAndType:
       return InputWithoutInit($1) from $1
 
     Id LParen nodeInitExpr RParen Colon typeSpecific:
       return InputWithInit((($1).idStr from $1, $6) from ($1)..($6), $3) from ($1)..($6)
 
-  inputIdAndTypes[seq[XfrpAst[XfrpInput]]]:
+  inputIdAndTypes[seq[WithCodeInfo[XfrpInput]]]:
     inputIdAndType:
       return @[$1]
 
     inputIdAndType Comma inputIdAndTypes:
       return $1 & $3
 
-  idAndTypeOpt[XfrpAst[XfrpIdAndTypeOpt]]:
+  idAndTypeOpt[WithCodeInfo[XfrpIdAndTypeOpt]]:
     Id Colon typeSpecific:
       return IdWithExplicitType(($1).idStr from $1, $3) from ($1)..($3)
 
     Id:
       return IdWithoutAnyTypeAnnot(($1).idStr from $1) from $1
 
-  idAndTypeOpts[seq[XfrpAst[XfrpIdAndTypeOpt]]]:
+  idAndTypeOpts[seq[WithCodeInfo[XfrpIdAndTypeOpt]]]:
     idAndTypeOpt:
       return @[$1]
 
     idAndTypeOpt Comma idAndTypeOpts:
       return $1 & $3
 
-  typeSpecific[XfrpAst[XfrpType]]:
+  typeSpecific[WithCodeInfo[XfrpType]]:
     primTypeSpecific:
       return $1
 
-  primTypeSpecific[XfrpAst[XfrpType]]:
+  primTypeSpecific[WithCodeInfo[XfrpType]]:
     Id:
       case ($1).idStr
       of "Bool": return TBool() from $1
@@ -111,34 +111,34 @@ nimy xfrpParser[XfrpToken]:
         err.causedBy($1)
         raise err
 
-  useModules[seq[XfrpAst[XfrpModuleId]]]:
+  useModules[seq[WithCodeInfo[XfrpModuleId]]]:
     Use modules:
       return $2
 
-  modules[seq[XfrpAst[XfrpModuleId]]]:
+  modules[seq[WithCodeInfo[XfrpModuleId]]]:
     moduleId:
       return @[$1]
 
     moduleId Comma modules:
       return ($1) & $3
 
-  moduleId[XfrpAst[XfrpModuleId]]:
+  moduleId[WithCodeInfo[XfrpModuleId]]:
     Id:
       return ($1).idStr from $1
 
     Id Slash moduleId:
       return (($1).idStr & "/" & ($3).val) from ($1)..($3)
 
-  definitions[seq[XfrpAst[XfrpDefinition]]]:
+  definitions[seq[WithCodeInfo[XfrpDefinition]]]:
     definition:
       return @[$1]
 
     definition definitions:
       return $1 & $2
 
-  definition[XfrpAst[XfrpDefinition]]:
+  definition[WithCodeInfo[XfrpDefinition]]:
     Node idAndTypeOpt Equal expression:
-      return DefNode($2, none(XfrpAst[XfrpExpr]), $4) from ($1)..($4)
+      return DefNode($2, none(WithCodeInfo[XfrpExpr]), $4) from ($1)..($4)
 
     Node nodeInitDef idAndTypeOpt Equal expression:
       return DefNode($3, some($2), $5) from ($1)..($5)
@@ -149,14 +149,23 @@ nimy xfrpParser[XfrpToken]:
     Function operator LParen idAndTypes RParen Colon typeSpecific Equal expression:
       return DefOp($2, $7, $4, $9) from ($1)..($9)
 
-  expression[XfrpAst[XfrpExpr]]:
+    InfixLeft Digits operator:
+      return DefInfix($3, Natural(($2).intStr.parseInt()), assocLeft) from ($1)..($3)
+
+    InfixRight Digits operator:
+      return DefInfix($3, Natural(($2).intStr.parseInt()), assocRight) from ($1)..($3)
+
+    InfixNone Digits operator:
+      return DefInfix($3, Natural(($2).intStr.parseInt()), assocNone) from ($1)..($3)
+
+  expression[WithCodeInfo[XfrpExpr]]:
     binaryExpression:
       return $1
 
     If expression Then expression Else expression:
       return ExprIf(~($2), ~($4), ~($6)) from ($1)..($6)
 
-  binaryExpression[XfrpAst[XfrpExpr]]:
+  binaryExpression[WithCodeInfo[XfrpExpr]]:
     primitiveExpression:
       return $1
 
@@ -166,7 +175,7 @@ nimy xfrpParser[XfrpToken]:
       else:
         return ExprBin(@[$2], @[$1, $3]) from ($1)..($3)
 
-  primitiveExpression[XfrpAst[XfrpExpr]]:
+  primitiveExpression[WithCodeInfo[XfrpExpr]]:
     literal:
       return ExprLiteral($1) from $1
 
@@ -188,33 +197,33 @@ nimy xfrpParser[XfrpToken]:
     Magic LParen idAndType Comma appArguments RParen:
       return ExprMagic($3, $5) from ($1)..($6)
 
-  annotation[XfrpAst[XfrpAnnotation]]:
+  annotation[WithCodeInfo[XfrpAnnotation]]:
     Last:
       return AnnotAtLast() from $1
 
-  appArguments[seq[XfrpAst[XfrpExpr]]]:
+  appArguments[seq[WithCodeInfo[XfrpExpr]]]:
     expression:
       return @[$1]
 
     expression Comma appArguments:
       return $1 & $3
 
-  nodeInitDef[XfrpAst[XfrpExpr]]:
+  nodeInitDef[WithCodeInfo[XfrpExpr]]:
     Init LBracket nodeInitExpr RBracket:
       return ($3).val from ($1)..($4)
 
-  nodeInitExpr[XfrpAst[XfrpExpr]]:
+  nodeInitExpr[WithCodeInfo[XfrpExpr]]:
     literal:
       return ExprLiteral($1) from $1
 
-  operator[XfrpAst[XfrpOperator]]:
+  operator[WithCodeInfo[XfrpOperator]]:
     Operator:
       return ($1).opStr from $1
 
     Slash:
       return "/" from $1
 
-  literal[XfrpAst[XfrpLiteral]]:
+  literal[WithCodeInfo[XfrpLiteral]]:
     True:
       return LitBool(true) from $1
     False:
@@ -225,7 +234,7 @@ nimy xfrpParser[XfrpToken]:
       return LitFloat(($1).floatStr.parseFloat()) from $1
 
 
-proc parse*(l: var XfrpLexer): XfrpAst[XfrpModule] =
+proc parse*(l: var XfrpLexer): WithCodeInfo[XfrpModule] =
   l.ignoreIf = ignores
 
   var p = xfrpParser.newParser()
@@ -242,7 +251,7 @@ proc parse*(l: var XfrpLexer): XfrpAst[XfrpModule] =
     raise err0
 
   except NimyActionError as err:
-    var err0 = XfrpSyntaxError.newException("Unexpected token is passed.\p" & err.msg, err)
+    var err0 = XfrpSyntaxError.newException(err.msg, err)
     raise err0
 
   except NimyGotoError as err:
@@ -263,15 +272,7 @@ when isMainModule:
     let ast = parse(l)
     echo pretty(ast.toJson())
 
-  except XfrpTypeError as err:
-    echo "[Type Error] ", err.msg
-    for info in err.causes:
-      stderr.writeLine pretty(info)
-
-  except XfrpSyntaxError as err:
-    echo "[Syntax Error] ", err.msg
-    for info in err.causes:
-      stderr.writeLine pretty(info)
-
   except XfrpLanguageError as err:
-    echo "[Language Error] ", err.msg
+    stderr.writeLine "[", err.name, "] ", err.msg
+    for info in err.causes:
+      stderr.writeLine pretty(info)
