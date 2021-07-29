@@ -29,6 +29,9 @@ variantp XfrpRawToken:
   Else
   Last
   Function
+  InfixLeft
+  InfixRight
+  InfixNone
   Magic
   Emit
   Id(idStr: string)
