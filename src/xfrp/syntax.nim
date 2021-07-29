@@ -4,11 +4,6 @@ import options
 import patty
 import types, codeinfos
 
-# AST with code informations
-
-type
-  XfrpAst*[T] = WithCodeInfo[T]
-
 # Raw XFRP ASTs
 
 type
@@ -16,13 +11,13 @@ type
   XfrpModuleId* = string
 
   XfrpIdAndType* = tuple
-    id: XfrpAst[XfrpId]
-    ty: XfrpAst[XfrpType]
+    id: WithCodeInfo[XfrpId]
+    ty: WithCodeInfo[XfrpType]
 
 
 variantp XfrpIdAndTypeOpt:
-  IdWithExplicitType(idExplicit: XfrpAst[XfrpId], tyExplicit: XfrpAst[XfrpType])
-  IdWithoutAnyTypeAnnot(idImplicit: XfrpAst[XfrpId])
+  IdWithExplicitType(idExplicit: WithCodeInfo[XfrpId], tyExplicit: WithCodeInfo[XfrpType])
+  IdWithoutAnyTypeAnnot(idImplicit: WithCodeInfo[XfrpId])
 
 
 variantp XfrpAnnotation:
@@ -38,27 +33,32 @@ variantp XfrpLiteral:
 type
   XfrpOperator* = string
 
+  XfrpOperatorPrecedenceLevel* = Natural
+
+  XfrpOperatorAssociativity* = enum
+    assocLeft, assocRight, assocNone
+
 
 variantp XfrpExpr:
-  ExprLiteral(litVal: XfrpAst[XfrpLiteral])
-  ExprId(id: XfrpAst[XfrpId])
-  ExprAnnot(annotId: XfrpAst[XfrpId], annot: XfrpAst[XfrpAnnotation])
-  ExprBin(binOps: seq[XfrpAst[XfrpOperator]], binTerms: seq[XfrpAst[XfrpExpr]])
-  ExprIf(ifExpr, thenExpr, elseExpr: ref XfrpAst[XfrpExpr])
-  ExprApp(appId: XfrpAst[XfrpId], appArgs: seq[XfrpAst[XfrpExpr]])
-  ExprMagic(magicIdAndType: XfrpAst[XfrpIdAndType], magicArgs: seq[XfrpAst[XfrpExpr]])
+  ExprLiteral(litVal: WithCodeInfo[XfrpLiteral])
+  ExprId(id: WithCodeInfo[XfrpId])
+  ExprAnnot(annotId: WithCodeInfo[XfrpId], annot: WithCodeInfo[XfrpAnnotation])
+  ExprBin(binOps: seq[WithCodeInfo[XfrpOperator]], binTerms: seq[WithCodeInfo[XfrpExpr]])
+  ExprIf(ifExpr, thenExpr, elseExpr: ref WithCodeInfo[XfrpExpr])
+  ExprApp(appId: WithCodeInfo[XfrpId], appArgs: seq[WithCodeInfo[XfrpExpr]])
+  ExprMagic(magicIdAndType: WithCodeInfo[XfrpIdAndType], magicArgs: seq[WithCodeInfo[XfrpExpr]])
 
 
 variantp XfrpDefinition:
-  DefNode(nodeIdAndTypeOpt: XfrpAst[XfrpIdAndTypeOpt], nodeInit: Option[XfrpAst[XfrpExpr]], nodeBody: XfrpAst[XfrpExpr])
-  # DefConst(constIdAndType: XfrpIdAndType, constBody: XfrpExpr)
-  DefFunc(funId: XfrpAst[XfrpId], funRetType: XfrpAst[XfrpType], funArgs: seq[XfrpAst[XfrpIdAndType]], funBody: XfrpAst[XfrpExpr])
-  DefOp(operator: XfrpAst[XfrpOperator], opRetType: XfrpAst[XfrpType], opArgs: seq[XfrpAst[XfrpIdAndType]], opBody: XfrpAst[XfrpExpr])
+  DefNode(nodeIdAndTypeOpt: WithCodeInfo[XfrpIdAndTypeOpt], nodeInit: Option[WithCodeInfo[XfrpExpr]], nodeBody: WithCodeInfo[XfrpExpr])
+  DefFunc(funId: WithCodeInfo[XfrpId], funRetType: WithCodeInfo[XfrpType], funArgs: seq[WithCodeInfo[XfrpIdAndType]], funBody: WithCodeInfo[XfrpExpr])
+  DefOp(operator: WithCodeInfo[XfrpOperator], opRetType: WithCodeInfo[XfrpType], opArgs: seq[WithCodeInfo[XfrpIdAndType]], opBody: WithCodeInfo[XfrpExpr])
+  DefInfix(infixOp: WithCodeInfo[XfrpOperator], infixLevel: XfrpOperatorPrecedenceLevel, infixAssoc: XfrpOperatorAssociativity)
 
 
 variantp XfrpInput:
-  InputWithoutInit(idAndTypeNoInit: XfrpAst[XfrpIdAndType])
-  InputWithInit(idAndTypeWithInit: XfrpAst[XfrpIdAndType], init: XfrpAst[XfrpExpr])
+  InputWithoutInit(idAndTypeNoInit: WithCodeInfo[XfrpIdAndType])
+  InputWithInit(idAndTypeWithInit: WithCodeInfo[XfrpIdAndType], init: WithCodeInfo[XfrpExpr])
 
 
 type
@@ -70,28 +70,42 @@ type
     modMaterial
 
   XfrpModule* = tuple
+    ## Either module or material.
     kind: XfrpModuleKind
-    moduleId: XfrpAst[XfrpModuleId]
-    ins: seq[XfrpAst[XfrpInput]]
-    outs: seq[XfrpAst[XfrpIdAndTypeOpt]]
-    uses: seq[XfrpAst[XfrpModuleId]]
-    emits: seq[XfrpAst[XfrpEmit]]
-    defs: seq[XfrpAst[XfrpDefinition]]
+    moduleId: WithCodeInfo[XfrpModuleId]
+    ins: seq[WithCodeInfo[XfrpInput]]
+    outs: seq[WithCodeInfo[XfrpIdAndTypeOpt]]
+    uses: seq[WithCodeInfo[XfrpModuleId]]
+    emits: seq[WithCodeInfo[XfrpEmit]]
+    defs: seq[WithCodeInfo[XfrpDefinition]]
 
 
-proc split*(idAndTypeOpt: XfrpIdAndTypeOpt): tuple[id: XfrpAst[XfrpId], typeOpt: Option[XfrpAst[XfrpType]]] =
+proc makeXfrpModule*(moduleId: WithCodeInfo[XfrpModuleId]; ins: seq[WithCodeInfo[XfrpInput]];
+    outs: seq[WithCodeInfo[XfrpIdAndTypeOpt]]; uses: seq[WithCodeInfo[XfrpModuleId]] = @[];
+    emits: seq[WithCodeInfo[XfrpEmit]] = @[]; defs: seq[WithCodeInfo[XfrpDefinition]]): XfrpModule =
+  result = (modModule, moduleId, ins, outs, uses, emits, defs)
+
+
+proc makeXfrpMaterial*(moduleId: WithCodeInfo[XfrpModuleId]; uses: seq[WithCodeInfo[XfrpModuleId]] = @[];
+    emits: seq[WithCodeInfo[XfrpEmit]] = @[]; defs: seq[WithCodeInfo[XfrpDefinition]]): XfrpModule =
+  result = (modMaterial, moduleId, @[], @[], uses, emits, defs)
+
+
+# Utilities
+
+proc split*(idAndTypeOpt: XfrpIdAndTypeOpt): tuple[id: WithCodeInfo[XfrpId], typeOpt: Option[WithCodeInfo[XfrpType]]] =
   match idAndTypeOpt:
     IdWithExplicitType(idAst, tyAst):
       return (idAst, some(tyAst))
 
     IdWithoutAnyTypeAnnot(idAst):
-      return (idAst, none(XfrpAst[XfrpType]))
+      return (idAst, none(WithCodeInfo[XfrpType]))
 
-proc split*(input: XfrpInput): tuple[id: XfrpAst[XfrpId], ty: XfrpAst[XfrpType], initOpt: Option[XfrpAst[XfrpExpr]]] =
+proc split*(input: XfrpInput): tuple[id: WithCodeInfo[XfrpId], ty: WithCodeInfo[XfrpType], initOpt: Option[WithCodeInfo[XfrpExpr]]] =
   match input:
     InputWithoutInit(idAndTypeAst):
       let (idAst, tyAst) = idAndTypeAst.val
-      return (idAst, tyAst, none(XfrpAst[XfrpExpr]))
+      return (idAst, tyAst, none(WithCodeInfo[XfrpExpr]))
 
     InputWithInit(idAndTypeAst, initAst):
       let (idAst, tyAst) = idAndTypeAst.val
