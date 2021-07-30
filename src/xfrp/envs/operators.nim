@@ -3,8 +3,8 @@
 import tables
 from sequtils import mapIt
 import patty
-import syntax, codeinfos, errors
-from loaders import XfrpMaterials
+import ".."/[syntax, codeinfos, errors]
+from ".."/loaders import XfrpMaterials
 
 type
   XfrpInfixPrecedence = tuple
@@ -138,7 +138,7 @@ proc makeOperatorEnvironmentFromModule*(ast: XfrpModule): XfrpOpEnv =
 when isMainModule:
   import os, json, std/jsonutils
   from sequtils import toSeq
-  import loaders
+  from ".."/loaders import newXfrpLoader, load, loadMaterials
 
   if paramCount() < 1:
     echo "Usage: operators [filename]"
