@@ -4,20 +4,25 @@ import tables
 from sequtils import mapIt
 import patty
 import syntax, codeinfos, errors
+from loaders import XfrpMaterials
 
 type
-  XfrpInfixAssociativity* = enum
-    assocLeft, assocRight, assocNone
-
   XfrpInfixPrecedence = tuple
-    level: Natural
-    assoc: XfrpInfixAssociativity
+    level: XfrpOperatorPrecedenceLevel
+    assoc: XfrpOperatorAssociativity
 
-  XfrpOpEnv* = distinct TableRef[XfrpBinOp, XfrpInfixPrecedence]
+  XfrpOpEnv* = distinct TableRef[XfrpOperator, XfrpInfixPrecedence]
 
 
-func opPrecedence*(opEnv: XfrpOpEnv): TableRef[XfrpBinOp, XfrpInfixPrecedence] =
-  TableRef[XfrpBinOp, XfrpInfixPrecedence](opEnv)
+proc getPrecedence(opEnv: XfrpOpEnv; opAst: WithCodeInfo[XfrpOperator]): XfrpInfixPrecedence =
+  let tbl = TableRef[XfrpOperator, XfrpInfixPrecedence](opEnv)
+
+  if opAst.val notin tbl:
+    let err = XfrpDefinitionError.newException("Operator " & opAst.val & " has no precedence. Use infixl, infixr or infix for setting operator precedences.")
+    err.causedBy(opAst)
+    raise err
+
+  result = tbl[opAst.val]
 
 
 func `<`(x, y: XfrpInfixPrecedence): bool =
@@ -43,14 +48,14 @@ proc reparseBinaryExpressionAsExprBin(opEnv: XfrpOpEnv; exp: WithCodeInfo[XfrpEx
   while opAsts.len > 1:
     let
       opAst = opAsts[0]
-      opPrecedence = opEnv.opPrecedence[opAst.val]
+      opPrecedence = opEnv.getPrecedence(opAst)
 
     if prevPrecedence > opPrecedence:
       break
 
     let
       nextOpAst = opAsts[1]
-      nextOpPrecedence = opEnv.opPrecedence[nextOpAst.val]
+      nextOpPrecedence = opEnv.getPrecedence(nextOpAst)
 
     if opPrecedence > nextOpPrecedence:
       opAsts = opAsts[1..^1]
@@ -84,13 +89,9 @@ proc reparseBinaryExpression*(opEnv: XfrpOpEnv; exp: WithCodeInfo[XfrpExpr]): Wi
     ExprBin(_, _):
       let
         exprBinReparsed = opEnv.reparseBinaryExpressionAsExprBin(exp)
-        termsReparsed = exprBinReparsed.val.binTerms.mapIt(opEnv.reparseBinaryExpression(it))
+        termsReparsed = exprBinReparsed.val.binTerms.mapIt(opEnv.reparseBinaryExpression(it)) # recursive application to children
 
       assert(exprBinReparsed.val.binOps.len == 1 and termsReparsed.len == 2)
-
-      # let singleBinOpAst = exprBinReparsed.val.binOps[0]
-
-      # return ExprApp($singleBinOpAst.val from singleBinOpAst, termsReparsed) from termsReparsed[0]..termsReparsed[1]
 
       return ExprBin(exprBinReparsed.val.binOps, termsReparsed) from exp
 
@@ -107,41 +108,50 @@ proc reparseBinaryExpression*(opEnv: XfrpOpEnv; exp: WithCodeInfo[XfrpExpr]): Wi
 
       return ExprApp(idAst, argsReparsed) from exp
 
+    ExprMagic(idAndTypeAst, argAsts):
+      let argsReparsed = argAsts.mapIt(opEnv.reparseBinaryExpression(it))
+
+      return ExprMagic(idAndTypeAst, argsReparsed) from exp
+
     _:
       return exp
 
 
 proc makeOperatorEnvironmentFromModule*(ast: XfrpModule): XfrpOpEnv =
-  var opPrecedence = newTable[XfrpBinOp, XfrpInfixPrecedence]()
+  var opPrecedence = newTable[XfrpOperator, XfrpInfixPrecedence]()
 
-  opPrecedence[binAdd] = (Natural(80), assocLeft)
-  opPrecedence[binEqEq] = (Natural(50), assocLeft)
-  opPrecedence[binVertVert] = (Natural(30), assocLeft)
-  opPrecedence[binLte] = (Natural(50), assocLeft)
-  opPrecedence[binLt] = (Natural(50), assocLeft)
-  opPrecedence[binGte] = (Natural(50), assocLeft)
-  opPrecedence[binGt] = (Natural(50), assocLeft)
+  for defAst in ast.defs:
+    match defAst.val:
+      DefInfix(opAst, level, assoc):
+        if opAst.val in opPrecedence:
+          let err = XfrpDefinitionError.newException("Operator precedence of an operator " & opAst.val & " has already been defined.")
+          err.causedBy(defAst)
+          raise err
+
+        opPrecedence[opAst.val] = (level, assoc)
+
+      _: discard
 
   result = XfrpOpEnv(opPrecedence)
 
 
 when isMainModule:
   import os, json, std/jsonutils
-  import lexer, parser, envs
+  from sequtils import toSeq
+  import loaders
 
   if paramCount() < 1:
     echo "Usage: operators [filename]"
     quit QuitFailure
 
   try:
-    var l = buildLexerFromFilename(paramStr(1))
     let
-      ast = parse(l)
+      loader = newXfrpLoader(@[getCurrentDir()])
+      ast = loader.load(paramStr(1), false)
+      materials = loader.loadMaterials(ast)
       opEnv = makeOperatorEnvironmentFromModule(ast.val)
-      env = makeEnvironmentFromModule(ast.val).mapForExpr do (expAst: WithCodeInfo[XfrpExpr]) -> WithCodeInfo[XfrpExpr]:
-        opEnv.reparseBinaryExpression(expAst)
 
-    echo pretty(env.toJson())
+    echo pretty((entry: opEnv, materials: toSeq(values(materials)).mapIt(makeOperatorEnvironmentFromModule(it.val))).toJson())
 
   except XfrpLanguageError as err:
     stderr.writeLine "[", err.name, "] ", err.msg
