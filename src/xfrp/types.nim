@@ -1,5 +1,6 @@
 ## XFRP primitive types.
 
+import hashes
 import patty
 
 variantp XfrpType:
@@ -18,3 +19,8 @@ func short*(ty: XfrpType): string =
     TBool: return "B"
     TInt: return "I"
     TFloat: return "F"
+
+proc hash*(x: XfrpType): Hash =
+  var h: Hash
+  h = h !& hash($x)
+  result = !$h

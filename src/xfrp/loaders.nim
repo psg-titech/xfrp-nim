@@ -1,14 +1,14 @@
 ## XFRP module loader.
 
 import tables, os
-import lexer, parser, syntax, errors, codeinfos
+import lexer, parser, syntax, errors, codeinfos, materials
+
+export materials
 
 type
   XfrpLoader* = ref object
     loaded: TableRef[XfrpModuleId, WithCodeInfo[XfrpModule]]
     includeDirs: seq[string]
-
-  XfrpMaterials* = TableRef[XfrpModuleId, WithCodeInfo[XfrpModule]]
 
 
 proc newXfrpLoader*(includeDirs: seq[string]): XfrpLoader =
@@ -63,6 +63,7 @@ proc load*(loader: XfrpLoader; name: string; traverseIncludeDirs = true): WithCo
 
 proc loadMaterials*(loader: XfrpLoader; ast: WithCodeInfo[XfrpModule]; history: seq[XfrpModuleId] = @[]): XfrpMaterials =
   result = newTable[XfrpModuleId, WithCodeInfo[XfrpModule]]()
+  result[ast.val.moduleId.val] = ast
 
   for depModule in ast.val.uses:
     if depModule.val in history:
@@ -75,7 +76,6 @@ proc loadMaterials*(loader: XfrpLoader; ast: WithCodeInfo[XfrpModule]; history: 
         depAst = loader.load(depModule.val)
         depMaterials = loader.loadMaterials(depAst, history & ast.val.moduleId.val)
 
-      result[depModule.val] = depAst
       for (depMaterialId, depMaterialAst) in pairs(depMaterials):
         result[depMaterialId] = depMaterialAst
 
