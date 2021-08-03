@@ -108,7 +108,8 @@ proc makeFunctionEnvironment*(ast: XfrpModule; materialTbl: XfrpMaterials; opEnv
             raise err
 
           functionTbl[(moduleId, idAst.val)] =
-            XfrpFuncDescription(id: idAst, module: module.val.moduleId, retType: retTyAst, args: argAsts, body: opEnv.reparseBinaryExpression(bodyAst, moduleId, materialTbl))
+            XfrpFuncDescription(id: idAst, module: module.val.moduleId, retType: retTyAst, args: argAsts,
+              body: opEnv.reparseBinaryExpression(bodyAst, moduleId, materialTbl))
 
         _:
           discard
