@@ -124,28 +124,39 @@ proc makeFunctionEnvironment*(materialTbl: XfrpMaterials; opEnv: XfrpOpEnv): Xfr
   result = XfrpFuncEnv(tbl: functionTbl, sortedIds: sortedFuncIds)
 
 
-func checkFuncValidity*(env: XfrpFuncEnv; exp: WithCodeInfo[XfrpExpr]; definedIn: XfrpModuleId; materialTbl: XfrpMaterials): bool =
+func checkFuncValidity*(env: XfrpFuncEnv; exp: WithCodeInfo[XfrpExpr]; definedIn: XfrpModuleId; materialTbl: XfrpMaterials) =
   ## Check if functions are all valid.
   ## If validity check is passed, then return `true`.
   match exp.val:
     ExprApp(idAst, argAsts):
       let id = idAst.val
-      return toSeq(materialTbl.materialsOf(definedIn)).anyIt((it, id) in env.tbl) and
-        argAsts.allIt(env.checkFuncValidity(it, definedIn, materialTbl))
+
+      for arg in argAsts:
+        env.checkFuncValidity(arg, definedIn, materialTbl)
+
+      for moduleId in materialTbl.materialsOf(definedIn):
+        if (moduleId, id) in env.tbl: return
+
+      let err = XfrpReferenceError.newException("Function '" & id & "' is not defined.")
+      err.causedBy(idAst)
+      raise err
 
     ExprBin(_, termAsts):
       assert(termAsts.len == 2)
 
-      return env.checkFuncValidity(termAsts[0], definedIn, materialTbl) and env.checkFuncValidity(termAsts[1], definedIn, materialTbl)
+      env.checkFuncValidity(termAsts[0], definedIn, materialTbl)
+      env.checkFuncValidity(termAsts[1], definedIn, materialTbl)
 
     ExprIf(ifAstRef, thenAstRef, elseAstRef):
-      return env.checkFuncValidity(ifAstRef[], definedIn, materialTbl) and env.checkFuncValidity(thenAstRef[], definedIn, materialTbl) and
-        env.checkFuncValidity(elseAstRef[], definedIn, materialTbl)
+      env.checkFuncValidity(ifAstRef[], definedIn, materialTbl)
+      env.checkFuncValidity(thenAstRef[], definedIn, materialTbl)
+      env.checkFuncValidity(elseAstRef[], definedIn, materialTbl)
 
     ExprMagic(_, argAsts):
-      return argAsts.allIt(env.checkFuncValidity(it, definedIn, materialTbl))
+      for arg in argAsts:
+        env.checkFuncValidity(arg, definedIn, materialTbl)
 
-    _: return true
+    _: return
 
 
 proc getFunction*(env: XfrpFuncEnv; id: XfrpFuncId): XfrpFuncDescription =
