@@ -62,8 +62,8 @@ proc load*(loader: XfrpLoader; name: string; traverseIncludeDirs = true): WithCo
 
 
 proc loadMaterials*(loader: XfrpLoader; ast: WithCodeInfo[XfrpModule]; history: seq[XfrpModuleId] = @[]): XfrpMaterials =
-  result = newTable[XfrpModuleId, WithCodeInfo[XfrpModule]]()
-  result[ast.val.moduleId.val] = ast
+  var tbl = newTable[XfrpModuleId, WithCodeInfo[XfrpModule]]()
+  tbl[ast.val.moduleId.val] = ast
 
   for depModule in ast.val.uses:
     if depModule.val in history:
@@ -77,11 +77,13 @@ proc loadMaterials*(loader: XfrpLoader; ast: WithCodeInfo[XfrpModule]; history: 
         depMaterials = loader.loadMaterials(depAst, history & ast.val.moduleId.val)
 
       for (depMaterialId, depMaterialAst) in pairs(depMaterials):
-        result[depMaterialId] = depMaterialAst
+        tbl[depMaterialId] = depMaterialAst
 
     except XfrpLoadError as err:
       err.causedBy(depModule)
       raise err
+
+  result = makeMaterials(tbl, ast.val.moduleId.val)
 
 
 when isMainModule:

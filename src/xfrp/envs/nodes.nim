@@ -8,11 +8,11 @@ import ".."/[syntax, types, codeinfos, errors, topsort, materials]
 import operators
 
 type
-  XfrpNodeId = XfrpId
+  XfrpNodeId* = XfrpId
 
-  XfrpNodeDescription = object
+  XfrpNodeDescription* = object
     id: WithCodeInfo[XfrpId]
-    init: Option[WithCodeInfo[XfrpExpr]]
+    initOpt: Option[WithCodeInfo[XfrpExpr]]
     case isInput: bool
     of true:
       inputType: WithCodeInfo[XfrpType]
@@ -27,7 +27,7 @@ type
   XfrpNodeEnv* = object
     tbl: XfrpNodeDescriptionTable
     sortedInnerNodeIds: seq[XfrpNodeId]
-    inputNodeIds: seq[XfrpNodeId]
+    inputNodeIds, outputNodeIds: seq[XfrpNodeId]
 
   XfrpNodeDependencyInfo = tuple
     depsNow, depsAtLast: seq[XfrpNodeId]
@@ -52,7 +52,7 @@ proc extractNodeDeps(nodeTbl: XfrpNodeDescriptionTable; exp: WithCodeInfo[XfrpEx
             raise err
 
           let node = nodeTbl[id]
-          if node.init.isNone:
+          if node.initOpt.isNone:
             let err = XfrpReferenceError.newException("The node '" & id & "' has no initial value althought its at-last value is referred.")
             err.causedBy(node.id, exp)
             raise err
@@ -110,8 +110,10 @@ proc getTopologicallySortedNodeList(nodeTbl: XfrpNodeDescriptionTable): seq[Xfrp
   result = graph.topologicallySorted(toSeq(keys(nodeTbl)).filterIt(nodeTbl[it].isInput))
 
 
-proc makeNodeEnvironment*(ast: XfrpModule; materialTbl: XfrpMaterials; opEnv: XfrpOpEnv): XfrpNodeEnv =
-  let nodeTbl = newTable[XfrpNodeId, XfrpNodeDescription]()
+proc makeNodeEnvironment*(materialTbl: XfrpMaterials; opEnv: XfrpOpEnv): XfrpNodeEnv =
+  let
+    ast = materialTbl.getRoot().val
+    nodeTbl = newTable[XfrpNodeId, XfrpNodeDescription]()
   var inputNodeIds = newSeq[XfrpNodeId]()
 
   for inputNodeAst in ast.ins:
@@ -124,7 +126,7 @@ proc makeNodeEnvironment*(ast: XfrpModule; materialTbl: XfrpMaterials; opEnv: Xf
       err.causedBy(idAst)
       raise err
 
-    nodeTbl[id] = XfrpNodeDescription(id: idAst, init: initAstOpt, isInput: true, inputType: tyAst)
+    nodeTbl[id] = XfrpNodeDescription(id: idAst, initOpt: initAstOpt, isInput: true, inputType: tyAst)
     inputNodeIds.add id
 
   for def in ast.defs:
@@ -139,11 +141,44 @@ proc makeNodeEnvironment*(ast: XfrpModule; materialTbl: XfrpMaterials; opEnv: Xf
           err.causedBy(idAst)
           raise err
 
-        nodeTbl[id] = XfrpNodeDescription(id: idAst, init: initAstOpt, isInput: false,
+        nodeTbl[id] = XfrpNodeDescription(id: idAst, initOpt: initAstOpt, isInput: false,
           innerTypeOpt: typeAstOpt, update: opEnv.reparseBinaryExpression(bodyAst, ast.moduleId.val, materialTbl))
 
       _:
         discard
+
+  var outputNodeIds = newSeq[XfrpId]()
+  for outputNode in ast.outs:
+    let
+      (idAst, tyAstOpt) = outputNode.val.split()
+      id = idAst.val
+
+    if id notin nodeTbl:
+      let err = XfrpReferenceError.newException("Node '" & id & "' is not defined as an inner node.")
+      err.causedBy(outputNode)
+      raise err
+
+    let node = nodeTbl[id]
+
+    if node.isInput:
+      let err = XfrpReferenceError.newException("Directly outputting any input node is prohibited.")
+      err.causedBy(outputNode)
+      raise err
+
+    if tyAstOpt.isSome:
+      if node.innerTypeOpt.isSome:
+        let
+          innerNodeTyAst = node.innerTypeOpt.unsafeGet()
+          outputNodeTyAst = tyAstOpt.unsafeGet()
+        if innerNodeTyAst.val != outputNodeTyAst.val:
+          let err = XfrpTypeError.newException("An output node '" & id & "' has different type annotations.")
+          err.causedBy(outputNodeTyAst, innerNodeTyAst)
+          raise err
+
+      else:
+        nodeTbl[id].innerTypeOpt = tyAstOpt
+
+    outputNodeIds.add id
 
   # Extract inner nodes' dependencies.
   for nodeDesc in mvalues(nodeTbl):
@@ -152,7 +187,43 @@ proc makeNodeEnvironment*(ast: XfrpModule; materialTbl: XfrpMaterials; opEnv: Xf
 
   let sortedInnerNodeIds = getTopologicallySortedNodeList(nodeTbl)
 
-  result = XfrpNodeEnv(tbl: nodeTbl, sortedInnerNodeIds: sortedInnerNodeIds, inputNodeIds: inputNodeIds)
+  result = XfrpNodeEnv(tbl: nodeTbl, sortedInnerNodeIds: sortedInnerNodeIds, inputNodeIds: inputNodeIds, outputNodeIds: outputNodeIds)
+
+
+proc getNode*(env: XfrpNodeEnv; id: XfrpNodeId): XfrpNodeDescription =
+  result = env.tbl[id]
+
+
+iterator items*(env: XfrpNodeEnv): XfrpNodeId =
+  for id in env.inputNodeIds:
+    yield id
+
+  for id in env.sortedInnerNodeIds:
+    yield id
+
+
+iterator innerNodeIds*(env: XfrpNodeEnv): XfrpNodeId =
+  for id in env.sortedInnerNodeIds:
+    yield id
+
+
+iterator outputNodeIds*(env: XfrpNodeEnv): XfrpNodeId =
+  for id in env.outputNodeIds:
+    yield id
+
+
+proc id*(desc: XfrpNodeDescription): WithCodeInfo[XfrpId] = desc.id
+proc initOpt*(desc: XfrpNodeDescription): Option[WithCodeInfo[XfrpExpr]] = desc.initOpt
+proc isInput*(desc: XfrpNodeDescription): bool = desc.isInput
+proc inputType*(desc: XfrpNodeDescription): WithCodeInfo[XfrpType] = desc.inputType
+proc innerTypeOpt*(desc: XfrpNodeDescription): Option[WithCodeInfo[XfrpType]] = desc.innerTypeOpt
+proc update*(desc: XfrpNodeDescription): WithCodeInfo[XfrpExpr] = desc.update
+
+
+iterator exprs*(env: XfrpNodeEnv): WithCodeInfo[XfrpExpr] =
+  for desc in values(env.tbl):
+    if not desc.isInput:
+      yield desc.update
 
 
 when isMainModule:
@@ -169,8 +240,8 @@ when isMainModule:
       loader = newXfrpLoader(@[getCurrentDir()])
       ast = loader.load(paramStr(1), false)
       materials = loader.loadMaterials(ast)
-      opEnv = makeOperatorEnvironmentFromModule(ast.val, materials)
-      nodeEnv = makeNodeEnvironment(ast.val, materials, opEnv)
+      opEnv = makeOperatorEnvironmentFromModule(materials)
+      nodeEnv = makeNodeEnvironment(materials, opEnv)
 
     echo pretty(nodeEnv.toJson())
 

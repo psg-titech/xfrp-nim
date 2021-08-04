@@ -10,16 +10,17 @@ type
     level: XfrpOperatorPrecedenceLevel
     assoc: XfrpOperatorAssociativity
 
-  XfrpOpBody = object
+  XfrpOpBody* = object
+    args: seq[WithCodeInfo[XfrpIdAndType]]
     retType: WithCodeInfo[XfrpType]
     body: WithCodeInfo[XfrpExpr]
 
-  XfrpOpDescription = object
+  XfrpOpDescription* = object
     symbol: XfrpOperator
     precedence: XfrpInfixPrecedence
     body: TableRef[seq[XfrpType], XfrpOpBody]
 
-  XfrpOpId = tuple
+  XfrpOpId* = tuple
     moduleId: XfrpModuleId
     op: XfrpOperator
 
@@ -151,7 +152,8 @@ proc hasOpOrFuncReference(exp: XfrpExpr): bool =
       return false
 
 
-proc makeOperatorEnvironmentFromModule*(ast: XfrpModule; materialTbl: XfrpMaterials): XfrpOpEnv =
+proc makeOperatorEnvironmentFromModule*(materialTbl: XfrpMaterials): XfrpOpEnv =
+  let ast = materialTbl.getRoot().val
   var
     precedenceTbl = initTable[XfrpOpId, XfrpInfixPrecedence]()
     descriptionTbl = newTable[XfrpOpId, XfrpOpDescription]()
@@ -185,11 +187,11 @@ proc makeOperatorEnvironmentFromModule*(ast: XfrpModule; materialTbl: XfrpMateri
               err.causedBy(opAst)
               raise err
 
-            oldDescription.body[argTypes] = XfrpOpBody(retType: retTyAst, body: bodyAst)
+            oldDescription.body[argTypes] = XfrpOpBody(args: argAsts, retType: retTyAst, body: bodyAst)
 
           else:
             let
-              body = XfrpOpBody(retType: retTyAst, body: bodyAst)
+              body = XfrpOpBody(args: argAsts, retType: retTyAst, body: bodyAst)
               bodyTbl = { argAsts.mapIt(it.val.ty.val): body }.newTable()
 
             descriptionTbl[(moduleId, opAst.val)] = XfrpOpDescription(symbol: opAst.val, body: bodyTbl)
@@ -205,6 +207,35 @@ proc makeOperatorEnvironmentFromModule*(ast: XfrpModule; materialTbl: XfrpMateri
 
   result = XfrpOpEnv(descriptionTbl)
 
+
+proc getOperator*(opEnv: XfrpOpEnv; id: XfrpOpId): XfrpOpDescription =
+  TableRef[XfrpOpId, XfrpOpDescription](opEnv)[id]
+
+
+iterator items*(opEnv: XfrpOpEnv): XfrpOpId =
+  let opTbl = TableRef[XfrpOpId, XfrpOpDescription](opEnv)
+
+  for id in keys(opTbl):
+    yield id
+
+
+proc symbol*(desc: XfrpOpDescription): XfrpOperator = desc.symbol
+
+
+proc getBody*(desc: XfrpOpDescription; argTypes: seq[XfrpType]): XfrpOpBody =
+  desc.body[argTypes]
+
+
+iterator availableArgTypes*(desc: XfrpOpDescription): seq[XfrpType] =
+  for argTypes in keys(desc.body):
+    yield argTypes
+
+
+proc args*(opBody: XfrpOpBody): seq[WithCodeInfo[XfrpIdAndType]] = opBody.args
+proc retType*(opBody: XfrpOpBody): WithCodeInfo[XfrpType] = opBody.retType
+proc body*(opBody: XfrpOpBody): WithCodeInfo[XfrpExpr] = opBody.body
+
+
 when isMainModule:
   import os, json, std/jsonutils
   from ".."/loaders import newXfrpLoader, load, loadMaterials
@@ -218,7 +249,7 @@ when isMainModule:
       loader = newXfrpLoader(@[getCurrentDir()])
       ast = loader.load(paramStr(1), false)
       materialTbl = loader.loadMaterials(ast)
-      opEnv = makeOperatorEnvironmentFromModule(ast.val, materialTbl)
+      opEnv = makeOperatorEnvironmentFromModule(materialTbl)
 
     echo pretty(opEnv.toJson())
 

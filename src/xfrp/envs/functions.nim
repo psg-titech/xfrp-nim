@@ -1,18 +1,18 @@
 ## Function environments.
 
 import tables
-from sequtils import toSeq, allIt, mapIt, concat, deduplicate
+from sequtils import toSeq, allIt, mapIt, concat, deduplicate, anyIt
 from strutils import join
 import patty
 import ".."/[syntax, types, codeinfos, errors, topsort, materials]
 import operators
 
 type
-  XfrpFuncId = tuple
+  XfrpFuncId* = tuple
     module: XfrpModuleId
     id: XfrpId
 
-  XfrpFuncDescription = object
+  XfrpFuncDescription* = object
     id: WithCodeInfo[XfrpId]
     module: WithCodeInfo[XfrpModuleId]
     retType: WithCodeInfo[XfrpType]
@@ -27,7 +27,7 @@ type
     sortedIds: seq[XfrpFuncId]
 
 
-func `$`(funcId: XfrpFuncId): string =
+func `$`*(funcId: XfrpFuncId): string =
   funcId.module & "." & funcId.id
 
 
@@ -93,8 +93,10 @@ proc getTopologicallySortedFuncList(funcTbl: XfrpFuncDescriptionTable): seq[Xfrp
   assert(toSeq(keys(funcTbl)).allIt(it in result))
 
 
-proc makeFunctionEnvironment*(ast: XfrpModule; materialTbl: XfrpMaterials; opEnv: XfrpOpEnv): XfrpFuncEnv =
-  let functionTbl = newTable[XfrpFuncId, XfrpFuncDescription]()
+proc makeFunctionEnvironment*(materialTbl: XfrpMaterials; opEnv: XfrpOpEnv): XfrpFuncEnv =
+  let
+    ast = materialTbl.getRoot().val
+    functionTbl = newTable[XfrpFuncId, XfrpFuncDescription]()
 
   for moduleId in materialTbl.materialsOf(ast.moduleId.val):
     let module = materialTbl[moduleId]
@@ -122,6 +124,46 @@ proc makeFunctionEnvironment*(ast: XfrpModule; materialTbl: XfrpMaterials; opEnv
   result = XfrpFuncEnv(tbl: functionTbl, sortedIds: sortedFuncIds)
 
 
+func checkFuncValidity*(env: XfrpFuncEnv; exp: WithCodeInfo[XfrpExpr]; definedIn: XfrpModuleId; materialTbl: XfrpMaterials): bool =
+  ## Check if functions are all valid.
+  ## If validity check is passed, then return `true`.
+  match exp.val:
+    ExprApp(idAst, argAsts):
+      let id = idAst.val
+      return toSeq(materialTbl.materialsOf(definedIn)).anyIt((it, id) in env.tbl) and
+        argAsts.allIt(env.checkFuncValidity(it, definedIn, materialTbl))
+
+    ExprBin(_, termAsts):
+      assert(termAsts.len == 2)
+
+      return env.checkFuncValidity(termAsts[0], definedIn, materialTbl) and env.checkFuncValidity(termAsts[1], definedIn, materialTbl)
+
+    ExprIf(ifAstRef, thenAstRef, elseAstRef):
+      return env.checkFuncValidity(ifAstRef[], definedIn, materialTbl) and env.checkFuncValidity(thenAstRef[], definedIn, materialTbl) and
+        env.checkFuncValidity(elseAstRef[], definedIn, materialTbl)
+
+    ExprMagic(_, argAsts):
+      return argAsts.allIt(env.checkFuncValidity(it, definedIn, materialTbl))
+
+    _: return true
+
+
+proc getFunction*(env: XfrpFuncEnv; id: XfrpFuncId): XfrpFuncDescription =
+  result = env.tbl[id]
+
+
+iterator items*(env: XfrpFuncEnv): XfrpFuncId =
+  for id in env.sortedIds:
+    yield id
+
+
+func id*(desc: XfrpFuncDescription): WithCodeInfo[XfrpId] = desc.id
+func module*(desc: XfrpFuncDescription): WithCodeInfo[XfrpModuleId] = desc.module
+func retType*(desc: XfrpFuncDescription): WithCodeInfo[XfrpType] = desc.retType
+func args*(desc: XfrpFuncDescription): seq[WithCodeInfo[XfrpIdAndType]] = desc.args
+func body*(desc: XfrpFuncDescription): WithCodeInfo[XfrpExpr] = desc.body
+
+
 when isMainModule:
   import os, json, std/jsonutils
   from ".."/loaders import newXfrpLoader, load, loadMaterials
@@ -136,8 +178,8 @@ when isMainModule:
       loader = newXfrpLoader(@[getCurrentDir()])
       ast = loader.load(paramStr(1), false)
       materials = loader.loadMaterials(ast)
-      opEnv = makeOperatorEnvironmentFromModule(ast.val, materials)
-      funcEnv = makeFunctionEnvironment(ast.val, materials, opEnv)
+      opEnv = makeOperatorEnvironmentFromModule(materials)
+      funcEnv = makeFunctionEnvironment(materials, opEnv)
 
     echo pretty(funcEnv.toJson())
 
