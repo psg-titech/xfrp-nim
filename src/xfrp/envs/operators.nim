@@ -152,7 +152,7 @@ proc hasOpOrFuncReference(exp: XfrpExpr): bool =
       return false
 
 
-proc makeOperatorEnvironmentFromModule*(materialTbl: XfrpMaterials): XfrpOpEnv =
+proc makeOperatorEnvironment*(materialTbl: XfrpMaterials): XfrpOpEnv =
   var
     precedenceTbl = initTable[XfrpOpId, XfrpInfixPrecedence]()
     descriptionTbl = newTable[XfrpOpId, XfrpOpDescription]()
@@ -259,7 +259,7 @@ when isMainModule:
       loader = newXfrpLoader(@[getCurrentDir()])
       ast = loader.load(paramStr(1), false)
       materialTbl = loader.loadMaterials(ast)
-      opEnv = makeOperatorEnvironmentFromModule(materialTbl)
+      opEnv = makeOperatorEnvironment(materialTbl)
 
     echo pretty(opEnv.toJson())
 

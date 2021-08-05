@@ -259,7 +259,7 @@ when isMainModule:
       loader = newXfrpLoader(@[getCurrentDir()])
       ast = loader.load(paramStr(1), false)
       materials = loader.loadMaterials(ast)
-      opEnv = makeOperatorEnvironmentFromModule(materials)
+      opEnv = makeOperatorEnvironment(materials)
       funcEnv = makeFunctionEnvironment(materials, opEnv)
       nodeEnv = makeNodeEnvironment(materials, opEnv)
 

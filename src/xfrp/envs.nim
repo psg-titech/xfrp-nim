@@ -29,7 +29,7 @@ type
 proc makeEnvironment*(materials: XfrpMaterials): XfrpEnv =
   result.name = materials.getRootId()
   result.materials = materials
-  result.opEnv = makeOperatorEnvironmentFromModule(materials)
+  result.opEnv = makeOperatorEnvironment(materials)
   result.funcEnv = makeFunctionEnvironment(materials, result.opEnv)
   result.nodeEnv = makeNodeEnvironment(materials, result.opEnv)
 
