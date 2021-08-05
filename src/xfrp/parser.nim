@@ -257,22 +257,3 @@ proc parse*(l: var XfrpLexer): WithCodeInfo[XfrpModule] =
   except NimyGotoError as err:
     var err0 = XfrpSyntaxError.newException("Goto error.\p" & err.msg, err)
     raise err0
-
-
-when isMainModule:
-  import os, json, std/jsonutils
-  import lexer
-
-  if paramCount() < 1:
-    echo "Usage: parser [filename]"
-    quit QuitFailure
-
-  try:
-    var l = buildLexerFromFilename(paramStr(1))
-    let ast = parse(l)
-    echo pretty(ast.toJson())
-
-  except XfrpLanguageError as err:
-    stderr.writeLine "[", err.name, "] ", err.msg
-    for info in err.causes:
-      stderr.writeLine pretty(info)

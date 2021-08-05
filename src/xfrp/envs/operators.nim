@@ -244,26 +244,3 @@ iterator availableArgTypes*(desc: XfrpOpDescription): seq[XfrpType] =
 proc args*(opBody: XfrpOpBody): seq[WithCodeInfo[XfrpIdAndType]] = opBody.args
 proc retType*(opBody: XfrpOpBody): WithCodeInfo[XfrpType] = opBody.retType
 proc body*(opBody: XfrpOpBody): WithCodeInfo[XfrpExpr] = opBody.body
-
-
-when isMainModule:
-  import os, json, std/jsonutils
-  from ".."/loaders import newXfrpLoader, load, loadMaterials
-
-  if paramCount() < 1:
-    echo "Usage: operators [filename]"
-    quit QuitFailure
-
-  try:
-    let
-      loader = newXfrpLoader(@[getCurrentDir()])
-      ast = loader.load(paramStr(1), false)
-      materialTbl = loader.loadMaterials(ast)
-      opEnv = makeOperatorEnvironment(materialTbl)
-
-    echo pretty(opEnv.toJson())
-
-  except XfrpLanguageError as err:
-    stderr.writeLine "[", err.name, "] ", err.msg
-    for info in err.causes:
-      stderr.writeLine pretty(info)

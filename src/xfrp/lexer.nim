@@ -97,14 +97,3 @@ proc buildLexerFromFilename*(filename: string): XfrpLexer =
 
 proc buildLexerFromString*(str: string): XfrpLexer =
   result = xfrpLex.newWithString(str)
-
-
-when isMainModule:
-  import os
-  import codeinfos
-
-  var l = buildLexerFromFilename(paramStr(1))
-  for token in l.lexIter:
-    echo token.kind
-    if token.kind != XfrpTokenKind.Ignore:
-      echo pretty(token)

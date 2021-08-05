@@ -84,36 +84,3 @@ proc loadMaterials*(loader: XfrpLoader; ast: WithCodeInfo[XfrpModule]; history: 
       raise err
 
   result = makeMaterials(tbl, ast.val.moduleId.val)
-
-
-when isMainModule:
-  import os, json, std/jsonutils
-
-  if paramCount() < 1:
-    stderr.writeLine "Usage: loaders [filename]"
-    quit QuitFailure
-
-  try:
-    let
-      loader = newXfrpLoader(@[getCurrentDir()])
-      ast = loader.load(paramStr(1), false)
-      materials = loader.loadMaterials(ast)
-
-    echo pretty((ast: ast, materials: materials).toJson())
-
-  except XfrpLoadError as err:
-    stderr.writeLine "[", err.name, "] ", err.msg
-
-    stderr.writeLine "Search:"
-    for searchPath in err.searchPaths:
-      stderr.writeLine "  ", searchPath
-    stderr.writeLine ""
-
-    for info in err.causes:
-      stderr.writeLine pretty(info)
-
-  except XfrpLanguageError as err:
-    stderr.writeLine "[", err.name, "] ", err.msg
-
-    for info in err.causes:
-      stderr.writeLine pretty(info)

@@ -244,36 +244,3 @@ proc makeTypeEnvironment*(materialTbl: XfrpMaterials; opEnv: XfrpOpEnv; funcEnv:
         let err = XfrpTypeError.newException("The expression has type " & $updateTy & ", but the initial value has type " & $initTy & ".")
         err.causedBy(nodeDesc.update, nodeDesc.initOpt.get())
         raise err
-
-
-when isMainModule:
-  import os, json, std/jsonutils
-  from ".."/loaders import newXfrpLoader, load, loadMaterials
-
-  if paramCount() < 1:
-    echo "Usage: nodes [filename]"
-    quit QuitFailure
-
-  try:
-    let
-      loader = newXfrpLoader(@[getCurrentDir()])
-      ast = loader.load(paramStr(1), false)
-      materials = loader.loadMaterials(ast)
-      opEnv = makeOperatorEnvironment(materials)
-      funcEnv = makeFunctionEnvironment(materials, opEnv)
-      nodeEnv = makeNodeEnvironment(materials, opEnv)
-
-    for exp in exprs(nodeEnv):
-      if not funcEnv.checkFuncValidity(exp, materials.getRootId(), materials):
-        let err = XfrpReferenceError.newException("Undefined function is called.")
-        err.causedBy(exp)
-        raise err
-
-    let typeEnv = makeTypeEnvironment(materials, opEnv, funcEnv, nodeEnv)
-
-    echo pretty(typeEnv.toJson())
-
-  except XfrpLanguageError as err:
-    stderr.writeLine "[", err.name, "] ", err.msg
-    for info in err.causes:
-      stderr.writeLine pretty(info)

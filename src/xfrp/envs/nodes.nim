@@ -240,28 +240,3 @@ iterator depsAtLast*(desc: XfrpNodeDescription): XfrpNodeId =
   assert(not desc.isInput)
   for id in desc.depsAtLast:
     yield id
-
-
-when isMainModule:
-  import os, json, std/jsonutils
-  from ".."/loaders import newXfrpLoader, load, loadMaterials
-  import operators
-
-  if paramCount() < 1:
-    echo "Usage: nodes [filename]"
-    quit QuitFailure
-
-  try:
-    let
-      loader = newXfrpLoader(@[getCurrentDir()])
-      ast = loader.load(paramStr(1), false)
-      materials = loader.loadMaterials(ast)
-      opEnv = makeOperatorEnvironment(materials)
-      nodeEnv = makeNodeEnvironment(materials, opEnv)
-
-    echo pretty(nodeEnv.toJson())
-
-  except XfrpLanguageError as err:
-    stderr.writeLine "[", err.name, "] ", err.msg
-    for info in err.causes:
-      stderr.writeLine pretty(info)
