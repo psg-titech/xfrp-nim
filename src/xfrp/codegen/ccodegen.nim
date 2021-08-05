@@ -2,20 +2,43 @@
 ## Generated code is based on ISO/IEC 9899:1999 (also known as C99).
 
 import ropes, strtabs, random, options
-from strutils import indent, join, toUpperAscii
+from strutils import indent, join, toUpperAscii, multiReplace
 from sequtils import mapIt, zip, foldl, toSeq
 import patty
-import ".."/[envs, typecheck, syntax, codeinfos, types]
+import ".."/[envs, syntax, codeinfos, types]
 
 type
   CCodeFiles* = tuple
     frpFile, frpHeaderFile, mainFile: string
 
   NameTables = tuple
-    funcNameTable, varNameTable: StringTableRef
+    opNameTable, funcNameTable, varNameTable: StringTableRef
 
   CodeList = tuple
     calcCode, resultCode: string
+
+
+func xfrpEscape(s: string): string =
+  result = s.multiReplace({
+    "!": "bang_",
+    "#": "hash_",
+    "$": "dollar_",
+    "%": "percent_",
+    "&": "and_",
+    "*": "star_",
+    "+": "plus_",
+    ".": "dot_",
+    "/": "slash_",
+    "<": "lt_",
+    "=": "eq_",
+    ">": "gt_",
+    "?": "question_",
+    "@": "at_",
+    "\\": "backslash_",
+    "^": "caret_",
+    "|": "vert_",
+    "-": "minus_",
+    "~": "tilde_"})
 
 
 func `?->`(calcCode, resultCode: string): CodeList =
@@ -33,15 +56,8 @@ func `?`(ty: XfrpType): string =
     TFloat: "XFRP_FLOAT"
 
 
-func `?`(op: XfrpBinOp): string =
-  result = case op
-    of binAdd: "_op_plus"
-    of binEqEq: "_op_eq_eq"
-    of binVertVert: "_op_vert_vert"
-    of binLte: "_op_lt_eq"
-    of binLt: "_op_lt"
-    of binGte: "_op_gt_eq"
-    of binGt: "_op_gt"
+func `>?<`(opName: string; types: seq[XfrpType]): string =
+  result = opName & "_" & types.mapIt(short(it)).join()
 
 
 const xfrpTypeDefinitionCode = """
@@ -51,37 +67,48 @@ const xfrpTypeDefinitionCode = """
 #define XFRP_FLOAT float
 """
 
-const xfrpBinaryOperatorDefinitionCode = """
-#define _op_plus(lhs, rhs) ((lhs) + (rhs))
-#define _op_eq_eq(lhs, rhs) ((lhs) == (rhs))
-#define _op_vert_vert(lhs, rhs) ((lhs) || (rhs))
-#define _op_lt_eq(lhs, rhs) ((lhs) <= (rhs))
-#define _op_lt(lhs, rhs) ((lhs) < (rhs))
-#define _op_gt_eq(lhs, rhs) ((lhs) >= (rhs))
-#define _op_gt(lhs, rhs) ((lhs) > (rhs))
-"""
+proc opKey(opId: XfrpOpId): string =
+  result = opId.moduleId & '.' & opId.op
+
+
+proc funcKey(funcId: XfrpFuncId): string =
+  result = funcId.module & '.' & funcId.id
+
+
+proc genOperatorNameInCode(opId: string): string =
+  var uid {.global.} = rand(uint16)
+
+  result = "op_" & xfrpEscape(opId) & $uid
+  inc uid
 
 
 proc genFunctionNameInCode(funcId: XfrpId): string =
-  result = "_func_" & funcId
+  var uid {.global.} = rand(uint16)
+
+  result = "func_" & funcId & "_" & $uid
+  inc uid
 
 
 proc genArgNameInCode(argId: XfrpId): string =
-  result = "_arg_" & argId
+  result = "arg_" & argId
 
 
 proc genNodeNameInCode(nodeId: XfrpId): string =
-  result = "_node_" & nodeId
+  result = "node_" & nodeId
+
+
+proc genMagicNameInCode(magicId: XfrpId): string =
+  result = "magic_" & magicId
 
 
 proc genFreshVariableInCode: string =
   var uid {.global.} = rand(uint16)
 
-  result = "_genvar_" & $uid
+  result = "genvar_" & $uid
   inc uid
 
 
-proc codegenExp(exp: WithCodeInfo[XfrpExpr]; typeEnv: XfrpTypeEnv; nameTbl: NameTables; extraVarTbl = newStringTable()): CodeList =
+proc codegenExp(env: XfrpEnv; exp: WithCodeInfo[XfrpExpr]; nameTbl: NameTables; extraVarTbl = newStringTable(); definedIn = env.name): CodeList =
   match exp.val:
     ExprLiteral(litAst):
       match litAst.val:
@@ -103,29 +130,33 @@ proc codegenExp(exp: WithCodeInfo[XfrpExpr]; typeEnv: XfrpTypeEnv; nameTbl: Name
       match annotAst.val:
         AnnotAtLast:
           let id = idAst.val
-          if id in extraVarTbl:
-            return "" ?-> (extraVarTbl[id] & "_atlast")
+          # if id in extraVarTbl:
+          #   return "" ?-> (extraVarTbl[id] & "_atlast")
 
           return "" ?-> (nameTbl.varNameTable[id] & "_atlast")
 
     ExprBin(opAsts, termAsts):
       let
-        (lhsCalc, lhsResult) = codegenExp(termAsts[0], typeEnv, nameTbl, extraVarTbl)
-        (rhsCalc, rhsResult) = codegenExp(termAsts[1], typeEnv, nameTbl, extraVarTbl)
+        (lhsCalc, lhsResult) = env.codegenExp(termAsts[0], nameTbl, extraVarTbl)
+        (rhsCalc, rhsResult) = env.codegenExp(termAsts[1], nameTbl, extraVarTbl)
 
-        ty = typeEnv.xfrpTypeOf(exp)
+        ty = env.xfrpTypeOf(exp)
         freshVar = genFreshVariableInCode()
 
+        termTypes = termAsts.mapIt(env.xfrpTypeOf(it))
+
+        opId = env.findOpId(opAsts[0].val, termTypes, definedIn)
+
       return (lhsCalc ?\ rhsCalc ?\ (?ty & " " & freshVar & " = " &
-        ?opAsts[0].val & "(" & lhsResult & ", " & rhsResult & ");")) ?-> freshVar
+        (nameTbl.opNameTable[opKey(opId)] >?< termTypes) & "(" & lhsResult & ", " & rhsResult & ");")) ?-> freshVar
 
     ExprIf(ifExprAstRef, thenExprAstRef, elseExprAstRef):
       let
-        (ifCalc, ifResult) = codegenExp(ifExprAstRef[], typeEnv, nameTbl, extraVarTbl)
-        (thenCalc, thenResult) = codegenExp(thenExprAstRef[], typeEnv, nameTbl, extraVarTbl)
-        (elseCalc, elseResult) = codegenExp(elseExprAstRef[], typeEnv, nameTbl, extraVarTbl)
+        (ifCalc, ifResult) = env.codegenExp(ifExprAstRef[], nameTbl, extraVarTbl)
+        (thenCalc, thenResult) = env.codegenExp(thenExprAstRef[], nameTbl, extraVarTbl)
+        (elseCalc, elseResult) = env.codegenExp(elseExprAstRef[], nameTbl, extraVarTbl)
 
-        ty = typeEnv.xfrpTypeOf(exp)
+        ty = env.xfrpTypeOf(exp)
         freshVar = genFreshVariableInCode()
 
       return (ifCalc ?\ (?ty & " " & freshVar & ";") ?\ ("if (" & ifResult & ") {") ?\
@@ -134,10 +165,35 @@ proc codegenExp(exp: WithCodeInfo[XfrpExpr]; typeEnv: XfrpTypeEnv; nameTbl: Name
 
     ExprApp(appIdAst, appArgAsts):
       let
-        argCodes = appArgAsts.mapIt(codegenExp(it, typeEnv, nameTbl, extraVarTbl))
-        argTypes = appArgAsts.mapIt(typeEnv.xfrpTypeOf(it))
+        argCodes = appArgAsts.mapIt(env.codegenExp(it, nameTbl, extraVarTbl))
+        argTypes = appArgAsts.mapIt(env.xfrpTypeOf(it))
 
-        resultTy = typeEnv.xfrpTypeOf(exp)
+        resultTy = env.xfrpTypeOf(exp)
+        resultFreshVar = genFreshVariableInCode()
+      var
+        simpleArgs: seq[string]
+        argCalcWithResults: seq[string]
+
+      for (argCode, argType) in zip(argCodes, argTypes):
+        let (argCalc, argResult) = argCode
+        if argCalc.len > 0:
+          simpleArgs.add genFreshVariableInCode()
+          argCalcWithResults.add argCalc ?\ (?argType & " " & simpleArgs[^1] & " = " & argResult & ";")
+        else:
+          simpleArgs.add argResult
+
+      let funcId = env.findFuncId(appIdAst.val, definedIn)
+
+      return (argCalcWithResults.foldl(a ?\ b, "") ?\
+        (?resultTy & " " & resultFreshVar & " = " &
+        nameTbl.funcNameTable[funcKey(funcId)] & "(" & simpleArgs.join(", ") & ");")) ?-> resultFreshVar
+
+    ExprMagic(idAst, argAsts):
+      let
+        argCodes = argAsts.mapIt(env.codegenExp(it, nameTbl, extraVarTbl))
+        argTypes = argAsts.mapIt(env.xfrpTypeOf(it))
+
+        resultTy = env.xfrpTypeOf(exp)
         resultFreshVar = genFreshVariableInCode()
       var
         simpleArgs: seq[string]
@@ -153,90 +209,98 @@ proc codegenExp(exp: WithCodeInfo[XfrpExpr]; typeEnv: XfrpTypeEnv; nameTbl: Name
 
       return (argCalcWithResults.foldl(a ?\ b, "") ?\
         (?resultTy & " " & resultFreshVar & " = " &
-        nameTbl.funcNameTable[appIdAst.val] & "(" & simpleArgs.join(", ") & ");")) ?-> resultFreshVar
+        genMagicNameInCode(idAst.val.id.val) & "(" & simpleArgs.join(", ") & ");")) ?-> resultFreshVar
 
 
-proc genFrpFile(env: XfrpEnv; typeEnv: XfrpTypeEnv; nameTbl: NameTables): string =
+proc genFrpFile(env: XfrpEnv; nameTbl: NameTables): string =
   var r: Rope
 
   r.add "#include \""
-  r.add env.name.val
+  r.add xfrpEscape(env.name)
   r.add ".h\"\p\p"
 
-  r.add xfrpBinaryOperatorDefinitionCode
-  r.add "\p"
+  if "c" in env.emits:
+    r.add "/* emits */\p"
+    r.add env.emits["c"] & "\p"
 
   r.add "/* node memories */\p"
   for nodeId in env.nodeIds:
-    let ty = typeEnv.getVarType(nodeId)
-    r.add ?ty & " _memory" & nameTbl.varNameTable[nodeId] & "[2];\p"
+    let ty = env.getVarType(nodeId)
+    r.add ?ty & " memory_" & nameTbl.varNameTable[nodeId] & "[2];\p"
   r.add "\p"
 
   r.add "/* functions */\p"
+  for opId in env.operatorIds:
+    let opDesc = env.getOperator(opId)
+
+    for argTypes in availableArgTypes(opDesc):
+      let
+        opBody = opDesc.getBody(argTypes)
+        retType = opBody.retType.val
+
+      var argsTbl = newStringTable(modeCaseSensitive)
+      for arg in opBody.args:
+        argsTbl[arg.val.id.val] = genArgNameInCode(arg.val.id.val)
+
+      let envWithArgs = env.plusIdAndTypes(opBody.args.mapIt(it.val))
+
+      let (bodyCalc, bodyResult) = envWithArgs.codegenExp(opBody.body, nameTbl, argsTbl, opId.moduleId)
+
+      r.add "static " & ?retType & " " & (nameTbl.opNameTable[opKey(opId)] >?< argTypes) & "("
+      r.add opBody.args.mapIt(?it.val.ty.val & " " & argsTbl[it.val.id.val]).join(", ")
+      r.add ") {\p"
+      if bodyCalc.len > 0: r.add indent(bodyCalc, 2) & "\p"
+      r.add "  return " & bodyResult & ";\p}\p\p"
+
   for funcId in env.functionIds:
     let
-      funcDef = env.getFunction(funcId)
-      (_, retType) = typeEnv.getFuncType(funcId)
+      funcDesc = env.getFunction(funcId)
+      (_, retType) = env.getFuncType(funcId)
 
-    var
-      argsTbl = newStringTable(modeCaseSensitive)
-      argsTypeEnv = typeEnv
-    for arg in funcDef.args:
+    var argsTbl = newStringTable(modeCaseSensitive)
+    for arg in funcDesc.args:
       argsTbl[arg.val.id.val] = genArgNameInCode(arg.val.id.val)
-      argsTypeEnv.addVar(arg.val.id.val, arg.val.ty.val)
 
-    let (bodyCalc, bodyResult) = codegenExp(funcDef.body, argsTypeEnv, nameTbl, argsTbl)
+    let envWithArgs = env.plusIdAndTypes(funcDesc.args.mapIt(it.val))
 
-    r.add "static " & ?retType & " " & nameTbl.funcNameTable[funcId] & "("
-    r.add funcDef.args.mapIt(?it.val.ty.val & " " & argsTbl[it.val.id.val]).join(", ")
+    let (bodyCalc, bodyResult) = envWithArgs.codegenExp(funcDesc.body, nameTbl, argsTbl, funcId.module)
+
+    r.add "static " & ?retType & " " & nameTbl.funcNameTable[funcKey(funcId)] & "("
+    r.add funcDesc.args.mapIt(?it.val.ty.val & " " & argsTbl[it.val.id.val]).join(", ")
     r.add ") {\p"
     if bodyCalc.len > 0: r.add indent(bodyCalc, 2) & "\p"
     r.add "  return " & bodyResult & ";\p}\p\p"
 
   r.add "/* node initializers */\p"
-  for nodeId in env.inputNodeIds:
-    let inputDef = env.getInputNode(nodeId)
+  for nodeId in env.nodeIds:
+    let nodeDesc = env.getNode(nodeId)
 
-    if inputDef.init.isNone: continue
-
-    let
-      ty = typeEnv.getVarType(inputDef.id.val)
-      initExprAst = inputDef.init.unsafeGet()
-      (initCalc, initResult) = codegenExp(initExprAst, typeEnv, nameTbl)
-
-    r.add "static void _init" & nameTbl.varNameTable[nodeId] & "(" & ?ty & " *output) {\p"
-    if initCalc.len > 0: r.add indent(initCalc, 2) & "\p"
-    r.add "  *output = " & initResult & ";\p}\p\p"
-
-  for nodeId in env.innerNodeIds:
-    let nodeDef = env.getInnerNode(nodeId)
-
-    if nodeDef.init.isNone: continue
+    if nodeDesc.initOpt.isNone: continue
 
     let
-      ty = typeEnv.getVarType(nodeDef.id.val)
-      initExprAst = nodeDef.init.unsafeGet()
-      (initCalc, initResult) = codegenExp(initExprAst, typeEnv, nameTbl)
+      ty = env.getVarType(nodeId)
+      initExprAst = nodeDesc.initOpt.get()
+      (initCalc, initResult) = env.codegenExp(initExprAst, nameTbl)
 
-    r.add "static void _init" & nameTbl.varNameTable[nodeId] & "(" & ?ty & " *output) {\p"
+    r.add "static void init_" & nameTbl.varNameTable[nodeId] & "(" & ?ty & " *output) {\p"
     if initCalc.len > 0: r.add indent(initCalc, 2) & "\p"
     r.add "  *output = " & initResult & ";\p}\p\p"
 
   r.add "/* node updater */\p"
   for nodeId in env.innerNodeIds:
     let
-      nodeDef = env.getInnerNode(nodeId)
-      ty = typeEnv.getVarType(nodeId)
-      updateExprAst = nodeDef.update
-      (updateCalc, updateResult) = codegenExp(updateExprAst, typeEnv, nameTbl)
+      nodeDesc = env.getNode(nodeId)
+      ty = env.getVarType(nodeId)
+      updateExprAst = nodeDesc.update
+      (updateCalc, updateResult) = env.codegenExp(updateExprAst, nameTbl)
 
-    r.add "static void _update" & nameTbl.varNameTable[nodeId] & "("
-    for refNowNodeId in nodeDef.refNow:
-      let refNodeTy = typeEnv.getVarType(refNowNodeId)
+    r.add "static void update_" & nameTbl.varNameTable[nodeId] & "("
+    for refNowNodeId in nodeDesc.depsNow:
+      let refNodeTy = env.getVarType(refNowNodeId)
       r.add ?refNodeTy & " " & nameTbl.varNameTable[refNowNodeId] & ", "
 
-    for refAtLastNodeId in nodeDef.refAtLast:
-      let refNodeTy = typeEnv.getVarType(refAtLastNodeId)
+    for refAtLastNodeId in nodeDesc.depsAtLast:
+      let refNodeTy = env.getVarType(refAtLastNodeId)
       r.add ?refNodeTy & " " & nameTbl.varNameTable[refAtLastNodeId] & "_atlast, "
 
     r.add ?ty & " *output) {\p"
@@ -244,43 +308,37 @@ proc genFrpFile(env: XfrpEnv; typeEnv: XfrpTypeEnv; nameTbl: NameTables): string
     r.add "  *output = " & updateResult & ";\p}\p\p"
 
   r.add "void Activate"
-  r.add env.name.val
+  r.add env.name
   r.add "(void) {\p"
   r.add "  int current_side = 0, last_side = 1;\p\p"
   r.add "  /* Initialize nodes */\p"
-  for inputId in env.inputNodeIds:
-    let inputDef = env.getInputNode(inputId)
+  for nodeId in env.nodeIds:
+    let nodeDesc = env.getNode(nodeId)
 
-    if inputDef.init.isNone: continue
+    if nodeDesc.initOpt.isNone: continue
 
-    r.add "  _init" & nameTbl.varNameTable[inputId] & "(&_memory" & nameTbl.varNameTable[inputId] & "[current_side]);\p"
-  for nodeId in env.innerNodeIds:
-    let nodeDef = env.getInnerNode(nodeId)
-
-    if nodeDef.init.isNone: continue
-
-    r.add "  _init" & nameTbl.varNameTable[nodeId] & "(&_memory" & nameTbl.varNameTable[nodeId] & "[current_side]);\p"
+    r.add "  init_" & nameTbl.varNameTable[nodeId] & "(&memory_" & nameTbl.varNameTable[nodeId] & "[current_side]);\p"
   r.add "\p"
   r.add "XFRP_LOOP_BEGIN:\p"
   r.add "  /* Get input values */\p"
   r.add "  Input("
-  r.add toSeq(env.inputNodeIds).mapIt("&_memory" & nameTbl.varNameTable[it] & "[current_side]").join(", ")
+  r.add toSeq(env.inputNodeIds).mapIt("&memory_" & nameTbl.varNameTable[it] & "[current_side]").join(", ")
   r.add ");\p\p"
   r.add "  /* Update nodes by topologically-sorted ordering */\p"
   for nodeId in env.innerNodeIds:
-    let nodeDef = env.getInnerNode(nodeId)
+    let nodeDesc = env.getNode(nodeId)
 
-    r.add "  _update" & nameTbl.varNameTable[nodeId] & "("
+    r.add "  update_" & nameTbl.varNameTable[nodeId] & "("
 
-    for refNowId in nodeDef.refNow:
-      r.add "_memory" & nameTbl.varNameTable[refNowId] & "[current_side], "
-    for refAtLastId in nodeDef.refAtLast:
-      r.add "_memory" & nameTbl.varNameTable[refAtLastId] & "[last_side], "
+    for refNowId in nodeDesc.depsNow:
+      r.add "memory_" & nameTbl.varNameTable[refNowId] & "[current_side], "
+    for refAtLastId in nodeDesc.depsAtLast:
+      r.add "memory_" & nameTbl.varNameTable[refAtLastId] & "[last_side], "
 
-    r.add "&_memory" & nameTbl.varNameTable[nodeId] & "[current_side]);\p"
+    r.add "&memory_" & nameTbl.varNameTable[nodeId] & "[current_side]);\p"
   r.add "  /* Output values */\p"
   r.add "  Output("
-  r.add toSeq(env.outputNodeIds).mapIt("&_memory" & nameTbl.varNameTable[it] & "[current_side]").join(", ")
+  r.add toSeq(env.outputNodeIds).mapIt("&memory_" & nameTbl.varNameTable[it] & "[current_side]").join(", ")
   r.add ");\p\p"
   r.add "  /* Prepare for the next iteration */\p"
   r.add "  current_side ^= 1;\p  last_side ^= 1;\p\p"
@@ -290,66 +348,70 @@ proc genFrpFile(env: XfrpEnv; typeEnv: XfrpTypeEnv; nameTbl: NameTables): string
   result = $r
 
 
-proc genHeaderFile(env: XfrpEnv; typeEnv: XfrpTypeEnv): string =
+proc genHeaderFile(env: XfrpEnv): string =
   var r: Rope
 
-  r.add "#ifndef " & toUpperAscii(env.name.val) & "_H\p"
-  r.add "#define " & toUpperAscii(env.name.val) & "_H\p\p"
+  r.add "#ifndef " & toUpperAscii(env.name) & "_H\p"
+  r.add "#define " & toUpperAscii(env.name) & "_H\p\p"
 
   r.add xfrpTypeDefinitionCode
   r.add "\p"
 
   r.add "extern void Input("
-  r.add toSeq(env.inputNodeIds).mapIt(?typeEnv.getVarType(it) & " *").join(", ")
+  r.add toSeq(env.inputNodeIds).mapIt(?env.getVarType(it) & " *").join(", ")
   r.add ");\p"
   r.add "extern void Output("
-  r.add toSeq(env.outputNodeIds).mapIt(?typeEnv.getVarType(it) & " *").join(", ")
+  r.add toSeq(env.outputNodeIds).mapIt(?env.getVarType(it) & " *").join(", ")
   r.add ");\p\p"
 
-  r.add "extern void Activate" & env.name.val & "();\p"
+  r.add "extern void Activate" & env.name & "();\p"
 
   r.add "\p#endif\p"
 
   result = $r
 
 
-proc genMainFile(env: XfrpEnv; typeEnv: XfrpTypeEnv): string =
+proc genMainFile(env: XfrpEnv): string =
   var r: Rope
 
   r.add "/* Generated by XFRP compiler */\p"
 
   r.add "#include \""
-  r.add env.name.val
+  r.add env.name
   r.add ".h\"\p\p"
 
   r.add "void Input("
-  r.add toSeq(env.inputNodeIds).mapIt(?typeEnv.getVarType(it) & " *" & it).join(", ")
+  r.add toSeq(env.inputNodeIds).mapIt(?env.getVarType(it) & " *" & it).join(", ")
   r.add ") {\p  /* Your code goes here ... */\p}\p\p"
   r.add "void Output("
-  r.add toSeq(env.outputNodeIds).mapIt(?typeEnv.getVarType(it) & " *" & it).join(", ")
+  r.add toSeq(env.outputNodeIds).mapIt(?env.getVarType(it) & " *" & it).join(", ")
   r.add ") {\p  /* Your code goes here ... */\p}\p\p"
 
   r.add "int main(int argc, char *argv[]) {\p  Activate"
-  r.add env.name.val
+  r.add env.name
   r.add "();\p  return 0;\p}\p"
 
   result = $r
 
 
-proc codegen*(env: XfrpEnv; typeEnv: XfrpTypeEnv): CCodeFiles =
+proc codegen*(env: XfrpEnv): CCodeFiles =
   let
+    opNameTable = newStringTable(modeCaseSensitive)
     funcNameTable = newStringTable(modeCaseSensitive)
     varNameTable = newStringTable(modeCaseSensitive)
-    nameTbl = (funcNameTable, varNameTable)
+    nameTbl = (opNameTable, funcNameTable, varNameTable)
 
   randomize()
 
+  for opId in env.operatorIds:
+    opNameTable[opKey(opId)] = genOperatorNameInCode(opId.op)
+
   for funcId in env.functionIds:
-    funcNameTable[funcId] = genFunctionNameInCode(funcId)
+    funcNameTable[funcKey(funcId)] = genFunctionNameInCode(funcId.id)
 
   for nodeId in env.nodeIds:
     varNameTable[nodeId] = genNodeNameInCode(nodeId)
 
-  result.frpFile = genFrpFile(env, typeEnv, nameTbl)
-  result.frpHeaderFile = genHeaderFile(env, typeEnv)
-  result.mainFile = genMainFile(env, typeEnv)
+  result.frpFile = genFrpFile(env, nameTbl)
+  result.frpHeaderFile = genHeaderFile(env)
+  result.mainFile = genMainFile(env)

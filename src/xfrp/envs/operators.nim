@@ -153,12 +153,11 @@ proc hasOpOrFuncReference(exp: XfrpExpr): bool =
 
 
 proc makeOperatorEnvironmentFromModule*(materialTbl: XfrpMaterials): XfrpOpEnv =
-  let ast = materialTbl.getRoot().val
   var
     precedenceTbl = initTable[XfrpOpId, XfrpInfixPrecedence]()
     descriptionTbl = newTable[XfrpOpId, XfrpOpDescription]()
 
-  for moduleId in materialTbl.materialsOf(ast.moduleId.val):
+  for moduleId in materialTbl:
     let module = materialTbl[moduleId]
 
     for defAst in module.val.defs:
@@ -210,6 +209,17 @@ proc makeOperatorEnvironmentFromModule*(materialTbl: XfrpMaterials): XfrpOpEnv =
 
 proc getOperator*(opEnv: XfrpOpEnv; id: XfrpOpId): XfrpOpDescription =
   TableRef[XfrpOpId, XfrpOpDescription](opEnv)[id]
+
+
+proc findOpId*(opEnv: XfrpOpEnv; op: XfrpOperator; termTypes: seq[XfrpType]; definedIn: XfrpModuleId; materialTbl: XfrpMaterials): XfrpOpId =
+  let tbl = TableRef[XfrpOpId, XfrpOpDescription](opEnv)
+  for moduleId in materialTbl.materialsOf(definedIn):
+    if (moduleId, op) notin tbl: continue
+
+    if termTypes in tbl[(moduleId, op)].body:
+      return (moduleId, op)
+
+  raise XfrpLanguageError.newException("Operator " & op & " is not defined in module '" & definedIn & "'.")
 
 
 iterator items*(opEnv: XfrpOpEnv): XfrpOpId =

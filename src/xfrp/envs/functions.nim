@@ -94,11 +94,9 @@ proc getTopologicallySortedFuncList(funcTbl: XfrpFuncDescriptionTable): seq[Xfrp
 
 
 proc makeFunctionEnvironment*(materialTbl: XfrpMaterials; opEnv: XfrpOpEnv): XfrpFuncEnv =
-  let
-    ast = materialTbl.getRoot().val
-    functionTbl = newTable[XfrpFuncId, XfrpFuncDescription]()
+  let functionTbl = newTable[XfrpFuncId, XfrpFuncDescription]()
 
-  for moduleId in materialTbl.materialsOf(ast.moduleId.val):
+  for moduleId in materialTbl:
     let module = materialTbl[moduleId]
 
     for def in module.val.defs:
@@ -161,6 +159,14 @@ func checkFuncValidity*(env: XfrpFuncEnv; exp: WithCodeInfo[XfrpExpr]; definedIn
 
 proc getFunction*(env: XfrpFuncEnv; id: XfrpFuncId): XfrpFuncDescription =
   result = env.tbl[id]
+
+
+proc findFuncId*(env: XfrpFuncEnv; id: XfrpId; definedIn: XfrpModuleId; materialTbl: XfrpMaterials): XfrpFuncId =
+  for moduleId in materialTbl.materialsOf(definedIn):
+    if (moduleId, id) in env.tbl:
+      return (moduleId, id)
+
+  raise XfrpLanguageError.newException("Function '" & id & "' is not defined in module '" & definedIn & "'.")
 
 
 iterator items*(env: XfrpFuncEnv): XfrpFuncId =

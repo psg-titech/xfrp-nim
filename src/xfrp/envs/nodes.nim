@@ -207,6 +207,11 @@ iterator innerNodeIds*(env: XfrpNodeEnv): XfrpNodeId =
     yield id
 
 
+iterator inputNodeIds*(env: XfrpNodeEnv): XfrpNodeId =
+  for id in env.inputNodeIds:
+    yield id
+
+
 iterator outputNodeIds*(env: XfrpNodeEnv): XfrpNodeId =
   for id in env.outputNodeIds:
     yield id
@@ -224,6 +229,17 @@ iterator exprs*(env: XfrpNodeEnv): WithCodeInfo[XfrpExpr] =
   for desc in values(env.tbl):
     if not desc.isInput:
       yield desc.update
+
+
+iterator depsNow*(desc: XfrpNodeDescription): XfrpNodeId =
+  assert(not desc.isInput)
+  for id in desc.depsNow:
+    yield id
+
+iterator depsAtLast*(desc: XfrpNodeDescription): XfrpNodeId =
+  assert(not desc.isInput)
+  for id in desc.depsAtLast:
+    yield id
 
 
 when isMainModule:

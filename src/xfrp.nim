@@ -1,5 +1,5 @@
 import os, parseopt
-import xfrp/[loaders, envs, operators, typecheck, codeinfos, errors]
+import xfrp/[loaders, envs, codeinfos, errors]
 import xfrp/codegen/ccodegen
 
 proc writeHelp =
@@ -53,18 +53,16 @@ when isMainModule:
     let
       (entryDir, entryName, entryExt) = absolutePath(entryFileName).splitFile()
       loader = newXfrpLoader(@[entryDir])
-      ast = loader.load(entryName & entryExt, false)
-      opEnv = makeOperatorEnvironmentFromModule(ast.val)
-      env = makeEnvironmentFromModule(ast.val).mapForExpr do (expAst: auto) -> auto:
-        opEnv.reparseBinaryExpression(expAst)
-      typeEnv = makeTypeEnvironmentFromEnvironment(env)
+      ast = loader.load(absolutePath(entryFileName), false)
+      materials = loader.loadMaterials(ast)
+      env = makeEnvironment(materials)
 
     case target
     of "c":
-      let (frpFile, headerFile, mainFile) = ccodegen.codegen(env, typeEnv)
+      let (frpFile, headerFile, mainFile) = ccodegen.codegen(env)
 
-      writeFile(env.name.val & ".c", frpFile)
-      writeFile(env.name.val & ".h", headerFile)
+      writeFile(env.name & ".c", frpFile)
+      writeFile(env.name & ".h", headerFile)
       if noMainFlag:
         discard
       elif fileExists("main.c"):

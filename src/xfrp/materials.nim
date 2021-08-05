@@ -23,7 +23,18 @@ proc getRoot*(materialTbl: XfrpMaterials): WithCodeInfo[XfrpModule] =
   result = materialTbl[materialTbl.root]
 
 
+proc getRootId*(materialTbl: XfrpMaterials): XfrpModuleId =
+  result = materialTbl.root
+
+
 iterator materialsOf*(materialTbl: XfrpMaterials; moduleId: XfrpModuleId): XfrpModuleId =
+  yield moduleId
+
+  let materialAst = materialTbl.tbl[moduleId]
+  for idAst in materialAst.val.uses:
+    yield idAst.val
+
+iterator depthFirst*(materialTbl: XfrpMaterials; moduleId: XfrpModuleId): XfrpModuleId =
   ## Iterate materials by depth-first traversal.
   var
     uses = @[moduleId]
@@ -38,6 +49,12 @@ iterator materialsOf*(materialTbl: XfrpMaterials; moduleId: XfrpModuleId): XfrpM
     uses.insert(materialAst.val.uses.mapIt(it.val).filterIt(it notin uses), succ(usesCursor))
 
     inc usesCursor
+
+
+iterator items*(materialTbl: XfrpMaterials): XfrpModuleId =
+  for id in materialTbl.depthFirst(materialTbl.root):
+    yield id
+
 
 iterator pairs*(materialTbl: XfrpMaterials): (XfrpModuleId, WithCodeInfo[XfrpModule]) =
   for idAndModulePair in pairs(materialTbl.tbl):

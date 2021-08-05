@@ -8,7 +8,7 @@ import ".."/[types, errors, codeinfos, syntax, materials]
 import operators, functions, nodes
 
 type
-  FuncType* = tuple
+  XfrpFuncType* = tuple
     argTypes: seq[XfrpType]
     retType: XfrpType
 
@@ -16,7 +16,7 @@ type
     id: XfrpOpId
     args: seq[XfrpType]
 
-  XfrpFuncTypeEnv = Table[XfrpFuncId, FuncType]
+  XfrpFuncTypeEnv = Table[XfrpFuncId, XfrpFuncType]
   XfrpVarTypeEnv = Table[XfrpId, XfrpType]
   XfrpOpTypeEnv = Table[XfrpOpIdAndArgs, XfrpType]
 
@@ -27,7 +27,7 @@ type
 
 
 proc initXfrpTypeEnv*: XfrpTypeEnv =
-  result.fenv = initTable[XfrpFuncId, FuncType]()
+  result.fenv = initTable[XfrpFuncId, XfrpFuncType]()
   result.venv = initTable[XfrpId, XfrpType]()
   result.openv = initTable[XfrpOpIdAndArgs, XfrpType]()
 
@@ -52,13 +52,18 @@ proc hasVarOrAdd*(typeEnv: var XfrpTypeEnv; id: XfrpId; ty: XfrpType): bool =
   typeEnv.venv.hasKeyOrPut(id, ty)
 
 
-proc getFuncType*(typeEnv: XfrpTypeEnv; id: XfrpId; definedIn: XfrpModuleId; materialTbl: XfrpMaterials): FuncType =
+proc getFuncType*(typeEnv: XfrpTypeEnv; id: XfrpId; definedIn: XfrpModuleId; materialTbl: XfrpMaterials): XfrpFuncType =
   for moduleId in materialTbl.materialsOf(definedIn):
     if (moduleId, id) in typeEnv.fenv:
       return typeEnv.fenv[(moduleId, id)]
 
   let err = XfrpReferenceError.newException("")
   raise err
+
+
+proc getFuncType*(typeEnv: XfrpTypeEnv; id: XfrpFuncId): XfrpFuncType =
+  typeEnv.fenv[id]
+
 
 proc getVarType*(typeEnv: XfrpTypeEnv; id: XfrpId): XfrpType =
   typeEnv.venv[id]
@@ -169,7 +174,7 @@ proc xfrpTypeOf*(env: XfrpTypeEnv; exp: WithCodeInfo[XfrpExpr]; definedIn: XfrpM
 
 proc makeTypeEnvironment*(materialTbl: XfrpMaterials; opEnv: XfrpOpEnv; funcEnv: XfrpFuncEnv; nodeEnv: XfrpNodeEnv): XfrpTypeEnv =
   result = initXfrpTypeEnv()
-  let rootModuleId = materialTbl.getRoot().val.moduleId.val
+  let rootModuleId = materialTbl.getRootId()
 
   # store operator types into type environment
   for opId in opEnv:
@@ -259,7 +264,7 @@ when isMainModule:
       nodeEnv = makeNodeEnvironment(materials, opEnv)
 
     for exp in exprs(nodeEnv):
-      if not funcEnv.checkFuncValidity(exp, materials.getRoot().val.moduleId.val, materials):
+      if not funcEnv.checkFuncValidity(exp, materials.getRootId(), materials):
         let err = XfrpReferenceError.newException("Undefined function is called.")
         err.causedBy(exp)
         raise err
