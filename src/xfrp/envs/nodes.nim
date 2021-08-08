@@ -8,9 +8,11 @@ import ".."/[syntax, types, codeinfos, errors, topsort, materials]
 import operators
 
 type
-  XfrpNodeId* = XfrpId
+  XfrpNodeId* = XfrpId ## Node identifier.
 
   XfrpNodeDescription* = object
+    ## Details about a node.
+    ## It can describe both input and inner node.
     id: WithCodeInfo[XfrpId]
     initOpt: Option[WithCodeInfo[XfrpExpr]]
     case isInput: bool
@@ -25,6 +27,7 @@ type
   XfrpNodeDescriptionTable = TableRef[XfrpNodeId, XfrpNodeDescription]
 
   XfrpNodeEnv* = object
+    ## A node environment.
     tbl: XfrpNodeDescriptionTable
     sortedInnerNodeIds: seq[XfrpNodeId]
     inputNodeIds, outputNodeIds: seq[XfrpNodeId]
@@ -111,6 +114,7 @@ proc getTopologicallySortedNodeList(nodeTbl: XfrpNodeDescriptionTable): seq[Xfrp
 
 
 proc makeNodeEnvironment*(materialTbl: XfrpMaterials; opEnv: XfrpOpEnv): XfrpNodeEnv =
+  ## Construct new node environment.
   let
     ast = materialTbl.getRoot().val
     nodeTbl = newTable[XfrpNodeId, XfrpNodeDescription]()
@@ -191,10 +195,12 @@ proc makeNodeEnvironment*(materialTbl: XfrpMaterials; opEnv: XfrpOpEnv): XfrpNod
 
 
 proc getNode*(env: XfrpNodeEnv; id: XfrpNodeId): XfrpNodeDescription =
+  ## Get a node description by node ID.
   result = env.tbl[id]
 
 
 iterator items*(env: XfrpNodeEnv): XfrpNodeId =
+  ## Iterate all nodes by ID.
   for id in env.inputNodeIds:
     yield id
 
@@ -203,19 +209,23 @@ iterator items*(env: XfrpNodeEnv): XfrpNodeId =
 
 
 iterator innerNodeIds*(env: XfrpNodeEnv): XfrpNodeId =
+  ## Iterate all inner nodes by ID.
   for id in env.sortedInnerNodeIds:
     yield id
 
 
 iterator inputNodeIds*(env: XfrpNodeEnv): XfrpNodeId =
+  ## Iterate all input nodes by ID.
   for id in env.inputNodeIds:
     yield id
 
 
 iterator outputNodeIds*(env: XfrpNodeEnv): XfrpNodeId =
+  ## Iterate all output nodes by ID.
   for id in env.outputNodeIds:
     yield id
 
+# getters
 
 proc id*(desc: XfrpNodeDescription): WithCodeInfo[XfrpId] = desc.id
 proc initOpt*(desc: XfrpNodeDescription): Option[WithCodeInfo[XfrpExpr]] = desc.initOpt
@@ -226,17 +236,20 @@ proc update*(desc: XfrpNodeDescription): WithCodeInfo[XfrpExpr] = desc.update
 
 
 iterator exprs*(env: XfrpNodeEnv): WithCodeInfo[XfrpExpr] =
+  ## Iterate all expressions associated with nodes as update expressions or initialization expression.
   for desc in values(env.tbl):
     if not desc.isInput:
       yield desc.update
 
 
 iterator depsNow*(desc: XfrpNodeDescription): XfrpNodeId =
+  ## Iterate all current-value dependencies of a given node.
   assert(not desc.isInput)
   for id in desc.depsNow:
     yield id
 
 iterator depsAtLast*(desc: XfrpNodeDescription): XfrpNodeId =
+  ## Iterate all at-last dependencies of a given node.
   assert(not desc.isInput)
   for id in desc.depsAtLast:
     yield id

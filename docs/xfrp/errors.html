@@ -111,6 +111,9 @@ function main() {
     title="XfrpDefinitionError = object of XfrpLanguageError">XfrpDefinitionError</a></li>
   <li><a class="reference" href="#XfrpReferenceError"
     title="XfrpReferenceError = object of XfrpLanguageError">XfrpReferenceError</a></li>
+  <li><a class="reference" href="#XfrpLoadError"
+    title="XfrpLoadError = object of XfrpLanguageError
+  searchPaths*: seq[string]">XfrpLoadError</a></li>
 
   </ul>
 </li>
@@ -210,6 +213,19 @@ class="link-seesrc" target="_blank">Source</a>
 <a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/errors.nim#L18" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
+<a id="XfrpLoadError"></a>
+<dt><pre><a href="errors.html#XfrpLoadError"><span class="Identifier">XfrpLoadError</span></a> <span class="Other">=</span> <span class="Keyword">object</span> <span class="Keyword">of</span> <a href="errors.html#XfrpLanguageError"><span class="Identifier">XfrpLanguageError</span></a>
+  <span class="Identifier">searchPaths</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span>
+</pre></dt>
+<dd>
+
+An error while loading files.
+&nbsp;&nbsp;<a
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/errors.nim#L21"
+class="link-seesrc" target="_blank">Source</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/errors.nim#L21" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
 
 </dl></div>
 <div class="section" id="12">
@@ -222,9 +238,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Register erroneous codes.
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/errors.nim#L21"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/errors.nim#L25"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/errors.nim#L21" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/errors.nim#L25" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 
@@ -236,11 +252,11 @@ class="link-seesrc" target="_blank">Source</a>
 <dt><pre><span class="Keyword">iterator</span> <a href="#causes.i%2Cref.XfrpLanguageError"><span class="Identifier">causes</span></a><span class="Other">(</span><span class="Identifier">e</span><span class="Other">:</span> <span class="Keyword">ref</span> <a href="errors.html#XfrpLanguageError"><span class="Identifier">XfrpLanguageError</span></a><span class="Other">)</span><span class="Other">:</span> <a href="codeinfos.html#CodeInfo"><span class="Identifier">CodeInfo</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
-
+Iterate registered erroneous codes.
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/errors.nim#L26"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/errors.nim#L30"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/errors.nim#L26" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/errors.nim#L30" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 
@@ -253,7 +269,7 @@ class="link-seesrc" target="_blank">Source</a>
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2021-07-23 09:34:55 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2021-08-08 04:59:20 UTC</small>
       </div>
     </div>
   </div>

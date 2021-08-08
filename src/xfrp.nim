@@ -1,3 +1,16 @@
+## XFRP compiler written in Nim.
+## 
+## About XFRP
+## ==========
+## 
+## **XFRP** is a general-purpose functional reactive programming (FRP) language [SW2018]_.
+## The language specifications are based on `Emfrp <https://github.com/sawaken/emfrp>`_,
+## a FRP language for small-scale embedded systems.
+## 
+## .. [SW2018] Shibanai, K., Watanabe, T.: **Distributed Functional Reactive Programming on Actor-Based Runtime**,
+##    *Proceedings of the 8th ACM SIGPLAN International Workshop on Programming Based on Actors, Agents, and Decentralized Control*,
+##    Association for Computing Machinery, 13–22, 2018
+
 import os, parseopt
 import xfrp/[loaders, envs, codeinfos, errors]
 import xfrp/codegen/ccodegen
@@ -51,8 +64,8 @@ when isMainModule:
 
   try:
     let
-      (entryDir, entryName, entryExt) = absolutePath(entryFileName).splitFile()
-      loader = newXfrpLoader(@[entryDir])
+      (entryDir, _, _) = absolutePath(entryFileName).splitFile()
+      loader = newXfrpLoader(@[entryDir, getAppDir() / "xfrp_include"])
       ast = loader.load(absolutePath(entryFileName), false)
       materials = loader.loadMaterials(ast)
       env = makeEnvironment(materials)

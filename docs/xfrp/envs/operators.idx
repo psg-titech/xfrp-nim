@@ -1,0 +1,15 @@
+XfrpOpBody	xfrp/envs/operators.html#XfrpOpBody	operators: XfrpOpBody	
+XfrpOpDescription	xfrp/envs/operators.html#XfrpOpDescription	operators: XfrpOpDescription	
+XfrpOpId	xfrp/envs/operators.html#XfrpOpId	operators: XfrpOpId	
+XfrpOpEnv	xfrp/envs/operators.html#XfrpOpEnv	operators: XfrpOpEnv	
+reparseBinaryExpression	xfrp/envs/operators.html#reparseBinaryExpression,XfrpOpEnv,WithCodeInfo[XfrpExpr],XfrpModuleId,XfrpMaterials	operators: reparseBinaryExpression(opEnv: XfrpOpEnv; exp: WithCodeInfo[XfrpExpr];\n                        definedIn: XfrpModuleId; materialTbl: XfrpMaterials): WithCodeInfo[\n    XfrpExpr]	
+makeOperatorEnvironment	xfrp/envs/operators.html#makeOperatorEnvironment,XfrpMaterials	operators: makeOperatorEnvironment(materialTbl: XfrpMaterials): XfrpOpEnv	
+getOperator	xfrp/envs/operators.html#getOperator,XfrpOpEnv,XfrpOpId	operators: getOperator(opEnv: XfrpOpEnv; id: XfrpOpId): XfrpOpDescription	
+findOpId	xfrp/envs/operators.html#findOpId,XfrpOpEnv,XfrpOperator,seq[XfrpType],XfrpModuleId,XfrpMaterials	operators: findOpId(opEnv: XfrpOpEnv; op: XfrpOperator; termTypes: seq[XfrpType];\n         definedIn: XfrpModuleId; materialTbl: XfrpMaterials): XfrpOpId	
+items	xfrp/envs/operators.html#items.i,XfrpOpEnv	operators: items(opEnv: XfrpOpEnv): XfrpOpId	
+symbol	xfrp/envs/operators.html#symbol,XfrpOpDescription	operators: symbol(desc: XfrpOpDescription): XfrpOperator	
+getBody	xfrp/envs/operators.html#getBody,XfrpOpDescription,seq[XfrpType]	operators: getBody(desc: XfrpOpDescription; argTypes: seq[XfrpType]): XfrpOpBody	
+availableArgTypes	xfrp/envs/operators.html#availableArgTypes.i,XfrpOpDescription	operators: availableArgTypes(desc: XfrpOpDescription): seq[XfrpType]	
+args	xfrp/envs/operators.html#args,XfrpOpBody	operators: args(opBody: XfrpOpBody): seq[WithCodeInfo[XfrpIdAndType]]	
+retType	xfrp/envs/operators.html#retType,XfrpOpBody	operators: retType(opBody: XfrpOpBody): WithCodeInfo[XfrpType]	
+body	xfrp/envs/operators.html#body,XfrpOpBody	operators: body(opBody: XfrpOpBody): WithCodeInfo[XfrpExpr]	

@@ -152,9 +152,8 @@ function main() {
 
   </ul>
   <ul class="simple nested-toc-section">attachCodeInfo
-      <li><a class="reference" href="#attachCodeInfo%2CT%2CCodePos%2CCodePos%2CCodeLine"
-    title="attachCodeInfo[T](val: T; startPos, endPos: CodePos; line: CodeLine): WithCodeInfo[
-    T]">attachCodeInfo,<wbr>T,<wbr>CodePos,<wbr>CodePos,<wbr>CodeLine</a></li>
+      <li><a class="reference" href="#attachCodeInfo%2CT%2CCodeInfo"
+    title="attachCodeInfo[T](val: T; info: CodeInfo): WithCodeInfo[T]">attachCodeInfo,<wbr>T,<wbr>CodeInfo</a></li>
 
   </ul>
   <ul class="simple nested-toc-section"><
@@ -197,7 +196,7 @@ function main() {
 <dt><pre><a href="codeinfos.html#CodePos"><span class="Identifier">CodePos</span></a> <span class="Other">=</span> <span class="Keyword">tuple</span><span class="Other">[</span><span class="Identifier">col</span><span class="Other">,</span> <span class="Identifier">line</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">]</span></pre></dt>
 <dd>
 
-
+Location in a code.
 &nbsp;&nbsp;<a
 href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L8"
 class="link-seesrc" target="_blank">Source</a>
@@ -210,9 +209,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L11"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L12"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L11" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L12" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="WithCodeInfo"></a>
@@ -223,11 +222,11 @@ class="link-seesrc" target="_blank">Source</a>
 </pre></dt>
 <dd>
 
-
+A value and the code fragment which represents the value. It must satisfy <tt class="docutils literal"><span class="pre">startPos &lt; endPos</span></tt>.
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L13"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L14"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L13" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L14" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="CodeInfo"></a>
@@ -237,11 +236,11 @@ class="link-seesrc" target="_blank">Source</a>
 </pre></dt>
 <dd>
 
-
+A code fragment. It must satisfy <tt class="docutils literal"><span class="pre">startPos &lt; endPos</span></tt>.
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L18"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L21"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L18" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L21" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 
@@ -255,9 +254,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L22"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L28"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L22" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L28" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="<,CodePos,CodePos"></a>
@@ -266,9 +265,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L25"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L32"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L25" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L32" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="pretty,CodeLine,CodePos,CodePos"></a>
@@ -278,81 +277,13 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L28"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L28" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-<a id="val,WithCodeInfo[T]"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#val%2CWithCodeInfo%5BT%5D"><span class="Identifier">val</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">t</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L35"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L35" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-<a id="startPos,WithCodeInfo[T]"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#startPos%2CWithCodeInfo%5BT%5D"><span class="Identifier">startPos</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">t</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="codeinfos.html#CodePos"><span class="Identifier">CodePos</span></a></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
 href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L36"
 class="link-seesrc" target="_blank">Source</a>
 <a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L36" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
-<a id="endPos,WithCodeInfo[T]"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#endPos%2CWithCodeInfo%5BT%5D"><span class="Identifier">endPos</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">t</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="codeinfos.html#CodePos"><span class="Identifier">CodePos</span></a></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L37"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L37" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-<a id="line,WithCodeInfo[T]"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#line%2CWithCodeInfo%5BT%5D"><span class="Identifier">line</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">t</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="codeinfos.html#CodeLine"><span class="Identifier">CodeLine</span></a></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L38"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L38" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-<a id="attachCodeInfo,T,CodePos,CodePos,CodeLine"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#attachCodeInfo%2CT%2CCodePos%2CCodePos%2CCodeLine"><span class="Identifier">attachCodeInfo</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">val</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">;</span> <span class="Identifier">startPos</span><span class="Other">,</span> <span class="Identifier">endPos</span><span class="Other">:</span> <a href="codeinfos.html#CodePos"><span class="Identifier">CodePos</span></a><span class="Other">;</span> <span class="Identifier">line</span><span class="Other">:</span> <a href="codeinfos.html#CodeLine"><span class="Identifier">CodeLine</span></a><span class="Other">)</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span>
-    <span class="Identifier">T</span><span class="Other">]</span></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L40"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L40" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-<a id="codeInfo,CodePos,CodePos,CodeLine"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#codeInfo%2CCodePos%2CCodePos%2CCodeLine"><span class="Identifier">codeInfo</span></a><span class="Other">(</span><span class="Identifier">startPos</span><span class="Other">,</span> <span class="Identifier">endPos</span><span class="Other">:</span> <a href="codeinfos.html#CodePos"><span class="Identifier">CodePos</span></a><span class="Other">;</span> <span class="Identifier">line</span><span class="Other">:</span> <a href="codeinfos.html#CodeLine"><span class="Identifier">CodeLine</span></a><span class="Other">)</span><span class="Other">:</span> <a href="codeinfos.html#CodeInfo"><span class="Identifier">CodeInfo</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L43"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L43" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-<a id="codeInfo,WithCodeInfo[T]"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#codeInfo%2CWithCodeInfo%5BT%5D"><span class="Identifier">codeInfo</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">src</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="codeinfos.html#CodeInfo"><span class="Identifier">CodeInfo</span></a></pre></dt>
+<a id="val,WithCodeInfo[T]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#val%2CWithCodeInfo%5BT%5D"><span class="Identifier">val</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">t</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span></pre></dt>
 <dd>
 
 
@@ -362,8 +293,30 @@ class="link-seesrc" target="_blank">Source</a>
 <a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L46" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
-<a id="codeInfo,CodeInfo"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#codeInfo%2CCodeInfo"><span class="Identifier">codeInfo</span></a><span class="Other">(</span><span class="Identifier">x</span><span class="Other">:</span> <a href="codeinfos.html#CodeInfo"><span class="Identifier">CodeInfo</span></a><span class="Other">)</span><span class="Other">:</span> <a href="codeinfos.html#CodeInfo"><span class="Identifier">CodeInfo</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="startPos,WithCodeInfo[T]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#startPos%2CWithCodeInfo%5BT%5D"><span class="Identifier">startPos</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">t</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="codeinfos.html#CodePos"><span class="Identifier">CodePos</span></a></pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L47"
+class="link-seesrc" target="_blank">Source</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L47" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+<a id="endPos,WithCodeInfo[T]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#endPos%2CWithCodeInfo%5BT%5D"><span class="Identifier">endPos</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">t</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="codeinfos.html#CodePos"><span class="Identifier">CodePos</span></a></pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L48"
+class="link-seesrc" target="_blank">Source</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L48" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+<a id="line,WithCodeInfo[T]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#line%2CWithCodeInfo%5BT%5D"><span class="Identifier">line</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">t</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="codeinfos.html#CodeLine"><span class="Identifier">CodeLine</span></a></pre></dt>
 <dd>
 
 
@@ -373,15 +326,60 @@ class="link-seesrc" target="_blank">Source</a>
 <a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L49" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
+<a id="attachCodeInfo,T,CodeInfo"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#attachCodeInfo%2CT%2CCodeInfo"><span class="Identifier">attachCodeInfo</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">val</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">;</span> <span class="Identifier">info</span><span class="Other">:</span> <a href="codeinfos.html#CodeInfo"><span class="Identifier">CodeInfo</span></a><span class="Other">)</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
+<dd>
+
+Attach a code fragment to a value.
+&nbsp;&nbsp;<a
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L52"
+class="link-seesrc" target="_blank">Source</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L52" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+<a id="codeInfo,CodePos,CodePos,CodeLine"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#codeInfo%2CCodePos%2CCodePos%2CCodeLine"><span class="Identifier">codeInfo</span></a><span class="Other">(</span><span class="Identifier">startPos</span><span class="Other">,</span> <span class="Identifier">endPos</span><span class="Other">:</span> <a href="codeinfos.html#CodePos"><span class="Identifier">CodePos</span></a><span class="Other">;</span> <span class="Identifier">line</span><span class="Other">:</span> <a href="codeinfos.html#CodeLine"><span class="Identifier">CodeLine</span></a><span class="Other">)</span><span class="Other">:</span> <a href="codeinfos.html#CodeInfo"><span class="Identifier">CodeInfo</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+
+Construct a code fragment.
+&nbsp;&nbsp;<a
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L57"
+class="link-seesrc" target="_blank">Source</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L57" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+<a id="codeInfo,WithCodeInfo[T]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#codeInfo%2CWithCodeInfo%5BT%5D"><span class="Identifier">codeInfo</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">src</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="codeinfos.html#CodeInfo"><span class="Identifier">CodeInfo</span></a></pre></dt>
+<dd>
+
+Extract a code fragment from a value with code information.
+&nbsp;&nbsp;<a
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L63"
+class="link-seesrc" target="_blank">Source</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L63" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+<a id="codeInfo,CodeInfo"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#codeInfo%2CCodeInfo"><span class="Identifier">codeInfo</span></a><span class="Other">(</span><span class="Identifier">x</span><span class="Other">:</span> <a href="codeinfos.html#CodeInfo"><span class="Identifier">CodeInfo</span></a><span class="Other">)</span><span class="Other">:</span> <a href="codeinfos.html#CodeInfo"><span class="Identifier">CodeInfo</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+
+Extract a code fragment. This function is actually the identity function.
+&nbsp;&nbsp;<a
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L68"
+class="link-seesrc" target="_blank">Source</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L68" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
 <a id="pretty,CodeInfo"></a>
 <dt><pre><span class="Keyword">func</span> <a href="#pretty%2CCodeInfo"><span class="Identifier">pretty</span></a><span class="Other">(</span><span class="Identifier">info</span><span class="Other">:</span> <a href="codeinfos.html#CodeInfo"><span class="Identifier">CodeInfo</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L51"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L74"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L51" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L74" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="pretty,WithCodeInfo[T]"></a>
@@ -390,42 +388,51 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L54"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L78"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L54" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L78" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="..,WithCodeInfo[T],WithCodeInfo[U]"></a>
 <dt><pre><span class="Keyword">func</span> <a href="#..%2CWithCodeInfo%5BT%5D%2CWithCodeInfo%5BU%5D"><span class="Identifier">`..`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">U</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">x</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">y</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="codeinfos.html#CodeInfo"><span class="Identifier">CodeInfo</span></a></pre></dt>
 <dd>
 
-
+Construct a code fragment from <tt class="docutils literal"><span class="pre">x</span></tt> to <tt class="docutils literal"><span class="pre">y</span></tt>.
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L57"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L82"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L57" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L82" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="from,T,CodeInfo"></a>
 <dt><pre><span class="Keyword">func</span> <a href="#from%2CT%2CCodeInfo"><span class="Identifier">`from`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">;</span> <span class="Identifier">info</span><span class="Other">:</span> <a href="codeinfos.html#CodeInfo"><span class="Identifier">CodeInfo</span></a><span class="Other">)</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
 <dd>
 
+<p>The same as <tt class="docutils literal"><span class="pre">attachCodeInfo(data, info)</span></tt>.</p>
+<p><strong>See also:</strong></p>
+<ul class="simple"><li><a class="reference external" href="#attachCodeInfo,T,CodeInfo">attachCodeInfo</a></li>
+</ul>
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L60"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L87"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L60" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L87" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="from,T,WithCodeInfo[U]"></a>
 <dt><pre><span class="Keyword">func</span> <a href="#from%2CT%2CWithCodeInfo%5BU%5D"><span class="Identifier">`from`</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">U</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">;</span> <span class="Identifier">infoSrc</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><span class="Identifier">U</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
 <dd>
 
+<p>The same as <tt class="docutils literal"><span class="pre">attachCodeInfo(data, infoSrc.codeInfo)</span></tt>.</p>
+<p><strong>See also:</strong></p>
+<ul class="simple"><li><a class="reference external" href="#attachCodeInfo,T,CodeInfo">attachCodeInfo</a></li>
+<li><a class="reference external" href="#codeInfo,WithCodeInfo[T]">codeInfo</a></li>
+</ul>
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L63"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codeinfos.nim#L95"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L63" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codeinfos.nim#L95" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 
@@ -438,7 +445,7 @@ class="link-seesrc" target="_blank">Source</a>
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2021-07-23 09:33:03 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2021-08-08 04:59:20 UTC</small>
       </div>
     </div>
   </div>

@@ -1,4 +1,11 @@
-# XFRP environments.
+## XFRP environments.
+## The environment is actually the combination of four specialized environments with several additional data about the program.
+##
+## **See also:**
+## * `envs/operators <envs/operators.html>`_ for operator environments
+## * `envs/functions <envs/functions.html>`_ for function environments
+## * `envs/nodes <envs/ndoes.html>`_ for node environments
+## * `envs/typecheck <envs/typecheck.html>`_ for type environments and XFRP type system
 
 import strtabs
 import syntax, materials, codeinfos, types
@@ -17,6 +24,7 @@ export typecheck.XfrpFuncType
 
 type
   XfrpEnv* = tuple
+    ## An environment.
     name: XfrpModuleId
     materials: XfrpMaterials
     opEnv: XfrpOpEnv
@@ -27,6 +35,7 @@ type
 
 
 proc makeEnvironment*(materials: XfrpMaterials): XfrpEnv =
+  ## Construct new environment from materials.
   result.name = materials.getRootId()
   result.materials = materials
   result.opEnv = makeOperatorEnvironment(materials)

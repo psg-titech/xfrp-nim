@@ -10,14 +10,8 @@ LParen	xfrp/tokens.html#LParen	tokens: LParen(): XfrpRawToken
 RParen	xfrp/tokens.html#RParen	tokens: RParen(): XfrpRawToken	
 Colon	xfrp/tokens.html#Colon	tokens: Colon(): XfrpRawToken	
 At	xfrp/tokens.html#At	tokens: At(): XfrpRawToken	
-Plus	xfrp/tokens.html#Plus	tokens: Plus(): XfrpRawToken	
-VertVert	xfrp/tokens.html#VertVert	tokens: VertVert(): XfrpRawToken	
-EqEq	xfrp/tokens.html#EqEq	tokens: EqEq(): XfrpRawToken	
+Slash	xfrp/tokens.html#Slash	tokens: Slash(): XfrpRawToken	
 Equal	xfrp/tokens.html#Equal	tokens: Equal(): XfrpRawToken	
-Lte	xfrp/tokens.html#Lte	tokens: Lte(): XfrpRawToken	
-Lt	xfrp/tokens.html#Lt	tokens: Lt(): XfrpRawToken	
-Gte	xfrp/tokens.html#Gte	tokens: Gte(): XfrpRawToken	
-Gt	xfrp/tokens.html#Gt	tokens: Gt(): XfrpRawToken	
 Module	xfrp/tokens.html#Module	tokens: Module(): XfrpRawToken	
 Material	xfrp/tokens.html#Material	tokens: Material(): XfrpRawToken	
 In	xfrp/tokens.html#In	tokens: In(): XfrpRawToken	
@@ -32,15 +26,24 @@ Then	xfrp/tokens.html#Then	tokens: Then(): XfrpRawToken
 Else	xfrp/tokens.html#Else	tokens: Else(): XfrpRawToken	
 Last	xfrp/tokens.html#Last	tokens: Last(): XfrpRawToken	
 Function	xfrp/tokens.html#Function	tokens: Function(): XfrpRawToken	
+InfixLeft	xfrp/tokens.html#InfixLeft	tokens: InfixLeft(): XfrpRawToken	
+InfixRight	xfrp/tokens.html#InfixRight	tokens: InfixRight(): XfrpRawToken	
+InfixNone	xfrp/tokens.html#InfixNone	tokens: InfixNone(): XfrpRawToken	
+Magic	xfrp/tokens.html#Magic	tokens: Magic(): XfrpRawToken	
+Emit	xfrp/tokens.html#Emit	tokens: Emit(): XfrpRawToken	
 Id	xfrp/tokens.html#Id,string	tokens: Id(idStr: string): XfrpRawToken	
+Operator	xfrp/tokens.html#Operator,string	tokens: Operator(opStr: string): XfrpRawToken	
 FDigits	xfrp/tokens.html#FDigits,string	tokens: FDigits(floatStr: string): XfrpRawToken	
 Digits	xfrp/tokens.html#Digits,string	tokens: Digits(intStr: string): XfrpRawToken	
+TripleQuoted	xfrp/tokens.html#TripleQuoted,string	tokens: TripleQuoted(tqStr: string): XfrpRawToken	
 Unknown	xfrp/tokens.html#Unknown	tokens: Unknown(): XfrpRawToken	
 XfrpToken	xfrp/tokens.html#XfrpToken	tokens: XfrpToken	
 XfrpTokenKind	xfrp/tokens.html#XfrpTokenKind	tokens: XfrpTokenKind	
 kind	xfrp/tokens.html#kind,XfrpToken	tokens: kind(tok: XfrpToken): XfrpTokenKind	
 commentStr	xfrp/tokens.html#commentStr,XfrpToken	tokens: commentStr(tok: XfrpToken): string	
 idStr	xfrp/tokens.html#idStr,XfrpToken	tokens: idStr(tok: XfrpToken): string	
+opStr	xfrp/tokens.html#opStr,XfrpToken	tokens: opStr(tok: XfrpToken): string	
 floatStr	xfrp/tokens.html#floatStr,XfrpToken	tokens: floatStr(tok: XfrpToken): string	
 intStr	xfrp/tokens.html#intStr,XfrpToken	tokens: intStr(tok: XfrpToken): string	
+tqStr	xfrp/tokens.html#tqStr,XfrpToken	tokens: tqStr(tok: XfrpToken): string	
 `$`	xfrp/tokens.html#$,XfrpToken	tokens: `$`(tok: XfrpToken): string	

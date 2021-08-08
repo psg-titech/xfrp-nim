@@ -9,6 +9,7 @@ import operators, functions, nodes
 
 type
   XfrpFuncType* = tuple
+    ## A function type.
     argTypes: seq[XfrpType]
     retType: XfrpType
 
@@ -21,38 +22,46 @@ type
   XfrpOpTypeEnv = Table[XfrpOpIdAndArgs, XfrpType]
 
   XfrpTypeEnv* = object
+    ## A type environment.
     fenv: XfrpFuncTypeEnv
     venv: XfrpVarTypeEnv
     openv: XfrpOpTypeEnv
 
 
 proc initXfrpTypeEnv*: XfrpTypeEnv =
+  ## Construct new type environment.
   result.fenv = initTable[XfrpFuncId, XfrpFuncType]()
   result.venv = initTable[XfrpId, XfrpType]()
   result.openv = initTable[XfrpOpIdAndArgs, XfrpType]()
 
 
 proc addFunc*(typeEnv: var XfrpTypeEnv; id: XfrpFuncId; argTypes: seq[XfrpType]; retType: XfrpType) =
+  ## Add a function type into the environment.
   typeEnv.fenv[id] = (argTypes, retType)
 
 
 proc addVar*(typeEnv: var XfrpTypeEnv; id: XfrpId; ty: XfrpType) =
+  ## Add a variable type into the environment.
   typeEnv.venv[id] = ty
 
 
 proc addVar*(typeEnv: var XfrpTypeEnv; idAndTy: XfrpIdAndType) =
+  ## Add a variable type into the environment.
   typeEnv.addVar(idAndTy.id.val, idAndTy.ty.val)
 
 
 proc addOp*(typeEnv: var XfrpTypeEnv; id: XfrpOpId; argTypes: seq[XfrpType]; retType: XfrpType) =
+  ## Add an operator type into the environment.
+  ## Note: operators can be overloaded.
   typeEnv.openv[(id, argTypes)] = retType
 
 
-proc hasVarOrAdd*(typeEnv: var XfrpTypeEnv; id: XfrpId; ty: XfrpType): bool =
+proc hasVarOrAdd(typeEnv: var XfrpTypeEnv; id: XfrpId; ty: XfrpType): bool =
   typeEnv.venv.hasKeyOrPut(id, ty)
 
 
 proc getFuncType*(typeEnv: XfrpTypeEnv; id: XfrpId; definedIn: XfrpModuleId; materialTbl: XfrpMaterials): XfrpFuncType =
+  ## Get a function type by ID and materials.
   for moduleId in materialTbl.materialsOf(definedIn):
     if (moduleId, id) in typeEnv.fenv:
       return typeEnv.fenv[(moduleId, id)]
@@ -62,14 +71,17 @@ proc getFuncType*(typeEnv: XfrpTypeEnv; id: XfrpId; definedIn: XfrpModuleId; mat
 
 
 proc getFuncType*(typeEnv: XfrpTypeEnv; id: XfrpFuncId): XfrpFuncType =
+  ## Get a function type by function ID.
   typeEnv.fenv[id]
 
 
 proc getVarType*(typeEnv: XfrpTypeEnv; id: XfrpId): XfrpType =
+  ## Get a variable type by ID.
   typeEnv.venv[id]
 
 
 proc getOpType*(typeEnv: XfrpTypeEnv; op: XfrpOperator; argTypes: seq[XfrpType]; definedIn: XfrpModuleId; materialTbl: XfrpMaterials): XfrpType =
+  ## Get an operator type by an operator, argument types and materials.
   for moduleId in materialTbl.materialsof(definedIn):
     if ((moduleId, op), argTypes) in typeEnv.openv:
       return typeEnv.openv[((moduleId, op), argTypes)]
@@ -80,6 +92,10 @@ proc getOpType*(typeEnv: XfrpTypeEnv; op: XfrpOperator; argTypes: seq[XfrpType];
 
 proc `$`*(typeEnv: XfrpTypeEnv): string =
   var r: Rope
+  for (opKey, opType) in pairs(typeEnv.openv):
+    let (opId, argTypes) = opKey
+    r.add $opId & " : (" & argTypes.join(", ") & ") -> " & $opType & "\p"
+
   for (funcId, funcType) in pairs(typeEnv.fenv):
     r.add $funcId & " : (" & funcType.argTypes.join(", ") & ") -> " & $funcType.retType & "\p"
 
@@ -110,6 +126,7 @@ template xfrpTypeCheck(env: XfrpTypeEnv; exp: WithCodeInfo[XfrpExpr]; ty: XfrpTy
 
 
 proc xfrpTypeOf*(env: XfrpTypeEnv; exp: WithCodeInfo[XfrpExpr]; definedIn: XfrpModuleId; materialTbl: XfrpMaterials): XfrpType =
+  ## Get a type of given expression.
   match exp.val:
     ExprLiteral(lit):
       return env.xfrpTypeOf(lit)
@@ -173,6 +190,7 @@ proc xfrpTypeOf*(env: XfrpTypeEnv; exp: WithCodeInfo[XfrpExpr]; definedIn: XfrpM
 
 
 proc makeTypeEnvironment*(materialTbl: XfrpMaterials; opEnv: XfrpOpEnv; funcEnv: XfrpFuncEnv; nodeEnv: XfrpNodeEnv): XfrpTypeEnv =
+  ## Construct new type environment.
   result = initXfrpTypeEnv()
   let rootModuleId = materialTbl.getRootId()
 
@@ -204,7 +222,7 @@ proc makeTypeEnvironment*(materialTbl: XfrpMaterials; opEnv: XfrpOpEnv; funcEnv:
     let nodeDesc = nodeEnv.getNode(nodeId)
 
     if nodeDesc.initOpt.isSome:
-      # * The code comment-out below will cause a fatal error of code generation.
+      # ! The code comment-out below will cause a fatal error of code generation.
       # let initExprAst = nodeDesc.initOpt.get
 
       if nodeDesc.isInput:

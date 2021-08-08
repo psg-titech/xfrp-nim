@@ -1,0 +1,14 @@
+XfrpFuncId	xfrp/envs/functions.html#XfrpFuncId	functions: XfrpFuncId	
+XfrpFuncDescription	xfrp/envs/functions.html#XfrpFuncDescription	functions: XfrpFuncDescription	
+XfrpFuncEnv	xfrp/envs/functions.html#XfrpFuncEnv	functions: XfrpFuncEnv	
+`$`	xfrp/envs/functions.html#$,XfrpFuncId	functions: `$`(funcId: XfrpFuncId): string	
+makeFunctionEnvironment	xfrp/envs/functions.html#makeFunctionEnvironment,XfrpMaterials,XfrpOpEnv	functions: makeFunctionEnvironment(materialTbl: XfrpMaterials; opEnv: XfrpOpEnv): XfrpFuncEnv	
+checkFuncValidity	xfrp/envs/functions.html#checkFuncValidity,XfrpFuncEnv,WithCodeInfo[XfrpExpr],XfrpModuleId,XfrpMaterials	functions: checkFuncValidity(env: XfrpFuncEnv; exp: WithCodeInfo[XfrpExpr];\n                  definedIn: XfrpModuleId; materialTbl: XfrpMaterials)	
+getFunction	xfrp/envs/functions.html#getFunction,XfrpFuncEnv,XfrpFuncId	functions: getFunction(env: XfrpFuncEnv; id: XfrpFuncId): XfrpFuncDescription	
+findFuncId	xfrp/envs/functions.html#findFuncId,XfrpFuncEnv,XfrpId,XfrpModuleId,XfrpMaterials	functions: findFuncId(env: XfrpFuncEnv; id: XfrpId; definedIn: XfrpModuleId;\n           materialTbl: XfrpMaterials): XfrpFuncId	
+items	xfrp/envs/functions.html#items.i,XfrpFuncEnv	functions: items(env: XfrpFuncEnv): XfrpFuncId	
+id	xfrp/envs/functions.html#id,XfrpFuncDescription	functions: id(desc: XfrpFuncDescription): WithCodeInfo[XfrpId]	
+module	xfrp/envs/functions.html#module,XfrpFuncDescription	functions: module(desc: XfrpFuncDescription): WithCodeInfo[XfrpModuleId]	
+retType	xfrp/envs/functions.html#retType,XfrpFuncDescription	functions: retType(desc: XfrpFuncDescription): WithCodeInfo[XfrpType]	
+args	xfrp/envs/functions.html#args,XfrpFuncDescription	functions: args(desc: XfrpFuncDescription): seq[WithCodeInfo[XfrpIdAndType]]	
+body	xfrp/envs/functions.html#body,XfrpFuncDescription	functions: body(desc: XfrpFuncDescription): WithCodeInfo[XfrpExpr]	

@@ -5,8 +5,9 @@ from sequtils import toSeq, allIt, filterIt, mapIt
 type
   ReferencesOf*[T] = (proc (x: T): seq[T] {.noSideEffect.})
   ReferenceGraph*[T] = tuple
-    domain: seq[T]
-    referencesOf: ReferencesOf[T]
+    ## Directed Acyclic Graph (DAG).
+    domain: seq[T] ## Nodes.
+    referencesOf: ReferencesOf[T] ## Directed edges.
 
 
 func getAnyReferenceCycle[T](graph: ReferenceGraph[T]; x: T; trace: seq[T] = @[]): seq[T] =

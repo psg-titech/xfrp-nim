@@ -1,12 +1,11 @@
-XfrpAst	xfrp/syntax.html#XfrpAst	syntax: XfrpAst	
 XfrpId	xfrp/syntax.html#XfrpId	syntax: XfrpId	
 XfrpModuleId	xfrp/syntax.html#XfrpModuleId	syntax: XfrpModuleId	
 XfrpIdAndType	xfrp/syntax.html#XfrpIdAndType	syntax: XfrpIdAndType	
 XfrpIdAndTypeOptKind	xfrp/syntax.html#XfrpIdAndTypeOptKind	syntax: XfrpIdAndTypeOptKind	
 XfrpIdAndTypeOpt	xfrp/syntax.html#XfrpIdAndTypeOpt	syntax: XfrpIdAndTypeOpt	
 `==`	xfrp/syntax.html#==,XfrpIdAndTypeOpt,XfrpIdAndTypeOpt	syntax: `==`(a: XfrpIdAndTypeOpt; b: XfrpIdAndTypeOpt): bool	
-IdWithExplicitType	xfrp/syntax.html#IdWithExplicitType,XfrpAst[XfrpId],XfrpAst[XfrpType]	syntax: IdWithExplicitType(idExplicit: XfrpAst[XfrpId]; tyExplicit: XfrpAst[XfrpType]): XfrpIdAndTypeOpt	
-IdWithoutAnyTypeAnnot	xfrp/syntax.html#IdWithoutAnyTypeAnnot,XfrpAst[XfrpId]	syntax: IdWithoutAnyTypeAnnot(idImplicit: XfrpAst[XfrpId]): XfrpIdAndTypeOpt	
+IdWithExplicitType	xfrp/syntax.html#IdWithExplicitType,WithCodeInfo[XfrpId],WithCodeInfo[XfrpType]	syntax: IdWithExplicitType(idExplicit: WithCodeInfo[XfrpId];\n                   tyExplicit: WithCodeInfo[XfrpType]): XfrpIdAndTypeOpt	
+IdWithoutAnyTypeAnnot	xfrp/syntax.html#IdWithoutAnyTypeAnnot,WithCodeInfo[XfrpId]	syntax: IdWithoutAnyTypeAnnot(idImplicit: WithCodeInfo[XfrpId]): XfrpIdAndTypeOpt	
 XfrpAnnotationKind	xfrp/syntax.html#XfrpAnnotationKind	syntax: XfrpAnnotationKind	
 XfrpAnnotation	xfrp/syntax.html#XfrpAnnotation	syntax: XfrpAnnotation	
 `==`	xfrp/syntax.html#==,XfrpAnnotation,XfrpAnnotation	syntax: `==`(a: XfrpAnnotation; b: XfrpAnnotation): bool	
@@ -14,37 +13,43 @@ AnnotAtLast	xfrp/syntax.html#AnnotAtLast	syntax: AnnotAtLast(): XfrpAnnotation
 XfrpLiteralKind	xfrp/syntax.html#XfrpLiteralKind	syntax: XfrpLiteralKind	
 XfrpLiteral	xfrp/syntax.html#XfrpLiteral	syntax: XfrpLiteral	
 `==`	xfrp/syntax.html#==,XfrpLiteral,XfrpLiteral	syntax: `==`(a: XfrpLiteral; b: XfrpLiteral): bool	
-LitUnit	xfrp/syntax.html#LitUnit	syntax: LitUnit(): XfrpLiteral	
 LitBool	xfrp/syntax.html#LitBool,bool	syntax: LitBool(boolVal: bool): XfrpLiteral	
 LitInt	xfrp/syntax.html#LitInt,int	syntax: LitInt(intVal: int): XfrpLiteral	
 LitFloat	xfrp/syntax.html#LitFloat,float	syntax: LitFloat(floatVal: float): XfrpLiteral	
-binAdd	xfrp/syntax.html#binAdd	XfrpBinOp.binAdd	
-binEqEq	xfrp/syntax.html#binEqEq	XfrpBinOp.binEqEq	
-binVertVert	xfrp/syntax.html#binVertVert	XfrpBinOp.binVertVert	
-binLte	xfrp/syntax.html#binLte	XfrpBinOp.binLte	
-binLt	xfrp/syntax.html#binLt	XfrpBinOp.binLt	
-binGte	xfrp/syntax.html#binGte	XfrpBinOp.binGte	
-binGt	xfrp/syntax.html#binGt	XfrpBinOp.binGt	
-XfrpBinOp	xfrp/syntax.html#XfrpBinOp	syntax: XfrpBinOp	
+XfrpOperator	xfrp/syntax.html#XfrpOperator	syntax: XfrpOperator	
+XfrpOperatorPrecedenceLevel	xfrp/syntax.html#XfrpOperatorPrecedenceLevel	syntax: XfrpOperatorPrecedenceLevel	
+assocLeft	xfrp/syntax.html#assocLeft	XfrpOperatorAssociativity.assocLeft	
+assocRight	xfrp/syntax.html#assocRight	XfrpOperatorAssociativity.assocRight	
+assocNone	xfrp/syntax.html#assocNone	XfrpOperatorAssociativity.assocNone	
+XfrpOperatorAssociativity	xfrp/syntax.html#XfrpOperatorAssociativity	syntax: XfrpOperatorAssociativity	
 XfrpExprKind	xfrp/syntax.html#XfrpExprKind	syntax: XfrpExprKind	
 XfrpExpr	xfrp/syntax.html#XfrpExpr	syntax: XfrpExpr	
 `==`	xfrp/syntax.html#==,XfrpExpr,XfrpExpr	syntax: `==`(a: XfrpExpr; b: XfrpExpr): bool	
-ExprLiteral	xfrp/syntax.html#ExprLiteral,XfrpAst[XfrpLiteral]	syntax: ExprLiteral(litVal: XfrpAst[XfrpLiteral]): XfrpExpr	
-ExprId	xfrp/syntax.html#ExprId,XfrpAst[XfrpId]	syntax: ExprId(id: XfrpAst[XfrpId]): XfrpExpr	
-ExprAnnot	xfrp/syntax.html#ExprAnnot,XfrpAst[XfrpId],XfrpAst[XfrpAnnotation]	syntax: ExprAnnot(annotId: XfrpAst[XfrpId]; annot: XfrpAst[XfrpAnnotation]): XfrpExpr	
-ExprBin	xfrp/syntax.html#ExprBin,XfrpAst[XfrpBinOp],ref.XfrpAst[XfrpExpr],ref.XfrpAst[XfrpExpr]	syntax: ExprBin(binOp: XfrpAst[XfrpBinOp]; binLhs: ref XfrpAst[XfrpExpr];\n        binRhs: ref XfrpAst[XfrpExpr]): XfrpExpr	
-ExprIf	xfrp/syntax.html#ExprIf,ref.XfrpAst[XfrpExpr],ref.XfrpAst[XfrpExpr],ref.XfrpAst[XfrpExpr]	syntax: ExprIf(ifExpr: ref XfrpAst[XfrpExpr]; thenExpr: ref XfrpAst[XfrpExpr];\n       elseExpr: ref XfrpAst[XfrpExpr]): XfrpExpr	
-ExprApp	xfrp/syntax.html#ExprApp,XfrpAst[XfrpId],seq[XfrpAst[XfrpExpr]]	syntax: ExprApp(appId: XfrpAst[XfrpId]; appArgs: seq[XfrpAst[XfrpExpr]]): XfrpExpr	
+ExprLiteral	xfrp/syntax.html#ExprLiteral,WithCodeInfo[XfrpLiteral]	syntax: ExprLiteral(litVal: WithCodeInfo[XfrpLiteral]): XfrpExpr	
+ExprId	xfrp/syntax.html#ExprId,WithCodeInfo[XfrpId]	syntax: ExprId(id: WithCodeInfo[XfrpId]): XfrpExpr	
+ExprAnnot	xfrp/syntax.html#ExprAnnot,WithCodeInfo[XfrpId],WithCodeInfo[XfrpAnnotation]	syntax: ExprAnnot(annotId: WithCodeInfo[XfrpId]; annot: WithCodeInfo[XfrpAnnotation]): XfrpExpr	
+ExprBin	xfrp/syntax.html#ExprBin,seq[WithCodeInfo[XfrpOperator]],seq[WithCodeInfo[XfrpExpr]]	syntax: ExprBin(binOps: seq[WithCodeInfo[XfrpOperator]];\n        binTerms: seq[WithCodeInfo[XfrpExpr]]): XfrpExpr	
+ExprIf	xfrp/syntax.html#ExprIf,ref.WithCodeInfo[XfrpExpr],ref.WithCodeInfo[XfrpExpr],ref.WithCodeInfo[XfrpExpr]	syntax: ExprIf(ifExpr: ref WithCodeInfo[XfrpExpr]; thenExpr: ref WithCodeInfo[XfrpExpr];\n       elseExpr: ref WithCodeInfo[XfrpExpr]): XfrpExpr	
+ExprApp	xfrp/syntax.html#ExprApp,WithCodeInfo[XfrpId],seq[WithCodeInfo[XfrpExpr]]	syntax: ExprApp(appId: WithCodeInfo[XfrpId]; appArgs: seq[WithCodeInfo[XfrpExpr]]): XfrpExpr	
+ExprMagic	xfrp/syntax.html#ExprMagic,WithCodeInfo[XfrpIdAndType],seq[WithCodeInfo[XfrpExpr]]	syntax: ExprMagic(magicIdAndType: WithCodeInfo[XfrpIdAndType];\n          magicArgs: seq[WithCodeInfo[XfrpExpr]]): XfrpExpr	
 XfrpDefinitionKind	xfrp/syntax.html#XfrpDefinitionKind	syntax: XfrpDefinitionKind	
 XfrpDefinition	xfrp/syntax.html#XfrpDefinition	syntax: XfrpDefinition	
 `==`	xfrp/syntax.html#==,XfrpDefinition,XfrpDefinition	syntax: `==`(a: XfrpDefinition; b: XfrpDefinition): bool	
-DefNode	xfrp/syntax.html#DefNode,XfrpAst[XfrpIdAndTypeOpt],Option[XfrpAst[XfrpExpr]],XfrpAst[XfrpExpr]	syntax: DefNode(nodeIdAndTypeOpt: XfrpAst[XfrpIdAndTypeOpt];\n        nodeInit: Option[XfrpAst[XfrpExpr]]; nodeBody: XfrpAst[XfrpExpr]): XfrpDefinition	
-DefFunc	xfrp/syntax.html#DefFunc,XfrpAst[XfrpId],XfrpAst[XfrpType],seq[XfrpAst[XfrpIdAndType]],XfrpAst[XfrpExpr]	syntax: DefFunc(funId: XfrpAst[XfrpId]; funRetType: XfrpAst[XfrpType];\n        funArgs: seq[XfrpAst[XfrpIdAndType]]; funBody: XfrpAst[XfrpExpr]): XfrpDefinition	
+DefNode	xfrp/syntax.html#DefNode,WithCodeInfo[XfrpIdAndTypeOpt],Option[WithCodeInfo[XfrpExpr]],WithCodeInfo[XfrpExpr]	syntax: DefNode(nodeIdAndTypeOpt: WithCodeInfo[XfrpIdAndTypeOpt];\n        nodeInit: Option[WithCodeInfo[XfrpExpr]];\n        nodeBody: WithCodeInfo[XfrpExpr]): XfrpDefinition	
+DefFunc	xfrp/syntax.html#DefFunc,WithCodeInfo[XfrpId],WithCodeInfo[XfrpType],seq[WithCodeInfo[XfrpIdAndType]],WithCodeInfo[XfrpExpr]	syntax: DefFunc(funId: WithCodeInfo[XfrpId]; funRetType: WithCodeInfo[XfrpType];\n        funArgs: seq[WithCodeInfo[XfrpIdAndType]];\n        funBody: WithCodeInfo[XfrpExpr]): XfrpDefinition	
+DefOp	xfrp/syntax.html#DefOp,WithCodeInfo[XfrpOperator],WithCodeInfo[XfrpType],seq[WithCodeInfo[XfrpIdAndType]],WithCodeInfo[XfrpExpr]	syntax: DefOp(operator: WithCodeInfo[XfrpOperator]; opRetType: WithCodeInfo[XfrpType];\n      opArgs: seq[WithCodeInfo[XfrpIdAndType]]; opBody: WithCodeInfo[XfrpExpr]): XfrpDefinition	
+DefInfix	xfrp/syntax.html#DefInfix,WithCodeInfo[XfrpOperator],XfrpOperatorPrecedenceLevel,XfrpOperatorAssociativity	syntax: DefInfix(infixOp: WithCodeInfo[XfrpOperator];\n         infixLevel: XfrpOperatorPrecedenceLevel;\n         infixAssoc: XfrpOperatorAssociativity): XfrpDefinition	
 XfrpInputKind	xfrp/syntax.html#XfrpInputKind	syntax: XfrpInputKind	
 XfrpInput	xfrp/syntax.html#XfrpInput	syntax: XfrpInput	
 `==`	xfrp/syntax.html#==,XfrpInput,XfrpInput	syntax: `==`(a: XfrpInput; b: XfrpInput): bool	
-InputWithoutInit	xfrp/syntax.html#InputWithoutInit,XfrpAst[XfrpIdAndType]	syntax: InputWithoutInit(idAndTypeNoInit: XfrpAst[XfrpIdAndType]): XfrpInput	
-InputWithInit	xfrp/syntax.html#InputWithInit,XfrpAst[XfrpIdAndType],XfrpAst[XfrpExpr]	syntax: InputWithInit(idAndTypeWithInit: XfrpAst[XfrpIdAndType]; init: XfrpAst[XfrpExpr]): XfrpInput	
+InputWithoutInit	xfrp/syntax.html#InputWithoutInit,WithCodeInfo[XfrpIdAndType]	syntax: InputWithoutInit(idAndTypeNoInit: WithCodeInfo[XfrpIdAndType]): XfrpInput	
+InputWithInit	xfrp/syntax.html#InputWithInit,WithCodeInfo[XfrpIdAndType],WithCodeInfo[XfrpExpr]	syntax: InputWithInit(idAndTypeWithInit: WithCodeInfo[XfrpIdAndType];\n              init: WithCodeInfo[XfrpExpr]): XfrpInput	
+XfrpEmit	xfrp/syntax.html#XfrpEmit	syntax: XfrpEmit	
+modModule	xfrp/syntax.html#modModule	XfrpModuleKind.modModule	
+modMaterial	xfrp/syntax.html#modMaterial	XfrpModuleKind.modMaterial	
+XfrpModuleKind	xfrp/syntax.html#XfrpModuleKind	syntax: XfrpModuleKind	
 XfrpModule	xfrp/syntax.html#XfrpModule	syntax: XfrpModule	
-split	xfrp/syntax.html#split,XfrpIdAndTypeOpt	syntax: split(idAndTypeOpt: XfrpIdAndTypeOpt): tuple[id: XfrpAst[XfrpId],\n    typeOpt: Option[XfrpAst[XfrpType]]]	
-split	xfrp/syntax.html#split,XfrpInput	syntax: split(input: XfrpInput): tuple[id: XfrpAst[XfrpId], ty: XfrpAst[XfrpType],\n                               initOpt: Option[XfrpAst[XfrpExpr]]]	
+makeXfrpModule	xfrp/syntax.html#makeXfrpModule,WithCodeInfo[XfrpModuleId],seq[WithCodeInfo[XfrpInput]],seq[WithCodeInfo[XfrpIdAndTypeOpt]],seq[WithCodeInfo[XfrpModuleId]],seq[WithCodeInfo[XfrpEmit]],seq[WithCodeInfo[XfrpDefinition]]	syntax: makeXfrpModule(moduleId: WithCodeInfo[XfrpModuleId];\n               ins: seq[WithCodeInfo[XfrpInput]];\n               outs: seq[WithCodeInfo[XfrpIdAndTypeOpt]];\n               uses: seq[WithCodeInfo[XfrpModuleId]] = @[];\n               emits: seq[WithCodeInfo[XfrpEmit]] = @[];\n               defs: seq[WithCodeInfo[XfrpDefinition]]): XfrpModule	
+makeXfrpMaterial	xfrp/syntax.html#makeXfrpMaterial,WithCodeInfo[XfrpModuleId],seq[WithCodeInfo[XfrpModuleId]],seq[WithCodeInfo[XfrpEmit]],seq[WithCodeInfo[XfrpDefinition]]	syntax: makeXfrpMaterial(moduleId: WithCodeInfo[XfrpModuleId];\n                 uses: seq[WithCodeInfo[XfrpModuleId]] = @[];\n                 emits: seq[WithCodeInfo[XfrpEmit]] = @[];\n                 defs: seq[WithCodeInfo[XfrpDefinition]]): XfrpModule	
+split	xfrp/syntax.html#split,XfrpIdAndTypeOpt	syntax: split(idAndTypeOpt: XfrpIdAndTypeOpt): tuple[id: WithCodeInfo[XfrpId],\n    typeOpt: Option[WithCodeInfo[XfrpType]]]	
+split	xfrp/syntax.html#split,XfrpInput	syntax: split(input: XfrpInput): tuple[id: WithCodeInfo[XfrpId],\n                               ty: WithCodeInfo[XfrpType],\n                               initOpt: Option[WithCodeInfo[XfrpExpr]]]	

@@ -28,5 +28,6 @@ proc causedBy*(e: ref XfrpLanguageError; cs: varargs[CodeInfo, codeInfo]) =
     e.causes.add c
 
 iterator causes*(e: ref XfrpLanguageError): CodeInfo =
+  ## Iterate registered erroneous codes.
   for c in e.causes:
     yield c

@@ -1,4 +1,7 @@
 ## XFRP primitive types.
+##
+## **See also:**
+## * <typecheck `envs/typecheck.html>`_ for type environments and XFRP type system
 
 import hashes
 import patty
@@ -15,6 +18,8 @@ func `$`*(ty: XfrpType): string =
     TFloat: return "Float"
 
 func short*(ty: XfrpType): string =
+  ## Short representation of types.
+  ## It is useful for naming overloaded operators uniquely.
   match ty:
     TBool: return "B"
     TInt: return "I"

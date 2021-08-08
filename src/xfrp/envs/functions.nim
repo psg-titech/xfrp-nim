@@ -9,10 +9,12 @@ import operators
 
 type
   XfrpFuncId* = tuple
+    ## Function identifier.
     module: XfrpModuleId
     id: XfrpId
 
   XfrpFuncDescription* = object
+    ## Details about a function.
     id: WithCodeInfo[XfrpId]
     module: WithCodeInfo[XfrpModuleId]
     retType: WithCodeInfo[XfrpType]
@@ -23,6 +25,7 @@ type
   XfrpFuncDescriptionTable = TableRef[XfrpFuncId, XfrpFuncDescription]
 
   XfrpFuncEnv* = object
+    ## A function environment.
     tbl: XfrpFuncDescriptionTable
     sortedIds: seq[XfrpFuncId]
 
@@ -94,6 +97,7 @@ proc getTopologicallySortedFuncList(funcTbl: XfrpFuncDescriptionTable): seq[Xfrp
 
 
 proc makeFunctionEnvironment*(materialTbl: XfrpMaterials; opEnv: XfrpOpEnv): XfrpFuncEnv =
+  ## Construct new function environment.
   let functionTbl = newTable[XfrpFuncId, XfrpFuncDescription]()
 
   for moduleId in materialTbl:
@@ -158,10 +162,12 @@ func checkFuncValidity*(env: XfrpFuncEnv; exp: WithCodeInfo[XfrpExpr]; definedIn
 
 
 proc getFunction*(env: XfrpFuncEnv; id: XfrpFuncId): XfrpFuncDescription =
+  ## Get a function description by function ID.
   result = env.tbl[id]
 
 
 proc findFuncId*(env: XfrpFuncEnv; id: XfrpId; definedIn: XfrpModuleId; materialTbl: XfrpMaterials): XfrpFuncId =
+  ## Search available function ID in given module.
   for moduleId in materialTbl.materialsOf(definedIn):
     if (moduleId, id) in env.tbl:
       return (moduleId, id)
@@ -170,9 +176,11 @@ proc findFuncId*(env: XfrpFuncEnv; id: XfrpId; definedIn: XfrpModuleId; material
 
 
 iterator items*(env: XfrpFuncEnv): XfrpFuncId =
+  ## Iterate all functions by ID.
   for id in env.sortedIds:
     yield id
 
+# getters
 
 func id*(desc: XfrpFuncDescription): WithCodeInfo[XfrpId] = desc.id
 func module*(desc: XfrpFuncDescription): WithCodeInfo[XfrpModuleId] = desc.module

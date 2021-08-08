@@ -3,7 +3,7 @@
 
 import ropes, strtabs, random, options
 from strutils import indent, join, toUpperAscii, multiReplace
-from sequtils import mapIt, zip, foldl, toSeq
+from sequtils import mapIt, foldl, toSeq, unzip
 import patty
 import ".."/[envs, syntax, codeinfos, types]
 
@@ -16,6 +16,14 @@ type
 
   CodeList = tuple
     calcCode, resultCode: string
+
+
+const xfrpTypeDefinitionCode = """
+#define XFRP_UNIT int
+#define XFRP_BOOL _Bool
+#define XFRP_INT int
+#define XFRP_FLOAT float
+"""
 
 
 func xfrpEscape(s: string): string =
@@ -60,13 +68,6 @@ func `>?<`(opName: string; types: seq[XfrpType]): string =
   result = opName & "_" & types.mapIt(short(it)).join()
 
 
-const xfrpTypeDefinitionCode = """
-#define XFRP_UNIT int
-#define XFRP_BOOL int
-#define XFRP_INT int
-#define XFRP_FLOAT float
-"""
-
 proc opKey(opId: XfrpOpId): string =
   result = opId.moduleId & '.' & opId.op
 
@@ -74,6 +75,8 @@ proc opKey(opId: XfrpOpId): string =
 proc funcKey(funcId: XfrpFuncId): string =
   result = funcId.module & '.' & funcId.id
 
+
+# mangling procedures
 
 proc genOperatorNameInCode(opId: string): string =
   var uid {.global.} = rand(uint16)
@@ -107,6 +110,8 @@ proc genFreshVariableInCode: string =
   result = "genvar_" & $uid
   inc uid
 
+
+# code generators
 
 proc codegenExp(env: XfrpEnv; exp: WithCodeInfo[XfrpExpr]; nameTbl: NameTables; extraVarTbl = newStringTable(); definedIn = env.name): CodeList =
   match exp.val:
@@ -165,70 +170,35 @@ proc codegenExp(env: XfrpEnv; exp: WithCodeInfo[XfrpExpr]; nameTbl: NameTables; 
 
     ExprApp(appIdAst, appArgAsts):
       let
-        argCodes = appArgAsts.mapIt(env.codegenExp(it, nameTbl, extraVarTbl))
-        argTypes = appArgAsts.mapIt(env.xfrpTypeOf(it))
-
+        (argCalcs, argResults) = appArgAsts.mapIt(env.codegenExp(it, nameTbl, extraVarTbl)).unzip()
         resultTy = env.xfrpTypeOf(exp)
         resultFreshVar = genFreshVariableInCode()
-      var
-        simpleArgs: seq[string]
-        argCalcWithResults: seq[string]
+        funcId = env.findFuncId(appIdAst.val, definedIn)
 
-      for (argCode, argType) in zip(argCodes, argTypes):
-        let (argCalc, argResult) = argCode
-        if argCalc.len > 0:
-          simpleArgs.add genFreshVariableInCode()
-          argCalcWithResults.add argCalc ?\ (?argType & " " & simpleArgs[^1] & " = " & argResult & ";")
-        else:
-          simpleArgs.add argResult
-
-      let funcId = env.findFuncId(appIdAst.val, definedIn)
-
-      return (argCalcWithResults.foldl(a ?\ b, "") ?\
+      return (argCalcs.foldl(a ?\ b, "") ?\
         (?resultTy & " " & resultFreshVar & " = " &
-        nameTbl.funcNameTable[funcKey(funcId)] & "(" & simpleArgs.join(", ") & ");")) ?-> resultFreshVar
+        nameTbl.funcNameTable[funcKey(funcId)] & "(" & argResults.join(", ") & ");")) ?-> resultFreshVar
 
     ExprMagic(idAst, argAsts):
       let
-        argCodes = argAsts.mapIt(env.codegenExp(it, nameTbl, extraVarTbl))
-        argTypes = argAsts.mapIt(env.xfrpTypeOf(it))
-
+        (argCalcs, argResults) = argAsts.mapIt(env.codegenExp(it, nameTbl, extraVarTbl)).unzip()
         resultTy = env.xfrpTypeOf(exp)
         resultFreshVar = genFreshVariableInCode()
-      var
-        simpleArgs: seq[string]
-        argCalcWithResults: seq[string]
 
-      for (argCode, argType) in zip(argCodes, argTypes):
-        let (argCalc, argResult) = argCode
-        if argCalc.len > 0:
-          simpleArgs.add genFreshVariableInCode()
-          argCalcWithResults.add argCalc ?\ (?argType & " " & simpleArgs[^1] & " = " & argResult & ";")
-        else:
-          simpleArgs.add argResult
-
-      return (argCalcWithResults.foldl(a ?\ b, "") ?\
+      return (argCalcs.foldl(a ?\ b, "") ?\
         (?resultTy & " " & resultFreshVar & " = " &
-        genMagicNameInCode(idAst.val.id.val) & "(" & simpleArgs.join(", ") & ");")) ?-> resultFreshVar
+        genMagicNameInCode(idAst.val.id.val) & "(" & argResults.join(", ") & ");")) ?-> resultFreshVar
 
 
-proc genFrpFile(env: XfrpEnv; nameTbl: NameTables): string =
-  var r: Rope
-
-  r.add "#include \""
-  r.add xfrpEscape(env.name)
-  r.add ".h\"\p\p"
-
-  if "c" in env.emits:
-    r.add "/* emits */\p"
-    r.add env.emits["c"] & "\p"
-
+proc codegenNodeMemories(r: var Rope; env: XfrpEnv; nameTbl: NameTables) =
   r.add "/* node memories */\p"
   for nodeId in env.nodeIds:
     let ty = env.getVarType(nodeId)
     r.add ?ty & " memory_" & nameTbl.varNameTable[nodeId] & "[2];\p"
   r.add "\p"
 
+
+proc codegenFuncs(r: var Rope; env: XfrpEnv; nameTbl: NameTables) =
   r.add "/* functions */\p"
   for opId in env.operatorIds:
     let opDesc = env.getOperator(opId)
@@ -271,6 +241,8 @@ proc genFrpFile(env: XfrpEnv; nameTbl: NameTables): string =
     if bodyCalc.len > 0: r.add indent(bodyCalc, 2) & "\p"
     r.add "  return " & bodyResult & ";\p}\p\p"
 
+
+proc codegenNodeInits(r: var Rope; env: XfrpEnv; nameTbl: NameTables) =
   r.add "/* node initializers */\p"
   for nodeId in env.nodeIds:
     let nodeDesc = env.getNode(nodeId)
@@ -286,6 +258,8 @@ proc genFrpFile(env: XfrpEnv; nameTbl: NameTables): string =
     if initCalc.len > 0: r.add indent(initCalc, 2) & "\p"
     r.add "  *output = " & initResult & ";\p}\p\p"
 
+
+proc codegenNodeUpdates(r: var Rope; env: XfrpEnv; nameTbl: NameTables) =
   r.add "/* node updater */\p"
   for nodeId in env.innerNodeIds:
     let
@@ -306,6 +280,26 @@ proc genFrpFile(env: XfrpEnv; nameTbl: NameTables): string =
     r.add ?ty & " *output) {\p"
     if updateCalc.len > 0: r.add indent(updateCalc, 2) & "\p"
     r.add "  *output = " & updateResult & ";\p}\p\p"
+
+
+proc genFrpFile(env: XfrpEnv; nameTbl: NameTables): string =
+  var r: Rope
+
+  r.add "#include \""
+  r.add xfrpEscape(env.name)
+  r.add ".h\"\p\p"
+
+  if "c" in env.emits:
+    r.add "/* emits */\p"
+    r.add env.emits["c"] & "\p"
+
+  r.codegenNodeMemories(env, nameTbl)
+
+  r.codegenFuncs(env, nameTbl)
+
+  r.codegenNodeInits(env, nameTbl)
+
+  r.codegenNodeUpdates(env, nameTbl)
 
   r.add "void Activate"
   r.add env.name
@@ -395,6 +389,7 @@ proc genMainFile(env: XfrpEnv): string =
 
 
 proc codegen*(env: XfrpEnv): CCodeFiles =
+  ## C code generation.
   let
     opNameTable = newStringTable(modeCaseSensitive)
     funcNameTable = newStringTable(modeCaseSensitive)

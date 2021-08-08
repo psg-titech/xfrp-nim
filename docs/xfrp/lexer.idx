@@ -1,4 +1,3 @@
-xfrpLex	xfrp/lexer.html#xfrpLex	lexer: xfrpLex	
 XfrpLexer	xfrp/lexer.html#XfrpLexer	lexer: XfrpLexer	
 buildLexerFromFilename	xfrp/lexer.html#buildLexerFromFilename,string	lexer: buildLexerFromFilename(filename: string): XfrpLexer	
 buildLexerFromString	xfrp/lexer.html#buildLexerFromString,string	lexer: buildLexerFromString(str: string): XfrpLexer	

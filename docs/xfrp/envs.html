@@ -100,136 +100,65 @@ function main() {
 <li>
   <a class="reference reference-toplevel" href="#7" id="57">Types</a>
   <ul class="simple simple-toc-section">
-      <li><a class="reference" href="#XfrpFuncDefinition"
-    title="XfrpFuncDefinition = object
-  id: WithCodeInfo[XfrpId]
-  retType: WithCodeInfo[XfrpType]
-  args: seq[WithCodeInfo[XfrpIdAndType]]
-  body: WithCodeInfo[XfrpExpr]
-  deps: seq[XfrpId]">XfrpFuncDefinition</a></li>
-  <li><a class="reference" href="#XfrpNodeDefinition"
-    title="XfrpNodeDefinition = object
-  id: WithCodeInfo[XfrpId]
-  typeOpt: Option[WithCodeInfo[XfrpType]]
-  init: Option[WithCodeInfo[XfrpExpr]]
-  update: WithCodeInfo[XfrpExpr]
-  refNow, refAtLast: seq[XfrpId]">XfrpNodeDefinition</a></li>
-  <li><a class="reference" href="#XfrpInputNodeDefinition"
-    title="XfrpInputNodeDefinition = object
-  id: WithCodeInfo[XfrpId]
-  ty: WithCodeInfo[XfrpType]
-  init: Option[WithCodeInfo[XfrpExpr]]">XfrpInputNodeDefinition</a></li>
-  <li><a class="reference" href="#XfrpEnv"
-    title="XfrpEnv = object
-  name: WithCodeInfo[XfrpModuleId]
-  materials: TableRef[XfrpModuleId, ref XfrpEnv]
-  funcs: TableRef[XfrpId, XfrpFuncDefinition]
-  innerNodes: TableRef[XfrpId, XfrpNodeDefinition]
-  inputNodes: OrderedTableRef[XfrpId, XfrpInputNodeDefinition]
-  outputNodes: seq[WithCodeInfo[XfrpIdAndTypeOpt]]
-  sortedInnerNodeIds: seq[XfrpId]
-  sortedFuncIds: seq[XfrpId]">XfrpEnv</a></li>
+      <li><a class="reference" href="#XfrpEnv"
+    title="XfrpEnv = tuple[name: XfrpModuleId, materials: XfrpMaterials, opEnv: XfrpOpEnv,
+                funcEnv: XfrpFuncEnv, nodeEnv: XfrpNodeEnv, tyEnv: XfrpTypeEnv,
+                emits: StringTableRef]">XfrpEnv</a></li>
 
   </ul>
 </li>
 <li>
   <a class="reference reference-toplevel" href="#12" id="62">Procs</a>
   <ul class="simple simple-toc-section">
-      <ul class="simple nested-toc-section">makeEnvironmentFromModule
-      <li><a class="reference" href="#makeEnvironmentFromModule%2CXfrpModule"
-    title="makeEnvironmentFromModule(ast: XfrpModule): XfrpEnv">makeEnvironmentFromModule,<wbr>XfrpModule</a></li>
+      <ul class="simple nested-toc-section">getVarType
+      <li><a class="reference" href="#getVarType%2CXfrpEnv%2CXfrpNodeId"
+    title="getVarType(env: XfrpEnv; id: XfrpNodeId): XfrpType">getVarType,<wbr>XfrpEnv,<wbr>XfrpNodeId</a></li>
 
   </ul>
+  <ul class="simple nested-toc-section">findOpId
+      <li><a class="reference" href="#findOpId%2CXfrpEnv%2CXfrpOperator%2Cseq%5BXfrpType%5D%2CXfrpModuleId"
+    title="findOpId(env: XfrpEnv; op: XfrpOperator; termTypes: seq[XfrpType];
+         definedIn: XfrpModuleId): XfrpOpId">findOpId,<wbr>XfrpEnv,<wbr>XfrpOperator,<wbr>seq[XfrpType],<wbr>XfrpModuleId</a></li>
 
   </ul>
-</li>
-<li>
-  <a class="reference reference-toplevel" href="#13" id="63">Funcs</a>
-  <ul class="simple simple-toc-section">
-      <ul class="simple nested-toc-section">ty
-      <li><a class="reference" href="#ty%2CXfrpInputNodeDefinition"
-    title="ty(inputDef: XfrpInputNodeDefinition): WithCodeInfo[XfrpType]">ty,<wbr>XfrpInputNodeDefinition</a></li>
+  <ul class="simple nested-toc-section">plusIdAndTypes
+      <li><a class="reference" href="#plusIdAndTypes%2CXfrpEnv%2Cseq%5BXfrpIdAndType%5D"
+    title="plusIdAndTypes(env: XfrpEnv; idAndTypes: seq[XfrpIdAndType]): XfrpEnv">plusIdAndTypes,<wbr>XfrpEnv,<wbr>seq[XfrpIdAndType]</a></li>
 
   </ul>
-  <ul class="simple nested-toc-section">deps
-      <li><a class="reference" href="#deps%2CXfrpFuncDefinition"
-    title="deps(funcDef: XfrpFuncDefinition): seq[XfrpId]">deps,<wbr>XfrpFuncDefinition</a></li>
+  <ul class="simple nested-toc-section">getFuncType
+      <li><a class="reference" href="#getFuncType%2CXfrpEnv%2CXfrpFuncId"
+    title="getFuncType(env: XfrpEnv; id: XfrpFuncId): XfrpFuncType">getFuncType,<wbr>XfrpEnv,<wbr>XfrpFuncId</a></li>
 
   </ul>
-  <ul class="simple nested-toc-section">getInnerNode
-      <li><a class="reference" href="#getInnerNode%2CXfrpEnv%2CXfrpId"
-    title="getInnerNode(env: XfrpEnv; id: XfrpId): XfrpNodeDefinition">getInnerNode,<wbr>XfrpEnv,<wbr>XfrpId</a></li>
+  <ul class="simple nested-toc-section">makeEnvironment
+      <li><a class="reference" href="#makeEnvironment%2CXfrpMaterials"
+    title="makeEnvironment(materials: XfrpMaterials): XfrpEnv">makeEnvironment,<wbr>XfrpMaterials</a></li>
 
   </ul>
-  <ul class="simple nested-toc-section">typeOpt
-      <li><a class="reference" href="#typeOpt%2CXfrpNodeDefinition"
-    title="typeOpt(nodeDef: XfrpNodeDefinition): Option[WithCodeInfo[XfrpType]]">typeOpt,<wbr>XfrpNodeDefinition</a></li>
+  <ul class="simple nested-toc-section">getOperator
+      <li><a class="reference" href="#getOperator%2CXfrpEnv%2CXfrpOpId"
+    title="getOperator(env: XfrpEnv; id: XfrpOpId): XfrpOpDescription">getOperator,<wbr>XfrpEnv,<wbr>XfrpOpId</a></li>
 
   </ul>
-  <ul class="simple nested-toc-section">getInputNode
-      <li><a class="reference" href="#getInputNode%2CXfrpEnv%2CXfrpId"
-    title="getInputNode(env: XfrpEnv; id: XfrpId): XfrpInputNodeDefinition">getInputNode,<wbr>XfrpEnv,<wbr>XfrpId</a></li>
-
-  </ul>
-  <ul class="simple nested-toc-section">id
-      <li><a class="reference" href="#id%2CXfrpNodeDefinition"
-    title="id(nodeDef: XfrpNodeDefinition): WithCodeInfo[XfrpId]">id,<wbr>XfrpNodeDefinition</a></li>
-  <li><a class="reference" href="#id%2CXfrpFuncDefinition"
-    title="id(funcDef: XfrpFuncDefinition): WithCodeInfo[XfrpId]">id,<wbr>XfrpFuncDefinition</a></li>
-  <li><a class="reference" href="#id%2CXfrpInputNodeDefinition"
-    title="id(inputDef: XfrpInputNodeDefinition): WithCodeInfo[XfrpId]">id,<wbr>XfrpInputNodeDefinition</a></li>
-
-  </ul>
-  <ul class="simple nested-toc-section">init
-      <li><a class="reference" href="#init%2CXfrpNodeDefinition"
-    title="init(nodeDef: XfrpNodeDefinition): Option[WithCodeInfo[XfrpExpr]]">init,<wbr>XfrpNodeDefinition</a></li>
-  <li><a class="reference" href="#init%2CXfrpInputNodeDefinition"
-    title="init(inputDef: XfrpInputNodeDefinition): Option[WithCodeInfo[XfrpExpr]]">init,<wbr>XfrpInputNodeDefinition</a></li>
-
-  </ul>
-  <ul class="simple nested-toc-section">isInputNode
-      <li><a class="reference" href="#isInputNode%2CXfrpEnv%2CXfrpId"
-    title="isInputNode(env: XfrpEnv; id: XfrpId): bool">isInputNode,<wbr>XfrpEnv,<wbr>XfrpId</a></li>
-
-  </ul>
-  <ul class="simple nested-toc-section">body
-      <li><a class="reference" href="#body%2CXfrpFuncDefinition"
-    title="body(funcDef: XfrpFuncDefinition): WithCodeInfo[XfrpExpr]">body,<wbr>XfrpFuncDefinition</a></li>
-
-  </ul>
-  <ul class="simple nested-toc-section">name
-      <li><a class="reference" href="#name%2CXfrpEnv"
-    title="name(env: XfrpEnv): WithCodeInfo[XfrpModuleId]">name,<wbr>XfrpEnv</a></li>
-
-  </ul>
-  <ul class="simple nested-toc-section">refNow
-      <li><a class="reference" href="#refNow%2CXfrpNodeDefinition"
-    title="refNow(nodeDef: XfrpNodeDefinition): seq[XfrpId]">refNow,<wbr>XfrpNodeDefinition</a></li>
-
-  </ul>
-  <ul class="simple nested-toc-section">refAtLast
-      <li><a class="reference" href="#refAtLast%2CXfrpNodeDefinition"
-    title="refAtLast(nodeDef: XfrpNodeDefinition): seq[XfrpId]">refAtLast,<wbr>XfrpNodeDefinition</a></li>
-
-  </ul>
-  <ul class="simple nested-toc-section">update
-      <li><a class="reference" href="#update%2CXfrpNodeDefinition"
-    title="update(nodeDef: XfrpNodeDefinition): WithCodeInfo[XfrpExpr]">update,<wbr>XfrpNodeDefinition</a></li>
+  <ul class="simple nested-toc-section">findFuncId
+      <li><a class="reference" href="#findFuncId%2CXfrpEnv%2CXfrpId%2CXfrpModuleId"
+    title="findFuncId(env: XfrpEnv; id: XfrpId; definedIn: XfrpModuleId): XfrpFuncId">findFuncId,<wbr>XfrpEnv,<wbr>XfrpId,<wbr>XfrpModuleId</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">getFunction
-      <li><a class="reference" href="#getFunction%2CXfrpEnv%2CXfrpId"
-    title="getFunction(env: XfrpEnv; id: XfrpId): XfrpFuncDefinition">getFunction,<wbr>XfrpEnv,<wbr>XfrpId</a></li>
+      <li><a class="reference" href="#getFunction%2CXfrpEnv%2CXfrpFuncId"
+    title="getFunction(env: XfrpEnv; id: XfrpFuncId): XfrpFuncDescription">getFunction,<wbr>XfrpEnv,<wbr>XfrpFuncId</a></li>
 
   </ul>
-  <ul class="simple nested-toc-section">retType
-      <li><a class="reference" href="#retType%2CXfrpFuncDefinition"
-    title="retType(funcDef: XfrpFuncDefinition): WithCodeInfo[XfrpType]">retType,<wbr>XfrpFuncDefinition</a></li>
+  <ul class="simple nested-toc-section">xfrpTypeOf
+      <li><a class="reference" href="#xfrpTypeOf%2CXfrpEnv%2CWithCodeInfo%5BXfrpExpr%5D%2Cstring"
+    title="xfrpTypeOf(env: XfrpEnv; exp: WithCodeInfo[XfrpExpr]; definedIn = env.name): XfrpType">xfrpTypeOf,<wbr>XfrpEnv,<wbr>WithCodeInfo[XfrpExpr],<wbr>string</a></li>
 
   </ul>
-  <ul class="simple nested-toc-section">args
-      <li><a class="reference" href="#args%2CXfrpFuncDefinition"
-    title="args(funcDef: XfrpFuncDefinition): seq[WithCodeInfo[XfrpIdAndType]]">args,<wbr>XfrpFuncDefinition</a></li>
+  <ul class="simple nested-toc-section">getNode
+      <li><a class="reference" href="#getNode%2CXfrpEnv%2CXfrpNodeId"
+    title="getNode(env: XfrpEnv; id: XfrpNodeId): XfrpNodeDescription">getNode,<wbr>XfrpEnv,<wbr>XfrpNodeId</a></li>
 
   </ul>
 
@@ -238,18 +167,18 @@ function main() {
 <li>
   <a class="reference reference-toplevel" href="#15" id="65">Iterators</a>
   <ul class="simple simple-toc-section">
-      <li><a class="reference" href="#innerNodeIds.i%2CXfrpEnv"
-    title="innerNodeIds(env: XfrpEnv): XfrpId">innerNodeIds</a></li>
-  <li><a class="reference" href="#inputNodeIds.i%2CXfrpEnv"
-    title="inputNodeIds(env: XfrpEnv): XfrpId">inputNodeIds</a></li>
-  <li><a class="reference" href="#nodeIds.i%2CXfrpEnv"
-    title="nodeIds(env: XfrpEnv): XfrpId">nodeIds</a></li>
+      <li><a class="reference" href="#operatorIds.i%2CXfrpEnv"
+    title="operatorIds(env: XfrpEnv): XfrpOpId">operatorIds</a></li>
   <li><a class="reference" href="#functionIds.i%2CXfrpEnv"
-    title="functionIds(env: XfrpEnv): XfrpId">functionIds</a></li>
-  <li><a class="reference" href="#outputNodeIdAndTypeOptAsts.i%2CXfrpEnv"
-    title="outputNodeIdAndTypeOptAsts(env: XfrpEnv): WithCodeInfo[XfrpIdAndTypeOpt]">outputNodeIdAndTypeOptAsts</a></li>
+    title="functionIds(env: XfrpEnv): XfrpFuncId">functionIds</a></li>
+  <li><a class="reference" href="#nodeIds.i%2CXfrpEnv"
+    title="nodeIds(env: XfrpEnv): XfrpNodeId">nodeIds</a></li>
+  <li><a class="reference" href="#innerNodeIds.i%2CXfrpEnv"
+    title="innerNodeIds(env: XfrpEnv): XfrpNodeId">innerNodeIds</a></li>
+  <li><a class="reference" href="#inputNodeIds.i%2CXfrpEnv"
+    title="inputNodeIds(env: XfrpEnv): XfrpNodeId">inputNodeIds</a></li>
   <li><a class="reference" href="#outputNodeIds.i%2CXfrpEnv"
-    title="outputNodeIds(env: XfrpEnv): XfrpId">outputNodeIds</a></li>
+    title="outputNodeIds(env: XfrpEnv): XfrpNodeId">outputNodeIds</a></li>
 
   </ul>
 </li>
@@ -266,82 +195,33 @@ function main() {
   <div class="nine columns" id="content">
   <div id="tocRoot"></div>
   
-  <p class="module-desc"></p>
+  <p class="module-desc"><p>XFRP environments. The environment is actually the combination of four specialized environments with several additional data about the program.</p>
+<p><strong>See also:</strong></p>
+<ul class="simple"><li><a class="reference external" href="envs/operators.html">envs/operators</a> for operator environments</li>
+<li><a class="reference external" href="envs/functions.html">envs/functions</a> for function environments</li>
+<li><a class="reference external" href="envs/ndoes.html">envs/nodes</a> for node environments</li>
+<li><a class="reference external" href="envs/typecheck.html">envs/typecheck</a> for type environments and XFRP type system</li>
+</ul>
+</p>
   <div class="section" id="6">
 <h1><a class="toc-backref" href="#6">Imports</a></h1>
 <dl class="item">
-<a class="reference external" href="syntax.html">syntax</a>, <a class="reference external" href="types.html">types</a>, <a class="reference external" href="codeinfos.html">codeinfos</a>, <a class="reference external" href="errors.html">errors</a>, <a class="reference external" href="topsort.html">topsort</a>
+<a class="reference external" href="syntax.html">syntax</a>, <a class="reference external" href="materials.html">materials</a>, <a class="reference external" href="codeinfos.html">codeinfos</a>, <a class="reference external" href="types.html">types</a>, <a class="reference external" href="envs/operators.html">envs/operators</a>, <a class="reference external" href="envs/functions.html">envs/functions</a>, <a class="reference external" href="envs/nodes.html">envs/nodes</a>, <a class="reference external" href="envs/typecheck.html">envs/typecheck</a>
 </dl></div>
 <div class="section" id="7">
 <h1><a class="toc-backref" href="#7">Types</a></h1>
 <dl class="item">
-<a id="XfrpFuncDefinition"></a>
-<dt><pre><a href="envs.html#XfrpFuncDefinition"><span class="Identifier">XfrpFuncDefinition</span></a> <span class="Other">=</span> <span class="Keyword">object</span>
-  <span class="Identifier">id</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><a href="syntax.html#XfrpId"><span class="Identifier">XfrpId</span></a><span class="Other">]</span>
-  <span class="Identifier">retType</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><a href="types.html#XfrpType"><span class="Identifier">XfrpType</span></a><span class="Other">]</span>
-  <span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><a href="syntax.html#XfrpIdAndType"><span class="Identifier">XfrpIdAndType</span></a><span class="Other">]</span><span class="Other">]</span>
-  <span class="Identifier">body</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><a href="syntax.html#XfrpExpr"><span class="Identifier">XfrpExpr</span></a><span class="Other">]</span>
-  <span class="Identifier">deps</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="syntax.html#XfrpId"><span class="Identifier">XfrpId</span></a><span class="Other">]</span>
-</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L12"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L12" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-<a id="XfrpNodeDefinition"></a>
-<dt><pre><a href="envs.html#XfrpNodeDefinition"><span class="Identifier">XfrpNodeDefinition</span></a> <span class="Other">=</span> <span class="Keyword">object</span>
-  <span class="Identifier">id</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><a href="syntax.html#XfrpId"><span class="Identifier">XfrpId</span></a><span class="Other">]</span>
-  <span class="Identifier">typeOpt</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><a href="types.html#XfrpType"><span class="Identifier">XfrpType</span></a><span class="Other">]</span><span class="Other">]</span>
-  <span class="Identifier">init</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><a href="syntax.html#XfrpExpr"><span class="Identifier">XfrpExpr</span></a><span class="Other">]</span><span class="Other">]</span>
-  <span class="Identifier">update</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><a href="syntax.html#XfrpExpr"><span class="Identifier">XfrpExpr</span></a><span class="Other">]</span>
-  <span class="Identifier">refNow</span><span class="Other">,</span> <span class="Identifier">refAtLast</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="syntax.html#XfrpId"><span class="Identifier">XfrpId</span></a><span class="Other">]</span>
-</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L20"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L20" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-<a id="XfrpInputNodeDefinition"></a>
-<dt><pre><a href="envs.html#XfrpInputNodeDefinition"><span class="Identifier">XfrpInputNodeDefinition</span></a> <span class="Other">=</span> <span class="Keyword">object</span>
-  <span class="Identifier">id</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><a href="syntax.html#XfrpId"><span class="Identifier">XfrpId</span></a><span class="Other">]</span>
-  <span class="Identifier">ty</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><a href="types.html#XfrpType"><span class="Identifier">XfrpType</span></a><span class="Other">]</span>
-  <span class="Identifier">init</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><a href="syntax.html#XfrpExpr"><span class="Identifier">XfrpExpr</span></a><span class="Other">]</span><span class="Other">]</span>
-</pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L28"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L28" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
 <a id="XfrpEnv"></a>
-<dt><pre><a href="envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a> <span class="Other">=</span> <span class="Keyword">object</span>
-  <span class="Identifier">name</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><a href="syntax.html#XfrpModuleId"><span class="Identifier">XfrpModuleId</span></a><span class="Other">]</span>
-  <span class="Identifier">materials</span><span class="Other">:</span> <span class="Identifier">TableRef</span><span class="Other">[</span><a href="syntax.html#XfrpModuleId"><span class="Identifier">XfrpModuleId</span></a><span class="Other">,</span> <span class="Keyword">ref</span> <a href="envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a><span class="Other">]</span>
-  <span class="Identifier">funcs</span><span class="Other">:</span> <span class="Identifier">TableRef</span><span class="Other">[</span><a href="syntax.html#XfrpId"><span class="Identifier">XfrpId</span></a><span class="Other">,</span> <a href="envs.html#XfrpFuncDefinition"><span class="Identifier">XfrpFuncDefinition</span></a><span class="Other">]</span>
-  <span class="Identifier">innerNodes</span><span class="Other">:</span> <span class="Identifier">TableRef</span><span class="Other">[</span><a href="syntax.html#XfrpId"><span class="Identifier">XfrpId</span></a><span class="Other">,</span> <a href="envs.html#XfrpNodeDefinition"><span class="Identifier">XfrpNodeDefinition</span></a><span class="Other">]</span>
-  <span class="Identifier">inputNodes</span><span class="Other">:</span> <span class="Identifier">OrderedTableRef</span><span class="Other">[</span><a href="syntax.html#XfrpId"><span class="Identifier">XfrpId</span></a><span class="Other">,</span> <a href="envs.html#XfrpInputNodeDefinition"><span class="Identifier">XfrpInputNodeDefinition</span></a><span class="Other">]</span>
-  <span class="Identifier">outputNodes</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><a href="syntax.html#XfrpIdAndTypeOpt"><span class="Identifier">XfrpIdAndTypeOpt</span></a><span class="Other">]</span><span class="Other">]</span>
-  <span class="Identifier">sortedInnerNodeIds</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="syntax.html#XfrpId"><span class="Identifier">XfrpId</span></a><span class="Other">]</span>
-  <span class="Identifier">sortedFuncIds</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="syntax.html#XfrpId"><span class="Identifier">XfrpId</span></a><span class="Other">]</span>
-</pre></dt>
+<dt><pre><a href="envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a> <span class="Other">=</span> <span class="Keyword">tuple</span><span class="Other">[</span><span class="Identifier">name</span><span class="Other">:</span> <a href="syntax.html#XfrpModuleId"><span class="Identifier">XfrpModuleId</span></a><span class="Other">,</span> <span class="Identifier">materials</span><span class="Other">:</span> <a href="materials.html#XfrpMaterials"><span class="Identifier">XfrpMaterials</span></a><span class="Other">,</span> <span class="Identifier">opEnv</span><span class="Other">:</span> <a href="envs/operators.html#XfrpOpEnv"><span class="Identifier">XfrpOpEnv</span></a><span class="Other">,</span>
+                <span class="Identifier">funcEnv</span><span class="Other">:</span> <a href="envs/functions.html#XfrpFuncEnv"><span class="Identifier">XfrpFuncEnv</span></a><span class="Other">,</span> <span class="Identifier">nodeEnv</span><span class="Other">:</span> <a href="envs/nodes.html#XfrpNodeEnv"><span class="Identifier">XfrpNodeEnv</span></a><span class="Other">,</span> <span class="Identifier">tyEnv</span><span class="Other">:</span> <a href="envs/typecheck.html#XfrpTypeEnv"><span class="Identifier">XfrpTypeEnv</span></a><span class="Other">,</span>
+                <span class="Identifier">emits</span><span class="Other">:</span> <span class="Identifier">StringTableRef</span><span class="Other">]</span></pre></dt>
 <dd>
 
-
+An environment.
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L33"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L26"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L33" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L26" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 
@@ -349,244 +229,126 @@ class="link-seesrc" target="_blank">Source</a>
 <div class="section" id="12">
 <h1><a class="toc-backref" href="#12">Procs</a></h1>
 <dl class="item">
-<a id="makeEnvironmentFromModule,XfrpModule"></a>
-<dt><pre><span class="Keyword">proc</span> <a href="#makeEnvironmentFromModule%2CXfrpModule"><span class="Identifier">makeEnvironmentFromModule</span></a><span class="Other">(</span><span class="Identifier">ast</span><span class="Other">:</span> <a href="syntax.html#XfrpModule"><span class="Identifier">XfrpModule</span></a><span class="Other">)</span><span class="Other">:</span> <a href="envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma">
-    <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">KeyError</span><span class="Other">,</span> <span class="Identifier">XfrpDefinitionError</span><span class="Other">,</span> <span class="Identifier">XfrpReferenceError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="makeEnvironment,XfrpMaterials"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#makeEnvironment%2CXfrpMaterials"><span class="Identifier">makeEnvironment</span></a><span class="Other">(</span><span class="Identifier">materials</span><span class="Other">:</span> <a href="materials.html#XfrpMaterials"><span class="Identifier">XfrpMaterials</span></a><span class="Other">)</span><span class="Other">:</span> <a href="envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">KeyError</span><span class="Other">,</span>
+    <span class="Identifier">XfrpDefinitionError</span><span class="Other">,</span> <span class="Identifier">XfrpReferenceError</span><span class="Other">,</span> <span class="Identifier">XfrpSyntaxError</span><span class="Other">,</span> <span class="Identifier">XfrpTypeError</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+
+Construct new environment from materials.
+&nbsp;&nbsp;<a
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L37"
+class="link-seesrc" target="_blank">Source</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L37" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+<a id="getVarType,XfrpEnv,XfrpNodeId"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#getVarType%2CXfrpEnv%2CXfrpNodeId"><span class="Identifier">getVarType</span></a><span class="Other">(</span><span class="Identifier">env</span><span class="Other">:</span> <a href="envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a><span class="Other">;</span> <span class="Identifier">id</span><span class="Other">:</span> <a href="envs/nodes.html#XfrpNodeId"><span class="Identifier">XfrpNodeId</span></a><span class="Other">)</span><span class="Other">:</span> <a href="types.html#XfrpType"><span class="Identifier">XfrpType</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">KeyError</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L197"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L85"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L197" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L85" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
-
-</dl></div>
-<div class="section" id="13">
-<h1><a class="toc-backref" href="#13">Funcs</a></h1>
-<dl class="item">
-<a id="name,XfrpEnv"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#name%2CXfrpEnv"><span class="Identifier">name</span></a><span class="Other">(</span><span class="Identifier">env</span><span class="Other">:</span> <a href="envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a><span class="Other">)</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><a href="syntax.html#XfrpModuleId"><span class="Identifier">XfrpModuleId</span></a><span class="Other">]</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L283"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L283" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-<a id="getInnerNode,XfrpEnv,XfrpId"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#getInnerNode%2CXfrpEnv%2CXfrpId"><span class="Identifier">getInnerNode</span></a><span class="Other">(</span><span class="Identifier">env</span><span class="Other">:</span> <a href="envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a><span class="Other">;</span> <span class="Identifier">id</span><span class="Other">:</span> <a href="syntax.html#XfrpId"><span class="Identifier">XfrpId</span></a><span class="Other">)</span><span class="Other">:</span> <a href="envs.html#XfrpNodeDefinition"><span class="Identifier">XfrpNodeDefinition</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma">
+<a id="getFuncType,XfrpEnv,XfrpFuncId"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#getFuncType%2CXfrpEnv%2CXfrpFuncId"><span class="Identifier">getFuncType</span></a><span class="Other">(</span><span class="Identifier">env</span><span class="Other">:</span> <a href="envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a><span class="Other">;</span> <span class="Identifier">id</span><span class="Other">:</span> <a href="envs/functions.html#XfrpFuncId"><span class="Identifier">XfrpFuncId</span></a><span class="Other">)</span><span class="Other">:</span> <a href="envs/typecheck.html#XfrpFuncType"><span class="Identifier">XfrpFuncType</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma">
     <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">KeyError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L285"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L89"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L285" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L89" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
-<a id="getInputNode,XfrpEnv,XfrpId"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#getInputNode%2CXfrpEnv%2CXfrpId"><span class="Identifier">getInputNode</span></a><span class="Other">(</span><span class="Identifier">env</span><span class="Other">:</span> <a href="envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a><span class="Other">;</span> <span class="Identifier">id</span><span class="Other">:</span> <a href="syntax.html#XfrpId"><span class="Identifier">XfrpId</span></a><span class="Other">)</span><span class="Other">:</span> <a href="envs.html#XfrpInputNodeDefinition"><span class="Identifier">XfrpInputNodeDefinition</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma">
+<a id="getOperator,XfrpEnv,XfrpOpId"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#getOperator%2CXfrpEnv%2CXfrpOpId"><span class="Identifier">getOperator</span></a><span class="Other">(</span><span class="Identifier">env</span><span class="Other">:</span> <a href="envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a><span class="Other">;</span> <span class="Identifier">id</span><span class="Other">:</span> <a href="envs/operators.html#XfrpOpId"><span class="Identifier">XfrpOpId</span></a><span class="Other">)</span><span class="Other">:</span> <a href="envs/operators.html#XfrpOpDescription"><span class="Identifier">XfrpOpDescription</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma">
     <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">KeyError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L288"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L93"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L288" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L93" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
-<a id="getFunction,XfrpEnv,XfrpId"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#getFunction%2CXfrpEnv%2CXfrpId"><span class="Identifier">getFunction</span></a><span class="Other">(</span><span class="Identifier">env</span><span class="Other">:</span> <a href="envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a><span class="Other">;</span> <span class="Identifier">id</span><span class="Other">:</span> <a href="syntax.html#XfrpId"><span class="Identifier">XfrpId</span></a><span class="Other">)</span><span class="Other">:</span> <a href="envs.html#XfrpFuncDefinition"><span class="Identifier">XfrpFuncDefinition</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma">
+<a id="getFunction,XfrpEnv,XfrpFuncId"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#getFunction%2CXfrpEnv%2CXfrpFuncId"><span class="Identifier">getFunction</span></a><span class="Other">(</span><span class="Identifier">env</span><span class="Other">:</span> <a href="envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a><span class="Other">;</span> <span class="Identifier">id</span><span class="Other">:</span> <a href="envs/functions.html#XfrpFuncId"><span class="Identifier">XfrpFuncId</span></a><span class="Other">)</span><span class="Other">:</span> <a href="envs/functions.html#XfrpFuncDescription"><span class="Identifier">XfrpFuncDescription</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma">
     <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">KeyError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L291"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L97"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L291" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L97" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
-<a id="isInputNode,XfrpEnv,XfrpId"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#isInputNode%2CXfrpEnv%2CXfrpId"><span class="Identifier">isInputNode</span></a><span class="Other">(</span><span class="Identifier">env</span><span class="Other">:</span> <a href="envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a><span class="Other">;</span> <span class="Identifier">id</span><span class="Other">:</span> <a href="syntax.html#XfrpId"><span class="Identifier">XfrpId</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="getNode,XfrpEnv,XfrpNodeId"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#getNode%2CXfrpEnv%2CXfrpNodeId"><span class="Identifier">getNode</span></a><span class="Other">(</span><span class="Identifier">env</span><span class="Other">:</span> <a href="envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a><span class="Other">;</span> <span class="Identifier">id</span><span class="Other">:</span> <a href="envs/nodes.html#XfrpNodeId"><span class="Identifier">XfrpNodeId</span></a><span class="Other">)</span><span class="Other">:</span> <a href="envs/nodes.html#XfrpNodeDescription"><span class="Identifier">XfrpNodeDescription</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma">
+    <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">KeyError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L294"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L101"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L294" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L101" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
-<a id="id,XfrpNodeDefinition"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#id%2CXfrpNodeDefinition"><span class="Identifier">id</span></a><span class="Other">(</span><span class="Identifier">nodeDef</span><span class="Other">:</span> <a href="envs.html#XfrpNodeDefinition"><span class="Identifier">XfrpNodeDefinition</span></a><span class="Other">)</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><a href="syntax.html#XfrpId"><span class="Identifier">XfrpId</span></a><span class="Other">]</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L326"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L326" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-<a id="typeOpt,XfrpNodeDefinition"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#typeOpt%2CXfrpNodeDefinition"><span class="Identifier">typeOpt</span></a><span class="Other">(</span><span class="Identifier">nodeDef</span><span class="Other">:</span> <a href="envs.html#XfrpNodeDefinition"><span class="Identifier">XfrpNodeDefinition</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><a href="types.html#XfrpType"><span class="Identifier">XfrpType</span></a><span class="Other">]</span><span class="Other">]</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma">
+<a id="plusIdAndTypes,XfrpEnv,seq[XfrpIdAndType]"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#plusIdAndTypes%2CXfrpEnv%2Cseq%5BXfrpIdAndType%5D"><span class="Identifier">plusIdAndTypes</span></a><span class="Other">(</span><span class="Identifier">env</span><span class="Other">:</span> <a href="envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a><span class="Other">;</span> <span class="Identifier">idAndTypes</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="syntax.html#XfrpIdAndType"><span class="Identifier">XfrpIdAndType</span></a><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma">
     <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L327"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L105"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L327" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L105" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
-<a id="init,XfrpNodeDefinition"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#init%2CXfrpNodeDefinition"><span class="Identifier">init</span></a><span class="Other">(</span><span class="Identifier">nodeDef</span><span class="Other">:</span> <a href="envs.html#XfrpNodeDefinition"><span class="Identifier">XfrpNodeDefinition</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><a href="syntax.html#XfrpExpr"><span class="Identifier">XfrpExpr</span></a><span class="Other">]</span><span class="Other">]</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma">
-    <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="xfrpTypeOf,XfrpEnv,WithCodeInfo[XfrpExpr],string"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#xfrpTypeOf%2CXfrpEnv%2CWithCodeInfo%5BXfrpExpr%5D%2Cstring"><span class="Identifier">xfrpTypeOf</span></a><span class="Other">(</span><span class="Identifier">env</span><span class="Other">:</span> <a href="envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a><span class="Other">;</span> <span class="Identifier">exp</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><a href="syntax.html#XfrpExpr"><span class="Identifier">XfrpExpr</span></a><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">definedIn</span> <span class="Other">=</span> <span class="Identifier">env</span><span class="Other">.</span><span class="Identifier">name</span><span class="Other">)</span><span class="Other">:</span> <a href="types.html#XfrpType"><span class="Identifier">XfrpType</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma">
+    <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">XfrpTypeError</span><span class="Other">,</span> <span class="Identifier">KeyError</span><span class="Other">,</span> <span class="Identifier">XfrpReferenceError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L328"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L111"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L328" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L111" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
-<a id="update,XfrpNodeDefinition"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#update%2CXfrpNodeDefinition"><span class="Identifier">update</span></a><span class="Other">(</span><span class="Identifier">nodeDef</span><span class="Other">:</span> <a href="envs.html#XfrpNodeDefinition"><span class="Identifier">XfrpNodeDefinition</span></a><span class="Other">)</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><a href="syntax.html#XfrpExpr"><span class="Identifier">XfrpExpr</span></a><span class="Other">]</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="findOpId,XfrpEnv,XfrpOperator,seq[XfrpType],XfrpModuleId"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#findOpId%2CXfrpEnv%2CXfrpOperator%2Cseq%5BXfrpType%5D%2CXfrpModuleId"><span class="Identifier">findOpId</span></a><span class="Other">(</span><span class="Identifier">env</span><span class="Other">:</span> <a href="envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a><span class="Other">;</span> <span class="Identifier">op</span><span class="Other">:</span> <a href="syntax.html#XfrpOperator"><span class="Identifier">XfrpOperator</span></a><span class="Other">;</span> <span class="Identifier">termTypes</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="types.html#XfrpType"><span class="Identifier">XfrpType</span></a><span class="Other">]</span><span class="Other">;</span>
+              <span class="Identifier">definedIn</span><span class="Other">:</span> <a href="syntax.html#XfrpModuleId"><span class="Identifier">XfrpModuleId</span></a><span class="Other">)</span><span class="Other">:</span> <a href="envs/operators.html#XfrpOpId"><span class="Identifier">XfrpOpId</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma">
+    <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">KeyError</span><span class="Other">,</span> <span class="Identifier">XfrpLanguageError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L329"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L115"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L329" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L115" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
-<a id="refNow,XfrpNodeDefinition"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#refNow%2CXfrpNodeDefinition"><span class="Identifier">refNow</span></a><span class="Other">(</span><span class="Identifier">nodeDef</span><span class="Other">:</span> <a href="envs.html#XfrpNodeDefinition"><span class="Identifier">XfrpNodeDefinition</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="syntax.html#XfrpId"><span class="Identifier">XfrpId</span></a><span class="Other">]</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="findFuncId,XfrpEnv,XfrpId,XfrpModuleId"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#findFuncId%2CXfrpEnv%2CXfrpId%2CXfrpModuleId"><span class="Identifier">findFuncId</span></a><span class="Other">(</span><span class="Identifier">env</span><span class="Other">:</span> <a href="envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a><span class="Other">;</span> <span class="Identifier">id</span><span class="Other">:</span> <a href="syntax.html#XfrpId"><span class="Identifier">XfrpId</span></a><span class="Other">;</span> <span class="Identifier">definedIn</span><span class="Other">:</span> <a href="syntax.html#XfrpModuleId"><span class="Identifier">XfrpModuleId</span></a><span class="Other">)</span><span class="Other">:</span> <a href="envs/functions.html#XfrpFuncId"><span class="Identifier">XfrpFuncId</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma">
+    <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">KeyError</span><span class="Other">,</span> <span class="Identifier">XfrpLanguageError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L330"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L119"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L330" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-<a id="refAtLast,XfrpNodeDefinition"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#refAtLast%2CXfrpNodeDefinition"><span class="Identifier">refAtLast</span></a><span class="Other">(</span><span class="Identifier">nodeDef</span><span class="Other">:</span> <a href="envs.html#XfrpNodeDefinition"><span class="Identifier">XfrpNodeDefinition</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="syntax.html#XfrpId"><span class="Identifier">XfrpId</span></a><span class="Other">]</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L331"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L331" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-<a id="id,XfrpFuncDefinition"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#id%2CXfrpFuncDefinition"><span class="Identifier">id</span></a><span class="Other">(</span><span class="Identifier">funcDef</span><span class="Other">:</span> <a href="envs.html#XfrpFuncDefinition"><span class="Identifier">XfrpFuncDefinition</span></a><span class="Other">)</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><a href="syntax.html#XfrpId"><span class="Identifier">XfrpId</span></a><span class="Other">]</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L333"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L333" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-<a id="retType,XfrpFuncDefinition"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#retType%2CXfrpFuncDefinition"><span class="Identifier">retType</span></a><span class="Other">(</span><span class="Identifier">funcDef</span><span class="Other">:</span> <a href="envs.html#XfrpFuncDefinition"><span class="Identifier">XfrpFuncDefinition</span></a><span class="Other">)</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><a href="types.html#XfrpType"><span class="Identifier">XfrpType</span></a><span class="Other">]</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L334"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L334" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-<a id="args,XfrpFuncDefinition"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#args%2CXfrpFuncDefinition"><span class="Identifier">args</span></a><span class="Other">(</span><span class="Identifier">funcDef</span><span class="Other">:</span> <a href="envs.html#XfrpFuncDefinition"><span class="Identifier">XfrpFuncDefinition</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><a href="syntax.html#XfrpIdAndType"><span class="Identifier">XfrpIdAndType</span></a><span class="Other">]</span><span class="Other">]</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma">
-    <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L335"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L335" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-<a id="body,XfrpFuncDefinition"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#body%2CXfrpFuncDefinition"><span class="Identifier">body</span></a><span class="Other">(</span><span class="Identifier">funcDef</span><span class="Other">:</span> <a href="envs.html#XfrpFuncDefinition"><span class="Identifier">XfrpFuncDefinition</span></a><span class="Other">)</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><a href="syntax.html#XfrpExpr"><span class="Identifier">XfrpExpr</span></a><span class="Other">]</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L336"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L336" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-<a id="deps,XfrpFuncDefinition"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#deps%2CXfrpFuncDefinition"><span class="Identifier">deps</span></a><span class="Other">(</span><span class="Identifier">funcDef</span><span class="Other">:</span> <a href="envs.html#XfrpFuncDefinition"><span class="Identifier">XfrpFuncDefinition</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="syntax.html#XfrpId"><span class="Identifier">XfrpId</span></a><span class="Other">]</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L337"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L337" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-<a id="id,XfrpInputNodeDefinition"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#id%2CXfrpInputNodeDefinition"><span class="Identifier">id</span></a><span class="Other">(</span><span class="Identifier">inputDef</span><span class="Other">:</span> <a href="envs.html#XfrpInputNodeDefinition"><span class="Identifier">XfrpInputNodeDefinition</span></a><span class="Other">)</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><a href="syntax.html#XfrpId"><span class="Identifier">XfrpId</span></a><span class="Other">]</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L339"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L339" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-<a id="ty,XfrpInputNodeDefinition"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#ty%2CXfrpInputNodeDefinition"><span class="Identifier">ty</span></a><span class="Other">(</span><span class="Identifier">inputDef</span><span class="Other">:</span> <a href="envs.html#XfrpInputNodeDefinition"><span class="Identifier">XfrpInputNodeDefinition</span></a><span class="Other">)</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><a href="types.html#XfrpType"><span class="Identifier">XfrpType</span></a><span class="Other">]</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L340"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L340" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-<a id="init,XfrpInputNodeDefinition"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#init%2CXfrpInputNodeDefinition"><span class="Identifier">init</span></a><span class="Other">(</span><span class="Identifier">inputDef</span><span class="Other">:</span> <a href="envs.html#XfrpInputNodeDefinition"><span class="Identifier">XfrpInputNodeDefinition</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><a href="syntax.html#XfrpExpr"><span class="Identifier">XfrpExpr</span></a><span class="Other">]</span><span class="Other">]</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma">
-    <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L341"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L341" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L119" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 
@@ -594,71 +356,70 @@ class="link-seesrc" target="_blank">Source</a>
 <div class="section" id="15">
 <h1><a class="toc-backref" href="#15">Iterators</a></h1>
 <dl class="item">
-<a id="innerNodeIds.i,XfrpEnv"></a>
-<dt><pre><span class="Keyword">iterator</span> <a href="#innerNodeIds.i%2CXfrpEnv"><span class="Identifier">innerNodeIds</span></a><span class="Other">(</span><span class="Identifier">env</span><span class="Other">:</span> <a href="envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a><span class="Other">)</span><span class="Other">:</span> <a href="syntax.html#XfrpId"><span class="Identifier">XfrpId</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-Iterate inner node ID by topologically-sorted ordering
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L297"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L297" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-<a id="inputNodeIds.i,XfrpEnv"></a>
-<dt><pre><span class="Keyword">iterator</span> <a href="#inputNodeIds.i%2CXfrpEnv"><span class="Identifier">inputNodeIds</span></a><span class="Other">(</span><span class="Identifier">env</span><span class="Other">:</span> <a href="envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a><span class="Other">)</span><span class="Other">:</span> <a href="syntax.html#XfrpId"><span class="Identifier">XfrpId</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="operatorIds.i,XfrpEnv"></a>
+<dt><pre><span class="Keyword">iterator</span> <a href="#operatorIds.i%2CXfrpEnv"><span class="Identifier">operatorIds</span></a><span class="Other">(</span><span class="Identifier">env</span><span class="Other">:</span> <a href="envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a><span class="Other">)</span><span class="Other">:</span> <a href="envs/operators.html#XfrpOpId"><span class="Identifier">XfrpOpId</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L302"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L61"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L302" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-<a id="nodeIds.i,XfrpEnv"></a>
-<dt><pre><span class="Keyword">iterator</span> <a href="#nodeIds.i%2CXfrpEnv"><span class="Identifier">nodeIds</span></a><span class="Other">(</span><span class="Identifier">env</span><span class="Other">:</span> <a href="envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a><span class="Other">)</span><span class="Other">:</span> <a href="syntax.html#XfrpId"><span class="Identifier">XfrpId</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L306"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L306" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L61" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="functionIds.i,XfrpEnv"></a>
-<dt><pre><span class="Keyword">iterator</span> <a href="#functionIds.i%2CXfrpEnv"><span class="Identifier">functionIds</span></a><span class="Other">(</span><span class="Identifier">env</span><span class="Other">:</span> <a href="envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a><span class="Other">)</span><span class="Other">:</span> <a href="syntax.html#XfrpId"><span class="Identifier">XfrpId</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dt><pre><span class="Keyword">iterator</span> <a href="#functionIds.i%2CXfrpEnv"><span class="Identifier">functionIds</span></a><span class="Other">(</span><span class="Identifier">env</span><span class="Other">:</span> <a href="envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a><span class="Other">)</span><span class="Other">:</span> <a href="envs/functions.html#XfrpFuncId"><span class="Identifier">XfrpFuncId</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
-Iterate function ID by topologically-sorted ordering
+
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L312"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L65"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L312" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L65" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
-<a id="outputNodeIdAndTypeOptAsts.i,XfrpEnv"></a>
-<dt><pre><span class="Keyword">iterator</span> <a href="#outputNodeIdAndTypeOptAsts.i%2CXfrpEnv"><span class="Identifier">outputNodeIdAndTypeOptAsts</span></a><span class="Other">(</span><span class="Identifier">env</span><span class="Other">:</span> <a href="envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a><span class="Other">)</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><a href="syntax.html#XfrpIdAndTypeOpt"><span class="Identifier">XfrpIdAndTypeOpt</span></a><span class="Other">]</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma">
-    <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="nodeIds.i,XfrpEnv"></a>
+<dt><pre><span class="Keyword">iterator</span> <a href="#nodeIds.i%2CXfrpEnv"><span class="Identifier">nodeIds</span></a><span class="Other">(</span><span class="Identifier">env</span><span class="Other">:</span> <a href="envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a><span class="Other">)</span><span class="Other">:</span> <a href="envs/nodes.html#XfrpNodeId"><span class="Identifier">XfrpNodeId</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L317"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L69"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L317" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L69" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+<a id="innerNodeIds.i,XfrpEnv"></a>
+<dt><pre><span class="Keyword">iterator</span> <a href="#innerNodeIds.i%2CXfrpEnv"><span class="Identifier">innerNodeIds</span></a><span class="Other">(</span><span class="Identifier">env</span><span class="Other">:</span> <a href="envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a><span class="Other">)</span><span class="Other">:</span> <a href="envs/nodes.html#XfrpNodeId"><span class="Identifier">XfrpNodeId</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L73"
+class="link-seesrc" target="_blank">Source</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L73" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+<a id="inputNodeIds.i,XfrpEnv"></a>
+<dt><pre><span class="Keyword">iterator</span> <a href="#inputNodeIds.i%2CXfrpEnv"><span class="Identifier">inputNodeIds</span></a><span class="Other">(</span><span class="Identifier">env</span><span class="Other">:</span> <a href="envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a><span class="Other">)</span><span class="Other">:</span> <a href="envs/nodes.html#XfrpNodeId"><span class="Identifier">XfrpNodeId</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L77"
+class="link-seesrc" target="_blank">Source</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L77" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="outputNodeIds.i,XfrpEnv"></a>
-<dt><pre><span class="Keyword">iterator</span> <a href="#outputNodeIds.i%2CXfrpEnv"><span class="Identifier">outputNodeIds</span></a><span class="Other">(</span><span class="Identifier">env</span><span class="Other">:</span> <a href="envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a><span class="Other">)</span><span class="Other">:</span> <a href="syntax.html#XfrpId"><span class="Identifier">XfrpId</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dt><pre><span class="Keyword">iterator</span> <a href="#outputNodeIds.i%2CXfrpEnv"><span class="Identifier">outputNodeIds</span></a><span class="Other">(</span><span class="Identifier">env</span><span class="Other">:</span> <a href="envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a><span class="Other">)</span><span class="Other">:</span> <a href="envs/nodes.html#XfrpNodeId"><span class="Identifier">XfrpNodeId</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L321"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/envs.nim#L81"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L321" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/envs.nim#L81" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 
@@ -666,7 +427,7 @@ class="link-seesrc" target="_blank">Source</a>
 <div class="section" id="19">
 <h1><a class="toc-backref" href="#19">Exports</a></h1>
 <dl class="item">
-<a href="syntax.html#XfrpId"><span class="Identifier">XfrpId</span></a>
+<a href="envs/operators.html#XfrpOpId"><span class="Identifier">XfrpOpId</span></a>, <a href="envs/functions.html#XfrpFuncId"><span class="Identifier">XfrpFuncId</span></a>, <a href="envs/nodes.html#XfrpNodeId"><span class="Identifier">XfrpNodeId</span></a>, <a href="envs/operators.html#XfrpOpDescription"><span class="Identifier">XfrpOpDescription</span></a>, <a href="envs/operators.html#availableArgTypes.i,XfrpOpDescription"><span class="Identifier">availableArgTypes</span></a>, <a href="envs/operators.html#getBody,XfrpOpDescription,seq[XfrpType]"><span class="Identifier">getBody</span></a>, <a href="envs/operators.html#XfrpOpBody"><span class="Identifier">XfrpOpBody</span></a>, <a href="envs/operators.html#args,XfrpOpBody"><span class="Identifier">args</span></a>, <a href="envs/operators.html#retType,XfrpOpBody"><span class="Identifier">retType</span></a>, <a href="envs/operators.html#body,XfrpOpBody"><span class="Identifier">body</span></a>, <a href="envs/functions.html#XfrpFuncDescription"><span class="Identifier">XfrpFuncDescription</span></a>, <a href="envs/functions.html#args,XfrpFuncDescription"><span class="Identifier">args</span></a>, <a href="envs/functions.html#body,XfrpFuncDescription"><span class="Identifier">body</span></a>, <a href="envs/nodes.html#XfrpNodeDescription"><span class="Identifier">XfrpNodeDescription</span></a>, <a href="envs/nodes.html#initOpt,XfrpNodeDescription"><span class="Identifier">initOpt</span></a>, <a href="envs/nodes.html#update,XfrpNodeDescription"><span class="Identifier">update</span></a>, <a href="envs/nodes.html#depsNow.i,XfrpNodeDescription"><span class="Identifier">depsNow</span></a>, <a href="envs/nodes.html#depsAtLast.i,XfrpNodeDescription"><span class="Identifier">depsAtLast</span></a>, <a href="envs/typecheck.html#XfrpFuncType"><span class="Identifier">XfrpFuncType</span></a>
 </dl></div>
 
   </div>
@@ -676,7 +437,7 @@ class="link-seesrc" target="_blank">Source</a>
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2021-07-23 09:35:18 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2021-08-08 04:59:21 UTC</small>
       </div>
     </div>
   </div>

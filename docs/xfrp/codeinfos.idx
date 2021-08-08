@@ -9,7 +9,7 @@ val	xfrp/codeinfos.html#val,WithCodeInfo[T]	codeinfos: val[T](t: WithCodeInfo[T]
 startPos	xfrp/codeinfos.html#startPos,WithCodeInfo[T]	codeinfos: startPos[T](t: WithCodeInfo[T]): CodePos	
 endPos	xfrp/codeinfos.html#endPos,WithCodeInfo[T]	codeinfos: endPos[T](t: WithCodeInfo[T]): CodePos	
 line	xfrp/codeinfos.html#line,WithCodeInfo[T]	codeinfos: line[T](t: WithCodeInfo[T]): CodeLine	
-attachCodeInfo	xfrp/codeinfos.html#attachCodeInfo,T,CodePos,CodePos,CodeLine	codeinfos: attachCodeInfo[T](val: T; startPos, endPos: CodePos; line: CodeLine): WithCodeInfo[\n    T]	
+attachCodeInfo	xfrp/codeinfos.html#attachCodeInfo,T,CodeInfo	codeinfos: attachCodeInfo[T](val: T; info: CodeInfo): WithCodeInfo[T]	
 codeInfo	xfrp/codeinfos.html#codeInfo,CodePos,CodePos,CodeLine	codeinfos: codeInfo(startPos, endPos: CodePos; line: CodeLine): CodeInfo	
 codeInfo	xfrp/codeinfos.html#codeInfo,WithCodeInfo[T]	codeinfos: codeInfo[T](src: WithCodeInfo[T]): CodeInfo	
 codeInfo	xfrp/codeinfos.html#codeInfo,CodeInfo	codeinfos: codeInfo(x: CodeInfo): CodeInfo	

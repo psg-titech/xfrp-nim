@@ -1,0 +1,9 @@
+XfrpMaterials	xfrp/materials.html#XfrpMaterials	materials: XfrpMaterials	
+makeMaterials	xfrp/materials.html#makeMaterials,TableRef[XfrpModuleId,WithCodeInfo[XfrpModule]],XfrpModuleId	materials: makeMaterials(tbl: TableRef[XfrpModuleId, WithCodeInfo[XfrpModule]];\n              root: XfrpModuleId): XfrpMaterials	
+`[]`	xfrp/materials.html#[],XfrpMaterials,XfrpModuleId	materials: `[]`(materialTbl: XfrpMaterials; id: XfrpModuleId): WithCodeInfo[XfrpModule]	
+getRoot	xfrp/materials.html#getRoot,XfrpMaterials	materials: getRoot(materialTbl: XfrpMaterials): WithCodeInfo[XfrpModule]	
+getRootId	xfrp/materials.html#getRootId,XfrpMaterials	materials: getRootId(materialTbl: XfrpMaterials): XfrpModuleId	
+materialsOf	xfrp/materials.html#materialsOf.i,XfrpMaterials,XfrpModuleId	materials: materialsOf(materialTbl: XfrpMaterials; moduleId: XfrpModuleId): XfrpModuleId	
+depthFirst	xfrp/materials.html#depthFirst.i,XfrpMaterials,XfrpModuleId	materials: depthFirst(materialTbl: XfrpMaterials; moduleId: XfrpModuleId): XfrpModuleId	
+items	xfrp/materials.html#items.i,XfrpMaterials	materials: items(materialTbl: XfrpMaterials): XfrpModuleId	
+pairs	xfrp/materials.html#pairs.i,XfrpMaterials	materials: pairs(materialTbl: XfrpMaterials): (XfrpModuleId, WithCodeInfo[XfrpModule])	

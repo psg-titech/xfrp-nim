@@ -106,6 +106,8 @@ proc reparseBinaryExpressionAsExprBin(opEnv: XfrpOpEnv; exp: WithCodeInfo[XfrpEx
 
 
 proc reparseBinaryExpression*(opEnv: XfrpOpEnv; exp: WithCodeInfo[XfrpExpr]; definedIn: XfrpModuleId; materialTbl: XfrpMaterials): WithCodeInfo[XfrpExpr] =
+  ## Reepase an expression.
+  ## When finding a binary expression, the operator environment will convert to a binary tree by exact operator precedence.
   match exp.val:
     ExprBin(_, _):
       let
@@ -153,6 +155,7 @@ proc hasOpOrFuncReference(exp: XfrpExpr): bool =
 
 
 proc makeOperatorEnvironment*(materialTbl: XfrpMaterials): XfrpOpEnv =
+  ## Construct new operator environment.
   var
     precedenceTbl = initTable[XfrpOpId, XfrpInfixPrecedence]()
     descriptionTbl = newTable[XfrpOpId, XfrpOpDescription]()
@@ -208,10 +211,12 @@ proc makeOperatorEnvironment*(materialTbl: XfrpMaterials): XfrpOpEnv =
 
 
 proc getOperator*(opEnv: XfrpOpEnv; id: XfrpOpId): XfrpOpDescription =
+  ## Get an operator description by ID.
   TableRef[XfrpOpId, XfrpOpDescription](opEnv)[id]
 
 
 proc findOpId*(opEnv: XfrpOpEnv; op: XfrpOperator; termTypes: seq[XfrpType]; definedIn: XfrpModuleId; materialTbl: XfrpMaterials): XfrpOpId =
+  ## Search available operator ID of given term types in given module.
   let tbl = TableRef[XfrpOpId, XfrpOpDescription](opEnv)
   for moduleId in materialTbl.materialsOf(definedIn):
     if (moduleId, op) notin tbl: continue
@@ -223,6 +228,7 @@ proc findOpId*(opEnv: XfrpOpEnv; op: XfrpOperator; termTypes: seq[XfrpType]; def
 
 
 iterator items*(opEnv: XfrpOpEnv): XfrpOpId =
+  ## Iterate all operators by ID.
   let opTbl = TableRef[XfrpOpId, XfrpOpDescription](opEnv)
 
   for id in keys(opTbl):
@@ -237,9 +243,12 @@ proc getBody*(desc: XfrpOpDescription; argTypes: seq[XfrpType]): XfrpOpBody =
 
 
 iterator availableArgTypes*(desc: XfrpOpDescription): seq[XfrpType] =
+  ## Iterates available term types.
   for argTypes in keys(desc.body):
     yield argTypes
 
+
+# getters
 
 proc args*(opBody: XfrpOpBody): seq[WithCodeInfo[XfrpIdAndType]] = opBody.args
 proc retType*(opBody: XfrpOpBody): WithCodeInfo[XfrpType] = opBody.retType

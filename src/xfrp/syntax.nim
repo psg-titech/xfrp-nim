@@ -83,11 +83,13 @@ type
 proc makeXfrpModule*(moduleId: WithCodeInfo[XfrpModuleId]; ins: seq[WithCodeInfo[XfrpInput]];
     outs: seq[WithCodeInfo[XfrpIdAndTypeOpt]]; uses: seq[WithCodeInfo[XfrpModuleId]] = @[];
     emits: seq[WithCodeInfo[XfrpEmit]] = @[]; defs: seq[WithCodeInfo[XfrpDefinition]]): XfrpModule =
+  ## Construct a normal module.
   result = (modModule, moduleId, ins, outs, uses, emits, defs)
 
 
 proc makeXfrpMaterial*(moduleId: WithCodeInfo[XfrpModuleId]; uses: seq[WithCodeInfo[XfrpModuleId]] = @[];
     emits: seq[WithCodeInfo[XfrpEmit]] = @[]; defs: seq[WithCodeInfo[XfrpDefinition]]): XfrpModule =
+  ## Construct a material module.
   result = (modMaterial, moduleId, @[], @[], uses, emits, defs)
 
 
@@ -100,6 +102,7 @@ proc split*(idAndTypeOpt: XfrpIdAndTypeOpt): tuple[id: WithCodeInfo[XfrpId], typ
 
     IdWithoutAnyTypeAnnot(idAst):
       return (idAst, none(WithCodeInfo[XfrpType]))
+
 
 proc split*(input: XfrpInput): tuple[id: WithCodeInfo[XfrpId], ty: WithCodeInfo[XfrpType], initOpt: Option[WithCodeInfo[XfrpExpr]]] =
   match input:

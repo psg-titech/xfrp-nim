@@ -1,0 +1,15 @@
+XfrpFuncType	xfrp/envs/typecheck.html#XfrpFuncType	typecheck: XfrpFuncType	
+XfrpTypeEnv	xfrp/envs/typecheck.html#XfrpTypeEnv	typecheck: XfrpTypeEnv	
+initXfrpTypeEnv	xfrp/envs/typecheck.html#initXfrpTypeEnv	typecheck: initXfrpTypeEnv(): XfrpTypeEnv	
+addFunc	xfrp/envs/typecheck.html#addFunc,XfrpTypeEnv,XfrpFuncId,seq[XfrpType],XfrpType	typecheck: addFunc(typeEnv: var XfrpTypeEnv; id: XfrpFuncId; argTypes: seq[XfrpType];\n        retType: XfrpType)	
+addVar	xfrp/envs/typecheck.html#addVar,XfrpTypeEnv,XfrpId,XfrpType	typecheck: addVar(typeEnv: var XfrpTypeEnv; id: XfrpId; ty: XfrpType)	
+addVar	xfrp/envs/typecheck.html#addVar,XfrpTypeEnv,XfrpIdAndType	typecheck: addVar(typeEnv: var XfrpTypeEnv; idAndTy: XfrpIdAndType)	
+addOp	xfrp/envs/typecheck.html#addOp,XfrpTypeEnv,XfrpOpId,seq[XfrpType],XfrpType	typecheck: addOp(typeEnv: var XfrpTypeEnv; id: XfrpOpId; argTypes: seq[XfrpType];\n      retType: XfrpType)	
+getFuncType	xfrp/envs/typecheck.html#getFuncType,XfrpTypeEnv,XfrpId,XfrpModuleId,XfrpMaterials	typecheck: getFuncType(typeEnv: XfrpTypeEnv; id: XfrpId; definedIn: XfrpModuleId;\n            materialTbl: XfrpMaterials): XfrpFuncType	
+getFuncType	xfrp/envs/typecheck.html#getFuncType,XfrpTypeEnv,XfrpFuncId	typecheck: getFuncType(typeEnv: XfrpTypeEnv; id: XfrpFuncId): XfrpFuncType	
+getVarType	xfrp/envs/typecheck.html#getVarType,XfrpTypeEnv,XfrpId	typecheck: getVarType(typeEnv: XfrpTypeEnv; id: XfrpId): XfrpType	
+getOpType	xfrp/envs/typecheck.html#getOpType,XfrpTypeEnv,XfrpOperator,seq[XfrpType],XfrpModuleId,XfrpMaterials	typecheck: getOpType(typeEnv: XfrpTypeEnv; op: XfrpOperator; argTypes: seq[XfrpType];\n          definedIn: XfrpModuleId; materialTbl: XfrpMaterials): XfrpType	
+`$`	xfrp/envs/typecheck.html#$,XfrpTypeEnv	typecheck: `$`(typeEnv: XfrpTypeEnv): string	
+xfrpTypeOf	xfrp/envs/typecheck.html#xfrpTypeOf,XfrpTypeEnv,WithCodeInfo[XfrpLiteral]	typecheck: xfrpTypeOf(env: XfrpTypeEnv; lit: WithCodeInfo[XfrpLiteral]): XfrpType	
+xfrpTypeOf	xfrp/envs/typecheck.html#xfrpTypeOf,XfrpTypeEnv,WithCodeInfo[XfrpExpr],XfrpModuleId,XfrpMaterials	typecheck: xfrpTypeOf(env: XfrpTypeEnv; exp: WithCodeInfo[XfrpExpr];\n           definedIn: XfrpModuleId; materialTbl: XfrpMaterials): XfrpType	
+makeTypeEnvironment	xfrp/envs/typecheck.html#makeTypeEnvironment,XfrpMaterials,XfrpOpEnv,XfrpFuncEnv,XfrpNodeEnv	typecheck: makeTypeEnvironment(materialTbl: XfrpMaterials; opEnv: XfrpOpEnv;\n                    funcEnv: XfrpFuncEnv; nodeEnv: XfrpNodeEnv): XfrpTypeEnv	

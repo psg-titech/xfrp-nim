@@ -102,10 +102,10 @@ function main() {
   <ul class="simple simple-toc-section">
       <li><a class="reference" href="#XfrpRawTokenKind"
     title="XfrpRawTokenKind {.pure.} = enum
-  Ignore, Comment, Comma, LBracket, RBracket, LParen, RParen, Colon, At, Plus,
-  VertVert, EqEq, Equal, Lte, Lt, Gte, Gt, Module, Material, In, Out, Use, Node,
-  Init, True, False, If, Then, Else, Last, Function, Id, FDigits, Digits,
-  Unknown">XfrpRawTokenKind</a></li>
+  Ignore, Comment, Comma, LBracket, RBracket, LParen, RParen, Colon, At, Slash,
+  Equal, Module, Material, In, Out, Use, Node, Init, True, False, If, Then,
+  Else, Last, Function, InfixLeft, InfixRight, InfixNone, Magic, Emit, Id,
+  Operator, FDigits, Digits, TripleQuoted, Unknown">XfrpRawTokenKind</a></li>
   <li><a class="reference" href="#XfrpRawToken"
     title="XfrpRawToken = object
   case kind*: XfrpRawTokenKind
@@ -136,28 +136,10 @@ function main() {
   of XfrpRawTokenKind.At:
       nil
 
-  of XfrpRawTokenKind.Plus:
-      nil
-
-  of XfrpRawTokenKind.VertVert:
-      nil
-
-  of XfrpRawTokenKind.EqEq:
+  of XfrpRawTokenKind.Slash:
       nil
 
   of XfrpRawTokenKind.Equal:
-      nil
-
-  of XfrpRawTokenKind.Lte:
-      nil
-
-  of XfrpRawTokenKind.Lt:
-      nil
-
-  of XfrpRawTokenKind.Gte:
-      nil
-
-  of XfrpRawTokenKind.Gt:
       nil
 
   of XfrpRawTokenKind.Module:
@@ -202,14 +184,35 @@ function main() {
   of XfrpRawTokenKind.Function:
       nil
 
+  of XfrpRawTokenKind.InfixLeft:
+      nil
+
+  of XfrpRawTokenKind.InfixRight:
+      nil
+
+  of XfrpRawTokenKind.InfixNone:
+      nil
+
+  of XfrpRawTokenKind.Magic:
+      nil
+
+  of XfrpRawTokenKind.Emit:
+      nil
+
   of XfrpRawTokenKind.Id:
       idStr*: string
+
+  of XfrpRawTokenKind.Operator:
+      opStr*: string
 
   of XfrpRawTokenKind.FDigits:
       floatStr*: string
 
   of XfrpRawTokenKind.Digits:
       intStr*: string
+
+  of XfrpRawTokenKind.TripleQuoted:
+      tqStr*: string
 
   of XfrpRawTokenKind.Unknown:
       nil">XfrpRawToken</a></li>
@@ -238,9 +241,14 @@ function main() {
     title="Colon(): XfrpRawToken">Colon</a></li>
 
   </ul>
-  <ul class="simple nested-toc-section">Gte
-      <li><a class="reference" href="#Gte"
-    title="Gte(): XfrpRawToken">Gte</a></li>
+  <ul class="simple nested-toc-section">Magic
+      <li><a class="reference" href="#Magic"
+    title="Magic(): XfrpRawToken">Magic</a></li>
+
+  </ul>
+  <ul class="simple nested-toc-section">InfixLeft
+      <li><a class="reference" href="#InfixLeft"
+    title="InfixLeft(): XfrpRawToken">InfixLeft</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">Ignore
@@ -263,19 +271,14 @@ function main() {
     title="Init(): XfrpRawToken">Init</a></li>
 
   </ul>
-  <ul class="simple nested-toc-section">Lte
-      <li><a class="reference" href="#Lte"
-    title="Lte(): XfrpRawToken">Lte</a></li>
-
-  </ul>
   <ul class="simple nested-toc-section">FDigits
       <li><a class="reference" href="#FDigits%2Cstring"
     title="FDigits(floatStr: string): XfrpRawToken">FDigits,<wbr>string</a></li>
 
   </ul>
-  <ul class="simple nested-toc-section">Lt
-      <li><a class="reference" href="#Lt"
-    title="Lt(): XfrpRawToken">Lt</a></li>
+  <ul class="simple nested-toc-section">Else
+      <li><a class="reference" href="#Else"
+    title="Else(): XfrpRawToken">Else</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">RParen
@@ -283,14 +286,14 @@ function main() {
     title="RParen(): XfrpRawToken">RParen</a></li>
 
   </ul>
-  <ul class="simple nested-toc-section">EqEq
-      <li><a class="reference" href="#EqEq"
-    title="EqEq(): XfrpRawToken">EqEq</a></li>
+  <ul class="simple nested-toc-section">InfixRight
+      <li><a class="reference" href="#InfixRight"
+    title="InfixRight(): XfrpRawToken">InfixRight</a></li>
 
   </ul>
-  <ul class="simple nested-toc-section">Else
-      <li><a class="reference" href="#Else"
-    title="Else(): XfrpRawToken">Else</a></li>
+  <ul class="simple nested-toc-section">Operator
+      <li><a class="reference" href="#Operator%2Cstring"
+    title="Operator(opStr: string): XfrpRawToken">Operator,<wbr>string</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">Material
@@ -301,6 +304,11 @@ function main() {
   <ul class="simple nested-toc-section">In
       <li><a class="reference" href="#In"
     title="In(): XfrpRawToken">In</a></li>
+
+  </ul>
+  <ul class="simple nested-toc-section">Emit
+      <li><a class="reference" href="#Emit"
+    title="Emit(): XfrpRawToken">Emit</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">Comment
@@ -318,9 +326,9 @@ function main() {
     title="Function(): XfrpRawToken">Function</a></li>
 
   </ul>
-  <ul class="simple nested-toc-section">Gt
-      <li><a class="reference" href="#Gt"
-    title="Gt(): XfrpRawToken">Gt</a></li>
+  <ul class="simple nested-toc-section">TripleQuoted
+      <li><a class="reference" href="#TripleQuoted%2Cstring"
+    title="TripleQuoted(tqStr: string): XfrpRawToken">TripleQuoted,<wbr>string</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">False
@@ -373,6 +381,11 @@ function main() {
     title="Unknown(): XfrpRawToken">Unknown</a></li>
 
   </ul>
+  <ul class="simple nested-toc-section">Slash
+      <li><a class="reference" href="#Slash"
+    title="Slash(): XfrpRawToken">Slash</a></li>
+
+  </ul>
   <ul class="simple nested-toc-section">LBracket
       <li><a class="reference" href="#LBracket"
     title="LBracket(): XfrpRawToken">LBracket</a></li>
@@ -383,14 +396,9 @@ function main() {
     title="Module(): XfrpRawToken">Module</a></li>
 
   </ul>
-  <ul class="simple nested-toc-section">VertVert
-      <li><a class="reference" href="#VertVert"
-    title="VertVert(): XfrpRawToken">VertVert</a></li>
-
-  </ul>
-  <ul class="simple nested-toc-section">Plus
-      <li><a class="reference" href="#Plus"
-    title="Plus(): XfrpRawToken">Plus</a></li>
+  <ul class="simple nested-toc-section">InfixNone
+      <li><a class="reference" href="#InfixNone"
+    title="InfixNone(): XfrpRawToken">InfixNone</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">==
@@ -414,6 +422,11 @@ function main() {
     title="`$`(tok: XfrpToken): string">$,<wbr>XfrpToken</a></li>
 
   </ul>
+  <ul class="simple nested-toc-section">opStr
+      <li><a class="reference" href="#opStr%2CXfrpToken"
+    title="opStr(tok: XfrpToken): string">opStr,<wbr>XfrpToken</a></li>
+
+  </ul>
   <ul class="simple nested-toc-section">intStr
       <li><a class="reference" href="#intStr%2CXfrpToken"
     title="intStr(tok: XfrpToken): string">intStr,<wbr>XfrpToken</a></li>
@@ -422,6 +435,11 @@ function main() {
   <ul class="simple nested-toc-section">floatStr
       <li><a class="reference" href="#floatStr%2CXfrpToken"
     title="floatStr(tok: XfrpToken): string">floatStr,<wbr>XfrpToken</a></li>
+
+  </ul>
+  <ul class="simple nested-toc-section">tqStr
+      <li><a class="reference" href="#tqStr%2CXfrpToken"
+    title="tqStr(tok: XfrpToken): string">tqStr,<wbr>XfrpToken</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">commentStr
@@ -460,17 +478,17 @@ function main() {
 <dl class="item">
 <a id="XfrpRawTokenKind"></a>
 <dt><pre><a href="tokens.html#XfrpRawTokenKind"><span class="Identifier">XfrpRawTokenKind</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">pure</span></span><span class="Other">.}</span></span> <span class="Other">=</span> <span class="Keyword">enum</span>
-  <span class="Identifier">Ignore</span><span class="Other">,</span> <span class="Identifier">Comment</span><span class="Other">,</span> <span class="Identifier">Comma</span><span class="Other">,</span> <span class="Identifier">LBracket</span><span class="Other">,</span> <span class="Identifier">RBracket</span><span class="Other">,</span> <span class="Identifier">LParen</span><span class="Other">,</span> <span class="Identifier">RParen</span><span class="Other">,</span> <span class="Identifier">Colon</span><span class="Other">,</span> <span class="Identifier">At</span><span class="Other">,</span> <span class="Identifier">Plus</span><span class="Other">,</span>
-  <span class="Identifier">VertVert</span><span class="Other">,</span> <span class="Identifier">EqEq</span><span class="Other">,</span> <span class="Identifier">Equal</span><span class="Other">,</span> <span class="Identifier">Lte</span><span class="Other">,</span> <span class="Identifier">Lt</span><span class="Other">,</span> <span class="Identifier">Gte</span><span class="Other">,</span> <span class="Identifier">Gt</span><span class="Other">,</span> <span class="Identifier">Module</span><span class="Other">,</span> <span class="Identifier">Material</span><span class="Other">,</span> <span class="Identifier">In</span><span class="Other">,</span> <span class="Identifier">Out</span><span class="Other">,</span> <span class="Identifier">Use</span><span class="Other">,</span> <span class="Identifier">Node</span><span class="Other">,</span>
-  <span class="Identifier">Init</span><span class="Other">,</span> <span class="Identifier">True</span><span class="Other">,</span> <span class="Identifier">False</span><span class="Other">,</span> <span class="Identifier">If</span><span class="Other">,</span> <span class="Identifier">Then</span><span class="Other">,</span> <span class="Identifier">Else</span><span class="Other">,</span> <span class="Identifier">Last</span><span class="Other">,</span> <span class="Identifier">Function</span><span class="Other">,</span> <span class="Identifier">Id</span><span class="Other">,</span> <span class="Identifier">FDigits</span><span class="Other">,</span> <span class="Identifier">Digits</span><span class="Other">,</span>
-  <span class="Identifier">Unknown</span></pre></dt>
+  <span class="Identifier">Ignore</span><span class="Other">,</span> <span class="Identifier">Comment</span><span class="Other">,</span> <span class="Identifier">Comma</span><span class="Other">,</span> <span class="Identifier">LBracket</span><span class="Other">,</span> <span class="Identifier">RBracket</span><span class="Other">,</span> <span class="Identifier">LParen</span><span class="Other">,</span> <span class="Identifier">RParen</span><span class="Other">,</span> <span class="Identifier">Colon</span><span class="Other">,</span> <span class="Identifier">At</span><span class="Other">,</span> <span class="Identifier">Slash</span><span class="Other">,</span>
+  <span class="Identifier">Equal</span><span class="Other">,</span> <span class="Identifier">Module</span><span class="Other">,</span> <span class="Identifier">Material</span><span class="Other">,</span> <span class="Identifier">In</span><span class="Other">,</span> <span class="Identifier">Out</span><span class="Other">,</span> <span class="Identifier">Use</span><span class="Other">,</span> <span class="Identifier">Node</span><span class="Other">,</span> <span class="Identifier">Init</span><span class="Other">,</span> <span class="Identifier">True</span><span class="Other">,</span> <span class="Identifier">False</span><span class="Other">,</span> <span class="Identifier">If</span><span class="Other">,</span> <span class="Identifier">Then</span><span class="Other">,</span>
+  <span class="Identifier">Else</span><span class="Other">,</span> <span class="Identifier">Last</span><span class="Other">,</span> <span class="Identifier">Function</span><span class="Other">,</span> <span class="Identifier">InfixLeft</span><span class="Other">,</span> <span class="Identifier">InfixRight</span><span class="Other">,</span> <span class="Identifier">InfixNone</span><span class="Other">,</span> <span class="Identifier">Magic</span><span class="Other">,</span> <span class="Identifier">Emit</span><span class="Other">,</span> <span class="Identifier">Id</span><span class="Other">,</span>
+  <span class="Identifier">Operator</span><span class="Other">,</span> <span class="Identifier">FDigits</span><span class="Other">,</span> <span class="Identifier">Digits</span><span class="Other">,</span> <span class="Identifier">TripleQuoted</span><span class="Other">,</span> <span class="Identifier">Unknown</span></pre></dt>
 <dd>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L53"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L42"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L53" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L42" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="XfrpRawToken"></a>
@@ -503,28 +521,10 @@ class="link-seesrc" target="_blank">Source</a>
   <span class="Keyword">of</span> <a href="tokens.html#XfrpRawTokenKind"><span class="Identifier">XfrpRawTokenKind</span></a><span class="Other">.</span><span class="Identifier">At</span><span class="Other">:</span>
       <span class="Keyword">nil</span>
 
-  <span class="Keyword">of</span> <a href="tokens.html#XfrpRawTokenKind"><span class="Identifier">XfrpRawTokenKind</span></a><span class="Other">.</span><span class="Identifier">Plus</span><span class="Other">:</span>
-      <span class="Keyword">nil</span>
-
-  <span class="Keyword">of</span> <a href="tokens.html#XfrpRawTokenKind"><span class="Identifier">XfrpRawTokenKind</span></a><span class="Other">.</span><span class="Identifier">VertVert</span><span class="Other">:</span>
-      <span class="Keyword">nil</span>
-
-  <span class="Keyword">of</span> <a href="tokens.html#XfrpRawTokenKind"><span class="Identifier">XfrpRawTokenKind</span></a><span class="Other">.</span><span class="Identifier">EqEq</span><span class="Other">:</span>
+  <span class="Keyword">of</span> <a href="tokens.html#XfrpRawTokenKind"><span class="Identifier">XfrpRawTokenKind</span></a><span class="Other">.</span><span class="Identifier">Slash</span><span class="Other">:</span>
       <span class="Keyword">nil</span>
 
   <span class="Keyword">of</span> <a href="tokens.html#XfrpRawTokenKind"><span class="Identifier">XfrpRawTokenKind</span></a><span class="Other">.</span><span class="Identifier">Equal</span><span class="Other">:</span>
-      <span class="Keyword">nil</span>
-
-  <span class="Keyword">of</span> <a href="tokens.html#XfrpRawTokenKind"><span class="Identifier">XfrpRawTokenKind</span></a><span class="Other">.</span><span class="Identifier">Lte</span><span class="Other">:</span>
-      <span class="Keyword">nil</span>
-
-  <span class="Keyword">of</span> <a href="tokens.html#XfrpRawTokenKind"><span class="Identifier">XfrpRawTokenKind</span></a><span class="Other">.</span><span class="Identifier">Lt</span><span class="Other">:</span>
-      <span class="Keyword">nil</span>
-
-  <span class="Keyword">of</span> <a href="tokens.html#XfrpRawTokenKind"><span class="Identifier">XfrpRawTokenKind</span></a><span class="Other">.</span><span class="Identifier">Gte</span><span class="Other">:</span>
-      <span class="Keyword">nil</span>
-
-  <span class="Keyword">of</span> <a href="tokens.html#XfrpRawTokenKind"><span class="Identifier">XfrpRawTokenKind</span></a><span class="Other">.</span><span class="Identifier">Gt</span><span class="Other">:</span>
       <span class="Keyword">nil</span>
 
   <span class="Keyword">of</span> <a href="tokens.html#XfrpRawTokenKind"><span class="Identifier">XfrpRawTokenKind</span></a><span class="Other">.</span><span class="Identifier">Module</span><span class="Other">:</span>
@@ -569,14 +569,35 @@ class="link-seesrc" target="_blank">Source</a>
   <span class="Keyword">of</span> <a href="tokens.html#XfrpRawTokenKind"><span class="Identifier">XfrpRawTokenKind</span></a><span class="Other">.</span><span class="Identifier">Function</span><span class="Other">:</span>
       <span class="Keyword">nil</span>
 
+  <span class="Keyword">of</span> <a href="tokens.html#XfrpRawTokenKind"><span class="Identifier">XfrpRawTokenKind</span></a><span class="Other">.</span><span class="Identifier">InfixLeft</span><span class="Other">:</span>
+      <span class="Keyword">nil</span>
+
+  <span class="Keyword">of</span> <a href="tokens.html#XfrpRawTokenKind"><span class="Identifier">XfrpRawTokenKind</span></a><span class="Other">.</span><span class="Identifier">InfixRight</span><span class="Other">:</span>
+      <span class="Keyword">nil</span>
+
+  <span class="Keyword">of</span> <a href="tokens.html#XfrpRawTokenKind"><span class="Identifier">XfrpRawTokenKind</span></a><span class="Other">.</span><span class="Identifier">InfixNone</span><span class="Other">:</span>
+      <span class="Keyword">nil</span>
+
+  <span class="Keyword">of</span> <a href="tokens.html#XfrpRawTokenKind"><span class="Identifier">XfrpRawTokenKind</span></a><span class="Other">.</span><span class="Identifier">Magic</span><span class="Other">:</span>
+      <span class="Keyword">nil</span>
+
+  <span class="Keyword">of</span> <a href="tokens.html#XfrpRawTokenKind"><span class="Identifier">XfrpRawTokenKind</span></a><span class="Other">.</span><span class="Identifier">Emit</span><span class="Other">:</span>
+      <span class="Keyword">nil</span>
+
   <span class="Keyword">of</span> <a href="tokens.html#XfrpRawTokenKind"><span class="Identifier">XfrpRawTokenKind</span></a><span class="Other">.</span><span class="Identifier">Id</span><span class="Other">:</span>
       <span class="Identifier">idStr</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">string</span>
+
+  <span class="Keyword">of</span> <a href="tokens.html#XfrpRawTokenKind"><span class="Identifier">XfrpRawTokenKind</span></a><span class="Other">.</span><span class="Identifier">Operator</span><span class="Other">:</span>
+      <span class="Identifier">opStr</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">string</span>
 
   <span class="Keyword">of</span> <a href="tokens.html#XfrpRawTokenKind"><span class="Identifier">XfrpRawTokenKind</span></a><span class="Other">.</span><span class="Identifier">FDigits</span><span class="Other">:</span>
       <span class="Identifier">floatStr</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">string</span>
 
   <span class="Keyword">of</span> <a href="tokens.html#XfrpRawTokenKind"><span class="Identifier">XfrpRawTokenKind</span></a><span class="Other">.</span><span class="Identifier">Digits</span><span class="Other">:</span>
       <span class="Identifier">intStr</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">string</span>
+
+  <span class="Keyword">of</span> <a href="tokens.html#XfrpRawTokenKind"><span class="Identifier">XfrpRawTokenKind</span></a><span class="Other">.</span><span class="Identifier">TripleQuoted</span><span class="Other">:</span>
+      <span class="Identifier">tqStr</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">string</span>
 
   <span class="Keyword">of</span> <a href="tokens.html#XfrpRawTokenKind"><span class="Identifier">XfrpRawTokenKind</span></a><span class="Other">.</span><span class="Identifier">Unknown</span><span class="Other">:</span>
       <span class="Keyword">nil</span>
@@ -586,9 +607,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L53"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L42"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L53" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L42" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="XfrpToken"></a>
@@ -597,9 +618,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L56"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L45"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L56" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L45" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="XfrpTokenKind"></a>
@@ -608,9 +629,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L58"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L47"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L58" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L47" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 
@@ -624,9 +645,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L53"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L42"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L53" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L42" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="Ignore"></a>
@@ -723,13 +744,24 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L15"
+class="link-seesrc" target="_blank">Source</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L15" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+<a id="Slash"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#Slash"><span class="Identifier">Slash</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
 href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L16"
 class="link-seesrc" target="_blank">Source</a>
 <a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L16" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
-<a id="Plus"></a>
-<dt><pre><span class="Keyword">proc</span> <a href="#Plus"><span class="Identifier">Plus</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="Equal"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#Equal"><span class="Identifier">Equal</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
@@ -739,8 +771,63 @@ class="link-seesrc" target="_blank">Source</a>
 <a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L17" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
-<a id="VertVert"></a>
-<dt><pre><span class="Keyword">proc</span> <a href="#VertVert"><span class="Identifier">VertVert</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="Module"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#Module"><span class="Identifier">Module</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L18"
+class="link-seesrc" target="_blank">Source</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L18" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+<a id="Material"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#Material"><span class="Identifier">Material</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L19"
+class="link-seesrc" target="_blank">Source</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L19" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+<a id="In"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#In"><span class="Identifier">In</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L20"
+class="link-seesrc" target="_blank">Source</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L20" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+<a id="Out"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#Out"><span class="Identifier">Out</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L21"
+class="link-seesrc" target="_blank">Source</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L21" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+<a id="Use"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#Use"><span class="Identifier">Use</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L22"
+class="link-seesrc" target="_blank">Source</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L22" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+<a id="Node"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#Node"><span class="Identifier">Node</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
@@ -750,8 +837,41 @@ class="link-seesrc" target="_blank">Source</a>
 <a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L23" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
-<a id="EqEq"></a>
-<dt><pre><span class="Keyword">proc</span> <a href="#EqEq"><span class="Identifier">EqEq</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="Init"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#Init"><span class="Identifier">Init</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L24"
+class="link-seesrc" target="_blank">Source</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L24" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+<a id="True"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#True"><span class="Identifier">True</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L25"
+class="link-seesrc" target="_blank">Source</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L25" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+<a id="False"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#False"><span class="Identifier">False</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L26"
+class="link-seesrc" target="_blank">Source</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L26" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+<a id="If"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#If"><span class="Identifier">If</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
@@ -761,8 +881,19 @@ class="link-seesrc" target="_blank">Source</a>
 <a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L27" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
-<a id="Equal"></a>
-<dt><pre><span class="Keyword">proc</span> <a href="#Equal"><span class="Identifier">Equal</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="Then"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#Then"><span class="Identifier">Then</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L28"
+class="link-seesrc" target="_blank">Source</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L28" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+<a id="Else"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#Else"><span class="Identifier">Else</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
@@ -772,8 +903,8 @@ class="link-seesrc" target="_blank">Source</a>
 <a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L29" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
-<a id="Lte"></a>
-<dt><pre><span class="Keyword">proc</span> <a href="#Lte"><span class="Identifier">Lte</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="Last"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#Last"><span class="Identifier">Last</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
@@ -783,8 +914,19 @@ class="link-seesrc" target="_blank">Source</a>
 <a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L30" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
-<a id="Lt"></a>
-<dt><pre><span class="Keyword">proc</span> <a href="#Lt"><span class="Identifier">Lt</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="Function"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#Function"><span class="Identifier">Function</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L31"
+class="link-seesrc" target="_blank">Source</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L31" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+<a id="InfixLeft"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#InfixLeft"><span class="Identifier">InfixLeft</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
@@ -794,8 +936,8 @@ class="link-seesrc" target="_blank">Source</a>
 <a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L32" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
-<a id="Gte"></a>
-<dt><pre><span class="Keyword">proc</span> <a href="#Gte"><span class="Identifier">Gte</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="InfixRight"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#InfixRight"><span class="Identifier">InfixRight</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
@@ -805,8 +947,19 @@ class="link-seesrc" target="_blank">Source</a>
 <a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L33" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
-<a id="Gt"></a>
-<dt><pre><span class="Keyword">proc</span> <a href="#Gt"><span class="Identifier">Gt</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="InfixNone"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#InfixNone"><span class="Identifier">InfixNone</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L34"
+class="link-seesrc" target="_blank">Source</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L34" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+<a id="Magic"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#Magic"><span class="Identifier">Magic</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
@@ -816,8 +969,8 @@ class="link-seesrc" target="_blank">Source</a>
 <a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L35" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
-<a id="Module"></a>
-<dt><pre><span class="Keyword">proc</span> <a href="#Module"><span class="Identifier">Module</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="Emit"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#Emit"><span class="Identifier">Emit</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
@@ -827,8 +980,8 @@ class="link-seesrc" target="_blank">Source</a>
 <a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L36" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
-<a id="Material"></a>
-<dt><pre><span class="Keyword">proc</span> <a href="#Material"><span class="Identifier">Material</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="Id,string"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#Id%2Cstring"><span class="Identifier">Id</span></a><span class="Other">(</span><span class="Identifier">idStr</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
@@ -838,8 +991,8 @@ class="link-seesrc" target="_blank">Source</a>
 <a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L37" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
-<a id="In"></a>
-<dt><pre><span class="Keyword">proc</span> <a href="#In"><span class="Identifier">In</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="Operator,string"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#Operator%2Cstring"><span class="Identifier">Operator</span></a><span class="Other">(</span><span class="Identifier">opStr</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
@@ -849,8 +1002,8 @@ class="link-seesrc" target="_blank">Source</a>
 <a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L38" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
-<a id="Out"></a>
-<dt><pre><span class="Keyword">proc</span> <a href="#Out"><span class="Identifier">Out</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="FDigits,string"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#FDigits%2Cstring"><span class="Identifier">FDigits</span></a><span class="Other">(</span><span class="Identifier">floatStr</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
@@ -860,8 +1013,8 @@ class="link-seesrc" target="_blank">Source</a>
 <a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L39" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
-<a id="Use"></a>
-<dt><pre><span class="Keyword">proc</span> <a href="#Use"><span class="Identifier">Use</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="Digits,string"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#Digits%2Cstring"><span class="Identifier">Digits</span></a><span class="Other">(</span><span class="Identifier">intStr</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
@@ -871,8 +1024,8 @@ class="link-seesrc" target="_blank">Source</a>
 <a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L40" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
-<a id="Node"></a>
-<dt><pre><span class="Keyword">proc</span> <a href="#Node"><span class="Identifier">Node</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="TripleQuoted,string"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#TripleQuoted%2Cstring"><span class="Identifier">TripleQuoted</span></a><span class="Other">(</span><span class="Identifier">tqStr</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
@@ -880,127 +1033,6 @@ class="link-seesrc" target="_blank">Source</a>
 href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L41"
 class="link-seesrc" target="_blank">Source</a>
 <a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L41" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-<a id="Init"></a>
-<dt><pre><span class="Keyword">proc</span> <a href="#Init"><span class="Identifier">Init</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L42"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L42" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-<a id="True"></a>
-<dt><pre><span class="Keyword">proc</span> <a href="#True"><span class="Identifier">True</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L43"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L43" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-<a id="False"></a>
-<dt><pre><span class="Keyword">proc</span> <a href="#False"><span class="Identifier">False</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L44"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L44" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-<a id="If"></a>
-<dt><pre><span class="Keyword">proc</span> <a href="#If"><span class="Identifier">If</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L45"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L45" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-<a id="Then"></a>
-<dt><pre><span class="Keyword">proc</span> <a href="#Then"><span class="Identifier">Then</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L46"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L46" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-<a id="Else"></a>
-<dt><pre><span class="Keyword">proc</span> <a href="#Else"><span class="Identifier">Else</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L47"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L47" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-<a id="Last"></a>
-<dt><pre><span class="Keyword">proc</span> <a href="#Last"><span class="Identifier">Last</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L48"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L48" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-<a id="Function"></a>
-<dt><pre><span class="Keyword">proc</span> <a href="#Function"><span class="Identifier">Function</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L49"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L49" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-<a id="Id,string"></a>
-<dt><pre><span class="Keyword">proc</span> <a href="#Id%2Cstring"><span class="Identifier">Id</span></a><span class="Other">(</span><span class="Identifier">idStr</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L50"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L50" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-<a id="FDigits,string"></a>
-<dt><pre><span class="Keyword">proc</span> <a href="#FDigits%2Cstring"><span class="Identifier">FDigits</span></a><span class="Other">(</span><span class="Identifier">floatStr</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L51"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L51" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-<a id="Digits,string"></a>
-<dt><pre><span class="Keyword">proc</span> <a href="#Digits%2Cstring"><span class="Identifier">Digits</span></a><span class="Other">(</span><span class="Identifier">intStr</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <a href="tokens.html#XfrpRawToken"><span class="Identifier">XfrpRawToken</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L52"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L52" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="Unknown"></a>
@@ -1025,9 +1057,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L60"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L49"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L60" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L49" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="commentStr,XfrpToken"></a>
@@ -1036,9 +1068,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L62"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L51"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L62" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L51" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="idStr,XfrpToken"></a>
@@ -1047,9 +1079,20 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L63"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L52"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L63" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L52" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+<a id="opStr,XfrpToken"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#opStr%2CXfrpToken"><span class="Identifier">opStr</span></a><span class="Other">(</span><span class="Identifier">tok</span><span class="Other">:</span> <a href="tokens.html#XfrpToken"><span class="Identifier">XfrpToken</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L53"
+class="link-seesrc" target="_blank">Source</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L53" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="floatStr,XfrpToken"></a>
@@ -1058,9 +1101,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L64"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L54"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L64" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L54" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="intStr,XfrpToken"></a>
@@ -1069,9 +1112,20 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L65"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L55"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L65" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L55" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+<a id="tqStr,XfrpToken"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#tqStr%2CXfrpToken"><span class="Identifier">tqStr</span></a><span class="Other">(</span><span class="Identifier">tok</span><span class="Other">:</span> <a href="tokens.html#XfrpToken"><span class="Identifier">XfrpToken</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L56"
+class="link-seesrc" target="_blank">Source</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L56" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="$,XfrpToken"></a>
@@ -1080,9 +1134,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L67"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/tokens.nim#L58"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L67" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/tokens.nim#L58" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 
@@ -1095,7 +1149,7 @@ class="link-seesrc" target="_blank">Source</a>
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2021-07-23 09:33:03 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2021-08-08 04:59:20 UTC</small>
       </div>
     </div>
   </div>
