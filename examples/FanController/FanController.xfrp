@@ -1,0 +1,17 @@
+# From psg-titech/emfrp_samples/SimFanController:
+# https://github.com/psg-titech/emfrp_samples/blob/824f4de95ceb6b535deb8b4dd8f875998891f2e5/SimFanController/src/SimFanController.mfrp
+module FanController  # module name
+in  tmp : Float,      # temperature sensor
+    hmd : Float       # humidity sensor
+out fan : Bool,       # fan switch
+    di  : Float       # discomfort index
+use Std
+
+# discomfort (temperature-humidity) index
+node di = 0.81 * tmp + 0.01 * hmd * (0.99 * tmp - 14.3) + 46.3
+
+# fan switch
+node init[false] fan = di >= th
+
+# hysteresis offset
+node th = 74.5 + (if fan@last then 0.0 else 1.0)

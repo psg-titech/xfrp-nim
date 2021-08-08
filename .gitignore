@@ -6,3 +6,4 @@ xfrp
 *.c
 *.h
 a.out
+!main.c
