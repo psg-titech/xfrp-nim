@@ -3,7 +3,7 @@
 version       = "0.1.0"
 author        = "Double-oxygeN"
 description   = "XFRP compiler"
-license       = "MIT"
+license       = "BSD-3-Clause"
 srcDir        = "src"
 bin           = @["xfrp"]
 

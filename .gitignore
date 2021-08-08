@@ -7,3 +7,6 @@ xfrp
 *.h
 a.out
 !main.c
+
+# Visual Studio Code
+.vscode/
