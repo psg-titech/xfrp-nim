@@ -1,0 +1,68 @@
+material Std
+
+emit in c """
+#define magic_op_add(lhs, rhs) ((lhs) + (rhs))
+#define magic_op_sub(lhs, rhs) ((lhs) - (rhs))
+#define magic_op_mul(lhs, rhs) ((lhs) * (rhs))
+#define magic_op_div(lhs, rhs) ((lhs) / (rhs))
+#define magic_op_mod(lhs, rhs) ((lhs) % (rhs))
+#define magic_op_lt(lhs, rhs) ((lhs) < (rhs))
+#define magic_op_lte(lhs, rhs) ((lhs) <= (rhs))
+#define magic_op_eq(lhs, rhs) ((lhs) == (rhs))
+#define magic_op_neq(lhs, rhs) ((lhs) != (rhs))
+#define magic_op_logic_and(lhs, rhs) ((lhs) && (rhs))
+#define magic_op_logic_or(lhs, rhs) ((lhs) || (rhs))
+#define magic_logic_not(x) (!(x))
+#define magic_float2int(x) ((XFRP_INT)(x))
+#define magic_int2float(x) ((XFRP_FLOAT)(x))
+#define magic_bool2int(x) (x)
+"""
+
+infixl 7 *
+infixl 7 /
+infixl 7 %
+infixl 6 +
+infixl 6 -
+infix 4 <
+infix 4 >
+infix 4 <=
+infix 4 >=
+infix 4 ==
+infix 4 !=
+infix 4 /=
+
+func +(lhs: Int, rhs: Int): Int = magic(op_add: Int, lhs, rhs)
+func +(lhs: Float, rhs: Float): Float = magic(op_add: Float, lhs, rhs)
+func -(lhs: Int, rhs: Int): Int = magic(op_sub: Int, lhs, rhs)
+func -(lhs: Float, rhs: Float): Float = magic(op_sub: Float, lhs, rhs)
+func *(lhs: Int, rhs: Int): Int = magic(op_mul: Int, lhs, rhs)
+func *(lhs: Float, rhs: Float): Float = magic(op_mul: Float, lhs, rhs)
+func /(lhs: Int, rhs: Int): Int = magic(op_div: Int, lhs, rhs)
+func /(lhs: Float, rhs: Float): Float = magic(op_div: Float, lhs, rhs)
+func %(lhs: Int, rhs: Int): Int = magic(op_mod: Int, lhs, rhs)
+func <(lhs: Int, rhs: Int): Bool = magic(op_lt: Bool, lhs, rhs)
+func <(lhs: Float, rhs: Float): Bool = magic(op_lt: Bool, lhs, rhs)
+func >(lhs: Int, rhs: Int): Bool = magic(op_lt: Bool, rhs, lhs)
+func >(lhs: Float, rhs: Float): Bool = magic(op_lt: Bool, rhs, lhs)
+func <=(lhs: Int, rhs: Int): Bool = magic(op_lte: Bool, lhs, rhs)
+func <=(lhs: Float, rhs: Float): Bool = magic(op_lte: Bool, lhs, rhs)
+func >=(lhs: Int, rhs: Int): Bool = magic(op_lte: Bool, rhs, lhs)
+func >=(lhs: Float, rhs: Float): Bool = magic(op_lte: Bool, rhs, lhs)
+func ==(lhs: Int, rhs: Int): Bool = magic(op_eq: Bool, lhs, rhs)
+func ==(lhs: Float, rhs: Float): Bool = magic(op_eq: Bool, lhs, rhs)
+func !=(lhs: Int, rhs: Int): Bool = magic(op_neq: Bool, lhs, rhs)
+func !=(lhs: Float, rhs: Float): Bool = magic(op_neq: Bool, lhs, rhs)
+func /=(lhs: Int, rhs: Int): Bool = magic(op_neq: Bool, lhs, rhs)
+func /=(lhs: Float, rhs: Float): Bool = magic(op_neq: Bool, lhs, rhs)
+
+func floatToInt(x: Float): Int = magic(float2int: Int, x)
+func intToFloat(x: Int): Float = magic(int2float: Float, x)
+
+infixr 3 &&
+infixr 2 ||
+
+func &&(lhs: Bool, rhs: Bool): Bool = magic(op_logic_and: Bool, lhs, rhs)
+func ||(lhs: Bool, rhs: Bool): Bool = magic(op_logic_or: Bool, lhs, rhs)
+func not(x: Bool): Bool = magic(logic_not: Bool, x)
+
+func boolToInt(x: Bool): Int = magic(bool2int: Int, x)
