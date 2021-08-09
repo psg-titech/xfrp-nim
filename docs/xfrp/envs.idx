@@ -1,11 +1,12 @@
 XfrpEnv	xfrp/envs.html#XfrpEnv	envs: XfrpEnv	
-makeEnvironment	xfrp/envs.html#makeEnvironment,XfrpMaterials	envs: makeEnvironment(materials: XfrpMaterials): XfrpEnv	
+makeEnvironment	xfrp/envs.html#makeEnvironment,XfrpMaterials,set[CompilerFlag]	envs: makeEnvironment(materials: XfrpMaterials; flags: set[CompilerFlag] = {}): XfrpEnv	
 operatorIds	xfrp/envs.html#operatorIds.i,XfrpEnv	envs: operatorIds(env: XfrpEnv): XfrpOpId	
 functionIds	xfrp/envs.html#functionIds.i,XfrpEnv	envs: functionIds(env: XfrpEnv): XfrpFuncId	
 nodeIds	xfrp/envs.html#nodeIds.i,XfrpEnv	envs: nodeIds(env: XfrpEnv): XfrpNodeId	
 innerNodeIds	xfrp/envs.html#innerNodeIds.i,XfrpEnv	envs: innerNodeIds(env: XfrpEnv): XfrpNodeId	
 inputNodeIds	xfrp/envs.html#inputNodeIds.i,XfrpEnv	envs: inputNodeIds(env: XfrpEnv): XfrpNodeId	
 outputNodeIds	xfrp/envs.html#outputNodeIds.i,XfrpEnv	envs: outputNodeIds(env: XfrpEnv): XfrpNodeId	
+initNodesOfDelay	xfrp/envs.html#initNodesOfDelay.i,XfrpEnv,int	envs: initNodesOfDelay(env: XfrpEnv; delay: int): XfrpNodeId	
 getVarType	xfrp/envs.html#getVarType,XfrpEnv,XfrpNodeId	envs: getVarType(env: XfrpEnv; id: XfrpNodeId): XfrpType	
 getFuncType	xfrp/envs.html#getFuncType,XfrpEnv,XfrpFuncId	envs: getFuncType(env: XfrpEnv; id: XfrpFuncId): XfrpFuncType	
 getOperator	xfrp/envs.html#getOperator,XfrpEnv,XfrpOpId	envs: getOperator(env: XfrpEnv; id: XfrpOpId): XfrpOpDescription	
@@ -15,3 +16,4 @@ plusIdAndTypes	xfrp/envs.html#plusIdAndTypes,XfrpEnv,seq[XfrpIdAndType]	envs: pl
 xfrpTypeOf	xfrp/envs.html#xfrpTypeOf,XfrpEnv,WithCodeInfo[XfrpExpr],string	envs: xfrpTypeOf(env: XfrpEnv; exp: WithCodeInfo[XfrpExpr]; definedIn = env.name): XfrpType	
 findOpId	xfrp/envs.html#findOpId,XfrpEnv,XfrpOperator,seq[XfrpType],XfrpModuleId	envs: findOpId(env: XfrpEnv; op: XfrpOperator; termTypes: seq[XfrpType];\n         definedIn: XfrpModuleId): XfrpOpId	
 findFuncId	xfrp/envs.html#findFuncId,XfrpEnv,XfrpId,XfrpModuleId	envs: findFuncId(env: XfrpEnv; id: XfrpId; definedIn: XfrpModuleId): XfrpFuncId	
+maxNodeDelay	xfrp/envs.html#maxNodeDelay,XfrpEnv	envs: maxNodeDelay(env: XfrpEnv): int	

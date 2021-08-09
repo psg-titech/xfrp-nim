@@ -39,6 +39,7 @@ DefNode	xfrp/syntax.html#DefNode,WithCodeInfo[XfrpIdAndTypeOpt],Option[WithCodeI
 DefFunc	xfrp/syntax.html#DefFunc,WithCodeInfo[XfrpId],WithCodeInfo[XfrpType],seq[WithCodeInfo[XfrpIdAndType]],WithCodeInfo[XfrpExpr]	syntax: DefFunc(funId: WithCodeInfo[XfrpId]; funRetType: WithCodeInfo[XfrpType];\n        funArgs: seq[WithCodeInfo[XfrpIdAndType]];\n        funBody: WithCodeInfo[XfrpExpr]): XfrpDefinition	
 DefOp	xfrp/syntax.html#DefOp,WithCodeInfo[XfrpOperator],WithCodeInfo[XfrpType],seq[WithCodeInfo[XfrpIdAndType]],WithCodeInfo[XfrpExpr]	syntax: DefOp(operator: WithCodeInfo[XfrpOperator]; opRetType: WithCodeInfo[XfrpType];\n      opArgs: seq[WithCodeInfo[XfrpIdAndType]]; opBody: WithCodeInfo[XfrpExpr]): XfrpDefinition	
 DefInfix	xfrp/syntax.html#DefInfix,WithCodeInfo[XfrpOperator],XfrpOperatorPrecedenceLevel,XfrpOperatorAssociativity	syntax: DefInfix(infixOp: WithCodeInfo[XfrpOperator];\n         infixLevel: XfrpOperatorPrecedenceLevel;\n         infixAssoc: XfrpOperatorAssociativity): XfrpDefinition	
+DefInit	xfrp/syntax.html#DefInit,WithCodeInfo[XfrpId],WithCodeInfo[XfrpExpr]	syntax: DefInit(initId: WithCodeInfo[XfrpId]; initBody: WithCodeInfo[XfrpExpr]): XfrpDefinition	
 XfrpInputKind	xfrp/syntax.html#XfrpInputKind	syntax: XfrpInputKind	
 XfrpInput	xfrp/syntax.html#XfrpInput	syntax: XfrpInput	
 `==`	xfrp/syntax.html#==,XfrpInput,XfrpInput	syntax: `==`(a: XfrpInput; b: XfrpInput): bool	

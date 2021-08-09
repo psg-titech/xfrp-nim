@@ -3,8 +3,9 @@
 import tables, options
 from sequtils import mapIt, unzip, concat, deduplicate, toSeq, filterIt
 from strutils import join
+from algorithm import reversed
 import patty
-import ".."/[syntax, types, codeinfos, errors, topsort, materials]
+import ".."/[syntax, types, codeinfos, errors, topsort, materials, compilerflags]
 import operators
 
 type
@@ -15,6 +16,9 @@ type
     ## It can describe both input and inner node.
     id: WithCodeInfo[XfrpId]
     initOpt: Option[WithCodeInfo[XfrpExpr]]
+    # for -x=autoinit
+    initDepsNow, initDepsAtLast: seq[XfrpNodeId]
+    delay: int
     case isInput: bool
     of true:
       inputType: WithCodeInfo[XfrpType]
@@ -31,12 +35,15 @@ type
     tbl: XfrpNodeDescriptionTable
     sortedInnerNodeIds: seq[XfrpNodeId]
     inputNodeIds, outputNodeIds: seq[XfrpNodeId]
+    sortedInitNodeIds: seq[XfrpNodeId]
+    # for -x=autoinit
+    maxDelay: int
 
   XfrpNodeDependencyInfo = tuple
     depsNow, depsAtLast: seq[XfrpNodeId]
 
 
-proc extractNodeDeps(nodeTbl: XfrpNodeDescriptionTable; exp: WithCodeInfo[XfrpExpr]): XfrpNodeDependencyInfo =
+proc extractNodeDeps(nodeTbl: XfrpNodeDescriptionTable; exp: WithCodeInfo[XfrpExpr]; flags: set[CompilerFlag] = {}): XfrpNodeDependencyInfo =
   match exp.val:
     ExprId(idAst):
       let id = idAst.val
@@ -55,7 +62,7 @@ proc extractNodeDeps(nodeTbl: XfrpNodeDescriptionTable; exp: WithCodeInfo[XfrpEx
             raise err
 
           let node = nodeTbl[id]
-          if node.initOpt.isNone:
+          if (flagAutoInitExt notin flags) and node.initOpt.isNone:
             let err = XfrpReferenceError.newException("The node '" & id & "' has no initial value althought its at-last value is referred.")
             err.causedBy(node.id, exp)
             raise err
@@ -63,27 +70,27 @@ proc extractNodeDeps(nodeTbl: XfrpNodeDescriptionTable; exp: WithCodeInfo[XfrpEx
           result.depsAtLast.add id
 
     ExprBin(_, termAsts):
-      let (depsNow, depsAtLast) = termAsts.mapIt(nodeTbl.extractNodeDeps(it)).unzip()
+      let (depsNow, depsAtLast) = termAsts.mapIt(nodeTbl.extractNodeDeps(it, flags)).unzip()
       result.depsNow = deduplicate(concat(depsNow))
       result.depsAtLast = deduplicate(concat(depsAtLast))
 
     ExprIf(ifAstRef, thenAstRef, elseAstRef):
       let
-        (ifDepsNow, ifDepsAtLast) = nodeTbl.extractNodeDeps(ifAstRef[])
-        (thenDepsNow, thenDepsAtLast) = nodeTbl.extractNodeDeps(thenAstRef[])
-        (elseDepsnow, elseDepsAtLast) = nodeTbl.extractNodeDeps(elseAstRef[])
+        (ifDepsNow, ifDepsAtLast) = nodeTbl.extractNodeDeps(ifAstRef[], flags)
+        (thenDepsNow, thenDepsAtLast) = nodeTbl.extractNodeDeps(thenAstRef[], flags)
+        (elseDepsnow, elseDepsAtLast) = nodeTbl.extractNodeDeps(elseAstRef[], flags)
 
       result.depsNow = deduplicate(ifDepsNow & thenDepsNow & elseDepsNow)
       result.depsAtLast = deduplicate(ifDepsAtLast & thenDepsAtLast & elseDepsAtLast)
 
     ExprApp(_, argAsts):
-      let (depsNow, depsAtLast) = argAsts.mapIt(nodeTbl.extractNodeDeps(it)).unzip()
+      let (depsNow, depsAtLast) = argAsts.mapIt(nodeTbl.extractNodeDeps(it, flags)).unzip()
 
       result.depsNow = deduplicate(concat(depsNow))
       result.depsAtLast = deduplicate(concat(depsAtLast))
 
     ExprMagic(_, argAsts):
-      let (depsNow, depsAtLast) = argAsts.mapIt(nodeTbl.extractNodeDeps(it)).unzip()
+      let (depsNow, depsAtLast) = argAsts.mapIt(nodeTbl.extractNodeDeps(it, flags)).unzip()
 
       result.depsNow = deduplicate(concat(depsNow))
       result.depsAtLast = deduplicate(concat(depsAtLast))
@@ -113,12 +120,37 @@ proc getTopologicallySortedNodeList(nodeTbl: XfrpNodeDescriptionTable): seq[Xfrp
   result = graph.topologicallySorted(toSeq(keys(nodeTbl)).filterIt(nodeTbl[it].isInput))
 
 
-proc makeNodeEnvironment*(materialTbl: XfrpMaterials; opEnv: XfrpOpEnv): XfrpNodeEnv =
+proc getTopologicallySortedInitList(nodeTbl: XfrpNodeDescriptionTable): seq[XfrpNodeId] =
+  ## Return node ID list by topologically-sorted ordering.
+  func referencesOf(n: XfrpNodeId): seq[XfrpNodeId] =
+    let node = nodeTbl[n]
+    result = node.initDepsNow & node.initDepsAtLast
+
+  let graph: ReferenceGraph[XfrpNodeId] =
+    (domain: toSeq(keys(nodeTbl)), referencesOf: referencesOf)
+
+  let referenceCycle = graph.getAnyReferenceCycle
+  if referenceCycle.len > 0:
+    let
+      referenceCycleDiagram = (referenceCycle & referenceCycle[0]).join(" -> ")
+      err = XfrpReferenceError.newException("A cycle initialization reference is detected. Explicit initialization expression is useful for avoiding such a cycle. (" & referenceCycleDiagram & ")")
+
+    for nodeId in referenceCycle:
+      err.causedBy(nodeTbl[nodeId].id)
+
+    raise err
+
+  result = graph.topologicallySorted()
+
+
+proc makeNodeEnvironment*(materialTbl: XfrpMaterials; opEnv: XfrpOpEnv; flags: set[CompilerFlag] = {}): XfrpNodeEnv =
   ## Construct new node environment.
   let
     ast = materialTbl.getRoot().val
     nodeTbl = newTable[XfrpNodeId, XfrpNodeDescription]()
-  var inputNodeIds = newSeq[XfrpNodeId]()
+  var
+    initTbl = initTable[XfrpNodeId, WithCodeInfo[XfrpExpr]]()
+    inputNodeIds = newSeq[XfrpNodeId]()
 
   for inputNodeAst in ast.ins:
     let
@@ -129,6 +161,9 @@ proc makeNodeEnvironment*(materialTbl: XfrpMaterials; opEnv: XfrpOpEnv): XfrpNod
       let err = XfrpDefinitionError.newException("Redeclaration of an input node '" & id & "' is detected.")
       err.causedBy(idAst)
       raise err
+
+    if initAstOpt.isSome:
+      initTbl[id] = initAstOpt.get()
 
     nodeTbl[id] = XfrpNodeDescription(id: idAst, initOpt: initAstOpt, isInput: true, inputType: tyAst)
     inputNodeIds.add id
@@ -145,11 +180,47 @@ proc makeNodeEnvironment*(materialTbl: XfrpMaterials; opEnv: XfrpOpEnv): XfrpNod
           err.causedBy(idAst)
           raise err
 
+        if initAstOpt.isSome:
+          if id in initTbl:
+            let
+              conflicted = initTbl[id]
+              err = XfrpDefinitionError.newException("Initialization expression of node '" & id & "' is already defined.")
+            err.causedBy(conflicted, def)
+            raise err
+
+          initTbl[id] = initAstOpt.get()
+
         nodeTbl[id] = XfrpNodeDescription(id: idAst, initOpt: initAstOpt, isInput: false,
           innerTypeOpt: typeAstOpt, update: opEnv.reparseBinaryExpression(bodyAst, ast.moduleId.val, materialTbl))
 
+      DefInit(idAst, bodyAst):
+        assert(flagAutoInitExt in flags)
+        let id = idAst.val
+
+        if id in initTbl:
+          let
+            conflicted = initTbl[id]
+            err = XfrpDefinitionError.newException("Initialization expression of node '" & id & "' is already defined.")
+          err.causedBy(conflicted, def)
+          raise err
+
+        initTbl[id] = opEnv.reparseBinaryExpression(bodyAst, ast.moduleId.val, materialTbl)
+
       _:
         discard
+
+  if flagAutoInitExt in flags:
+    for id, initBody in initTbl:
+      if id notin nodeTbl:
+        let err = XfrpDefinitionError.newException("Node '" & id & "' is not defined.")
+        err.causedBy(initBody)
+        raise err
+
+      nodeTbl[id].initOpt = some(initBody)
+
+    for nodeDesc in mvalues(nodeTbl):
+      if not nodeDesc.isInput and nodeDesc.initOpt.isNone:
+        nodeDesc.initOpt = some(nodeDesc.update)
 
   var outputNodeIds = newSeq[XfrpId]()
   for outputNode in ast.outs:
@@ -187,11 +258,32 @@ proc makeNodeEnvironment*(materialTbl: XfrpMaterials; opEnv: XfrpOpEnv): XfrpNod
   # Extract inner nodes' dependencies.
   for nodeDesc in mvalues(nodeTbl):
     if not nodeDesc.isInput:
-      (nodeDesc.depsNow, nodeDesc.depsAtLast) = nodeTbl.extractNodeDeps(nodeDesc.update)
+      (nodeDesc.depsNow, nodeDesc.depsAtLast) = nodeTbl.extractNodeDeps(nodeDesc.update, flags)
+
+    if (flagAutoInitExt in flags) and nodeDesc.initOpt.isSome:
+      (nodeDesc.initDepsNow, nodeDesc.initDepsAtLast) = nodeTbl.extractNodeDeps(nodeDesc.initOpt.get(), flags)
 
   let sortedInnerNodeIds = getTopologicallySortedNodeList(nodeTbl)
 
-  result = XfrpNodeEnv(tbl: nodeTbl, sortedInnerNodeIds: sortedInnerNodeIds, inputNodeIds: inputNodeIds, outputNodeIds: outputNodeIds)
+  if flagAutoInitExt notin flags:
+    result = XfrpNodeEnv(tbl: nodeTbl, sortedInnerNodeIds: sortedInnerNodeIds, inputNodeIds: inputNodeIds, outputNodeIds: outputNodeIds, maxDelay: 0)
+
+  else:
+    let sortedInitNodeIds = getTopologicallySortedInitList(nodeTbl)
+
+    for nodeId in reversed(sortedInitNodeIds):
+      let node = nodeTbl[nodeId]
+      for initDepNodeId in node.initDepsNow:
+        let initDepNode = nodeTbl[initDepNodeId]
+        nodeTbl[initDepNodeId].delay = max(initDepNode.delay, node.delay)
+
+      for initDepNodeId in node.initDepsAtLast:
+        let initDepNode = nodeTbl[initDepNodeId]
+        nodeTbl[initDepNodeId].delay = max(initDepNode.delay, succ(node.delay))
+
+    let maxDelay = toSeq(values(nodeTbl)).mapIt(it.delay).max()
+
+    result = XfrpNodeEnv(tbl: nodeTbl, sortedInnerNodeIds: sortedInnerNodeIds, sortedInitNodeIds: sortedInitNodeIds, inputNodeIds: inputNodeIds, outputNodeIds: outputNodeIds, maxDelay: maxDelay)
 
 
 proc getNode*(env: XfrpNodeEnv; id: XfrpNodeId): XfrpNodeDescription =
@@ -225,21 +317,33 @@ iterator outputNodeIds*(env: XfrpNodeEnv): XfrpNodeId =
   for id in env.outputNodeIds:
     yield id
 
+
+iterator initNodesOfDelay*(env: XfrpNodeEnv; delay: int): XfrpNodeId =
+  ## Iterate nodes whose delay is at least ``minDelay``.
+  for id in env.sortedInitNodeIds:
+    let node = env.tbl[id]
+    if node.initOpt.isNone: continue
+    elif node.delay == delay: yield id
+
 # getters
 
-proc id*(desc: XfrpNodeDescription): WithCodeInfo[XfrpId] = desc.id
-proc initOpt*(desc: XfrpNodeDescription): Option[WithCodeInfo[XfrpExpr]] = desc.initOpt
-proc isInput*(desc: XfrpNodeDescription): bool = desc.isInput
-proc inputType*(desc: XfrpNodeDescription): WithCodeInfo[XfrpType] = desc.inputType
-proc innerTypeOpt*(desc: XfrpNodeDescription): Option[WithCodeInfo[XfrpType]] = desc.innerTypeOpt
-proc update*(desc: XfrpNodeDescription): WithCodeInfo[XfrpExpr] = desc.update
+func id*(desc: XfrpNodeDescription): WithCodeInfo[XfrpId] = desc.id
+func initOpt*(desc: XfrpNodeDescription): Option[WithCodeInfo[XfrpExpr]] = desc.initOpt
+func isInput*(desc: XfrpNodeDescription): bool = desc.isInput
+func inputType*(desc: XfrpNodeDescription): WithCodeInfo[XfrpType] = desc.inputType
+func innerTypeOpt*(desc: XfrpNodeDescription): Option[WithCodeInfo[XfrpType]] = desc.innerTypeOpt
+func update*(desc: XfrpNodeDescription): WithCodeInfo[XfrpExpr] = desc.update
 
+func maxDelay*(env: XfrpNodeEnv): int = env.maxDelay
 
 iterator exprs*(env: XfrpNodeEnv): WithCodeInfo[XfrpExpr] =
   ## Iterate all expressions associated with nodes as update expressions or initialization expression.
   for desc in values(env.tbl):
     if not desc.isInput:
       yield desc.update
+
+    if desc.initOpt.isSome:
+      yield desc.initOpt.get()
 
 
 iterator depsNow*(desc: XfrpNodeDescription): XfrpNodeId =
@@ -252,4 +356,14 @@ iterator depsAtLast*(desc: XfrpNodeDescription): XfrpNodeId =
   ## Iterate all at-last dependencies of a given node.
   assert(not desc.isInput)
   for id in desc.depsAtLast:
+    yield id
+
+iterator initDepsNow*(desc: XfrpNodeDescription): XfrpNodeId =
+  ## Iterate all current-value dependencies of a given node while its initialization.
+  for id in desc.initDepsNow:
+    yield id
+
+iterator initDepsAtLast*(desc: XfrpNodeDescription): XfrpNodeId =
+  ## Iterate all at-last dependencies of a given node while its initialization.
+  for id in desc.initDepsAtLast:
     yield id

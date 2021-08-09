@@ -63,7 +63,7 @@ function main() {
 <div class="document" id="documentId">
   <div class="container">
     <h1 class="title">Index</h1>
-    Modules: <a href="xfrp.html">xfrp</a>, <a href="xfrp/codegen/ccodegen.html">xfrp/codegen/ccodegen</a>, <a href="xfrp/codeinfos.html">xfrp/codeinfos</a>, <a href="xfrp/envs.html">xfrp/envs</a>, <a href="xfrp/envs/functions.html">xfrp/envs/functions</a>, <a href="xfrp/envs/nodes.html">xfrp/envs/nodes</a>, <a href="xfrp/envs/operators.html">xfrp/envs/operators</a>, <a href="xfrp/envs/typecheck.html">xfrp/envs/typecheck</a>, <a href="xfrp/errors.html">xfrp/errors</a>, <a href="xfrp/lexer.html">xfrp/lexer</a>, <a href="xfrp/loaders.html">xfrp/loaders</a>, <a href="xfrp/materials.html">xfrp/materials</a>, <a href="xfrp/parser.html">xfrp/parser</a>, <a href="xfrp/syntax.html">xfrp/syntax</a>, <a href="xfrp/tokens.html">xfrp/tokens</a>, <a href="xfrp/topsort.html">xfrp/topsort</a>, <a href="xfrp/typecheck.html">xfrp/typecheck</a>, <a href="xfrp/types.html">xfrp/types</a>.<br/><p /><h2>API symbols</h2>
+    Modules: <a href="xfrp.html">xfrp</a>, <a href="xfrp/codegen/ccodegen.html">xfrp/codegen/ccodegen</a>, <a href="xfrp/codeinfos.html">xfrp/codeinfos</a>, <a href="xfrp/compilerflags.html">xfrp/compilerflags</a>, <a href="xfrp/envs.html">xfrp/envs</a>, <a href="xfrp/envs/functions.html">xfrp/envs/functions</a>, <a href="xfrp/envs/nodes.html">xfrp/envs/nodes</a>, <a href="xfrp/envs/operators.html">xfrp/envs/operators</a>, <a href="xfrp/envs/typecheck.html">xfrp/envs/typecheck</a>, <a href="xfrp/errors.html">xfrp/errors</a>, <a href="xfrp/lexer.html">xfrp/lexer</a>, <a href="xfrp/loaders.html">xfrp/loaders</a>, <a href="xfrp/materials.html">xfrp/materials</a>, <a href="xfrp/parser.html">xfrp/parser</a>, <a href="xfrp/syntax.html">xfrp/syntax</a>, <a href="xfrp/tokens.html">xfrp/tokens</a>, <a href="xfrp/topsort.html">xfrp/topsort</a>, <a href="xfrp/typecheck.html">xfrp/typecheck</a>, <a href="xfrp/types.html">xfrp/types</a>.<br/><p /><h2>API symbols</h2>
 <dl><dt><a name="%60%24%60" href="#%60%24%60"><span>`$`:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="codeinfos: `$`(pos: CodePos): string" href="xfrp/codeinfos.html#%24%2CCodePos">codeinfos: `$`(pos: CodePos): string</a></li>
@@ -244,6 +244,10 @@ function main() {
 <li><a class="reference external"
           data-doc-search-tag="tokens: commentStr(tok: XfrpToken): string" href="xfrp/tokens.html#commentStr%2CXfrpToken">tokens: commentStr(tok: XfrpToken): string</a></li>
           </ul></dd>
+<dt><a name="CompilerFlag" href="#CompilerFlag"><span>CompilerFlag:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="compilerflags: CompilerFlag" href="xfrp/compilerflags.html#CompilerFlag">compilerflags: CompilerFlag</a></li>
+          </ul></dd>
 <dt><a name="DefFunc" href="#DefFunc"><span>DefFunc:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="syntax: DefFunc(funId: WithCodeInfo[XfrpId]; funRetType: WithCodeInfo[XfrpType];
@@ -259,6 +263,10 @@ function main() {
          infixAssoc: XfrpOperatorAssociativity): XfrpDefinition" href="xfrp/syntax.html#DefInfix%2CWithCodeInfo%5BXfrpOperator%5D%2CXfrpOperatorPrecedenceLevel%2CXfrpOperatorAssociativity">syntax: DefInfix(infixOp: WithCodeInfo[XfrpOperator];
          infixLevel: XfrpOperatorPrecedenceLevel;
          infixAssoc: XfrpOperatorAssociativity): XfrpDefinition</a></li>
+          </ul></dd>
+<dt><a name="DefInit" href="#DefInit"><span>DefInit:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="syntax: DefInit(initId: WithCodeInfo[XfrpId]; initBody: WithCodeInfo[XfrpExpr]): XfrpDefinition" href="xfrp/syntax.html#DefInit%2CWithCodeInfo%5BXfrpId%5D%2CWithCodeInfo%5BXfrpExpr%5D">syntax: DefInit(initId: WithCodeInfo[XfrpId]; initBody: WithCodeInfo[XfrpExpr]): XfrpDefinition</a></li>
           </ul></dd>
 <dt><a name="DefNode" href="#DefNode"><span>DefNode:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -369,6 +377,10 @@ function main() {
           data-doc-search-tag="operators: findOpId(opEnv: XfrpOpEnv; op: XfrpOperator; termTypes: seq[XfrpType];
          definedIn: XfrpModuleId; materialTbl: XfrpMaterials): XfrpOpId" href="xfrp/envs/operators.html#findOpId%2CXfrpOpEnv%2CXfrpOperator%2Cseq%5BXfrpType%5D%2CXfrpModuleId%2CXfrpMaterials">operators: findOpId(opEnv: XfrpOpEnv; op: XfrpOperator; termTypes: seq[XfrpType];
          definedIn: XfrpModuleId; materialTbl: XfrpMaterials): XfrpOpId</a></li>
+          </ul></dd>
+<dt><a name="flagAutoInitExt" href="#flagAutoInitExt"><span>flagAutoInitExt:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="CompilerFlag.flagAutoInitExt" href="xfrp/compilerflags.html#flagAutoInitExt">CompilerFlag.flagAutoInitExt</a></li>
           </ul></dd>
 <dt><a name="floatStr" href="#floatStr"><span>floatStr:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -506,6 +518,20 @@ function main() {
 <li><a class="reference external"
           data-doc-search-tag="tokens: Init(): XfrpRawToken" href="xfrp/tokens.html#Init">tokens: Init(): XfrpRawToken</a></li>
           </ul></dd>
+<dt><a name="initDepsAtLast" href="#initDepsAtLast"><span>initDepsAtLast:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="nodes: initDepsAtLast(desc: XfrpNodeDescription): XfrpNodeId" href="xfrp/envs/nodes.html#initDepsAtLast.i%2CXfrpNodeDescription">nodes: initDepsAtLast(desc: XfrpNodeDescription): XfrpNodeId</a></li>
+          </ul></dd>
+<dt><a name="initDepsNow" href="#initDepsNow"><span>initDepsNow:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="nodes: initDepsNow(desc: XfrpNodeDescription): XfrpNodeId" href="xfrp/envs/nodes.html#initDepsNow.i%2CXfrpNodeDescription">nodes: initDepsNow(desc: XfrpNodeDescription): XfrpNodeId</a></li>
+          </ul></dd>
+<dt><a name="initNodesOfDelay" href="#initNodesOfDelay"><span>initNodesOfDelay:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="envs: initNodesOfDelay(env: XfrpEnv; delay: int): XfrpNodeId" href="xfrp/envs.html#initNodesOfDelay.i%2CXfrpEnv%2Cint">envs: initNodesOfDelay(env: XfrpEnv; delay: int): XfrpNodeId</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="nodes: initNodesOfDelay(env: XfrpNodeEnv; delay: int): XfrpNodeId" href="xfrp/envs/nodes.html#initNodesOfDelay.i%2CXfrpNodeEnv%2Cint">nodes: initNodesOfDelay(env: XfrpNodeEnv; delay: int): XfrpNodeId</a></li>
+          </ul></dd>
 <dt><a name="initOpt" href="#initOpt"><span>initOpt:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="nodes: initOpt(desc: XfrpNodeDescription): Option[WithCodeInfo[XfrpExpr]]" href="xfrp/envs/nodes.html#initOpt%2CXfrpNodeDescription">nodes: initOpt(desc: XfrpNodeDescription): Option[WithCodeInfo[XfrpExpr]]</a></li>
@@ -594,15 +620,15 @@ function main() {
           </ul></dd>
 <dt><a name="load" href="#load"><span>load:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="loaders: load(loader: XfrpLoader; name: string; traverseIncludeDirs = true): WithCodeInfo[
-    XfrpModule]" href="xfrp/loaders.html#load%2CXfrpLoader%2Cstring">loaders: load(loader: XfrpLoader; name: string; traverseIncludeDirs = true): WithCodeInfo[
-    XfrpModule]</a></li>
+          data-doc-search-tag="loaders: load(loader: XfrpLoader; name: string; flags: set[CompilerFlag] = {};
+     traverseIncludeDirs = true): WithCodeInfo[XfrpModule]" href="xfrp/loaders.html#load%2CXfrpLoader%2Cstring%2Cset%5BCompilerFlag%5D">loaders: load(loader: XfrpLoader; name: string; flags: set[CompilerFlag] = {};
+     traverseIncludeDirs = true): WithCodeInfo[XfrpModule]</a></li>
           </ul></dd>
 <dt><a name="loadMaterials" href="#loadMaterials"><span>loadMaterials:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="loaders: loadMaterials(loader: XfrpLoader; ast: WithCodeInfo[XfrpModule];
-              history: seq[XfrpModuleId] = @[]): XfrpMaterials" href="xfrp/loaders.html#loadMaterials%2CXfrpLoader%2CWithCodeInfo%5BXfrpModule%5D%2Cseq%5BXfrpModuleId%5D">loaders: loadMaterials(loader: XfrpLoader; ast: WithCodeInfo[XfrpModule];
-              history: seq[XfrpModuleId] = @[]): XfrpMaterials</a></li>
+              flags: set[CompilerFlag] = {}; history: seq[XfrpModuleId] = @[]): XfrpMaterials" href="xfrp/loaders.html#loadMaterials%2CXfrpLoader%2CWithCodeInfo%5BXfrpModule%5D%2Cset%5BCompilerFlag%5D%2Cseq%5BXfrpModuleId%5D">loaders: loadMaterials(loader: XfrpLoader; ast: WithCodeInfo[XfrpModule];
+              flags: set[CompilerFlag] = {}; history: seq[XfrpModuleId] = @[]): XfrpMaterials</a></li>
           </ul></dd>
 <dt><a name="LParen" href="#LParen"><span>LParen:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -614,7 +640,7 @@ function main() {
           </ul></dd>
 <dt><a name="makeEnvironment" href="#makeEnvironment"><span>makeEnvironment:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="envs: makeEnvironment(materials: XfrpMaterials): XfrpEnv" href="xfrp/envs.html#makeEnvironment%2CXfrpMaterials">envs: makeEnvironment(materials: XfrpMaterials): XfrpEnv</a></li>
+          data-doc-search-tag="envs: makeEnvironment(materials: XfrpMaterials; flags: set[CompilerFlag] = {}): XfrpEnv" href="xfrp/envs.html#makeEnvironment%2CXfrpMaterials%2Cset%5BCompilerFlag%5D">envs: makeEnvironment(materials: XfrpMaterials; flags: set[CompilerFlag] = {}): XfrpEnv</a></li>
           </ul></dd>
 <dt><a name="makeFunctionEnvironment" href="#makeFunctionEnvironment"><span>makeFunctionEnvironment:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -628,7 +654,9 @@ function main() {
           </ul></dd>
 <dt><a name="makeNodeEnvironment" href="#makeNodeEnvironment"><span>makeNodeEnvironment:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="nodes: makeNodeEnvironment(materialTbl: XfrpMaterials; opEnv: XfrpOpEnv): XfrpNodeEnv" href="xfrp/envs/nodes.html#makeNodeEnvironment%2CXfrpMaterials%2CXfrpOpEnv">nodes: makeNodeEnvironment(materialTbl: XfrpMaterials; opEnv: XfrpOpEnv): XfrpNodeEnv</a></li>
+          data-doc-search-tag="nodes: makeNodeEnvironment(materialTbl: XfrpMaterials; opEnv: XfrpOpEnv;
+                    flags: set[CompilerFlag] = {}): XfrpNodeEnv" href="xfrp/envs/nodes.html#makeNodeEnvironment%2CXfrpMaterials%2CXfrpOpEnv%2Cset%5BCompilerFlag%5D">nodes: makeNodeEnvironment(materialTbl: XfrpMaterials; opEnv: XfrpOpEnv;
+                    flags: set[CompilerFlag] = {}): XfrpNodeEnv</a></li>
           </ul></dd>
 <dt><a name="makeOperatorEnvironment" href="#makeOperatorEnvironment"><span>makeOperatorEnvironment:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -675,6 +703,14 @@ function main() {
 <dt><a name="materialsOf" href="#materialsOf"><span>materialsOf:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="materials: materialsOf(materialTbl: XfrpMaterials; moduleId: XfrpModuleId): XfrpModuleId" href="xfrp/materials.html#materialsOf.i%2CXfrpMaterials%2CXfrpModuleId">materials: materialsOf(materialTbl: XfrpMaterials; moduleId: XfrpModuleId): XfrpModuleId</a></li>
+          </ul></dd>
+<dt><a name="maxDelay" href="#maxDelay"><span>maxDelay:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="nodes: maxDelay(env: XfrpNodeEnv): int" href="xfrp/envs/nodes.html#maxDelay%2CXfrpNodeEnv">nodes: maxDelay(env: XfrpNodeEnv): int</a></li>
+          </ul></dd>
+<dt><a name="maxNodeDelay" href="#maxNodeDelay"><span>maxNodeDelay:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="envs: maxNodeDelay(env: XfrpEnv): int" href="xfrp/envs.html#maxNodeDelay%2CXfrpEnv">envs: maxNodeDelay(env: XfrpEnv): int</a></li>
           </ul></dd>
 <dt><a name="modMaterial" href="#modMaterial"><span>modMaterial:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -732,7 +768,7 @@ function main() {
           </ul></dd>
 <dt><a name="parse" href="#parse"><span>parse:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="parser: parse(l: var XfrpLexer): WithCodeInfo[XfrpModule]" href="xfrp/parser.html#parse%2CXfrpLexer">parser: parse(l: var XfrpLexer): WithCodeInfo[XfrpModule]</a></li>
+          data-doc-search-tag="parser: parse(l: var XfrpLexer; flags: set[CompilerFlag] = {}): WithCodeInfo[XfrpModule]" href="xfrp/parser.html#parse%2CXfrpLexer%2Cset%5BCompilerFlag%5D">parser: parse(l: var XfrpLexer; flags: set[CompilerFlag] = {}): WithCodeInfo[XfrpModule]</a></li>
           </ul></dd>
 <dt><a name="plusIdAndTypes" href="#plusIdAndTypes"><span>plusIdAndTypes:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -1075,7 +1111,7 @@ function main() {
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2021-08-08 04:59:21 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2021-08-09 14:50:13 UTC</small>
       </div>
     </div>
   </div>

@@ -8,7 +8,7 @@
 
 
 import tables, os
-import lexer, parser, syntax, errors, codeinfos, materials
+import lexer, parser, syntax, errors, codeinfos, materials, compilerflags
 
 export materials
 
@@ -26,12 +26,12 @@ proc newXfrpLoader*(includeDirs: seq[string]): XfrpLoader =
   result.includeDirs = includeDirs
 
 
-proc loadFromExistingFile(filePath: string): WithCodeInfo[XfrpModule] =
+proc loadFromExistingFile(filePath: string; flags: set[CompilerFlag] = {}): WithCodeInfo[XfrpModule] =
   var l = buildLexerFromFilename(filePath)
-  return parse(l)
+  return parse(l, flags)
 
 
-proc load*(loader: XfrpLoader; name: string; traverseIncludeDirs = true): WithCodeInfo[XfrpModule] =
+proc load*(loader: XfrpLoader; name: string; flags: set[CompilerFlag] = {}; traverseIncludeDirs = true): WithCodeInfo[XfrpModule] =
   ## Load a file and convert to an AST.
   ## When ``traverseIncludeDirs`` is true, the loader searches for the file in all possible paths.
   if name in loader.loaded:
@@ -48,7 +48,7 @@ proc load*(loader: XfrpLoader; name: string; traverseIncludeDirs = true): WithCo
   var searchPaths: seq[string]
 
   if fileExists(moduleDir / moduleFileName):
-    result = loadFromExistingFile(moduleDir / moduleFileName)
+    result = loadFromExistingFile(moduleDir / moduleFileName, flags)
     loader.loaded[name] = result
     return
 
@@ -60,7 +60,7 @@ proc load*(loader: XfrpLoader; name: string; traverseIncludeDirs = true): WithCo
       let filePath = includePath / moduleDir / moduleFileName
 
       if fileExists(filePath):
-        result = loadFromExistingFile(filePath)
+        result = loadFromExistingFile(filePath, flags)
         loader.loaded[name] = result
         return
 
@@ -72,7 +72,7 @@ proc load*(loader: XfrpLoader; name: string; traverseIncludeDirs = true): WithCo
   raise err
 
 
-proc loadMaterials*(loader: XfrpLoader; ast: WithCodeInfo[XfrpModule]; history: seq[XfrpModuleId] = @[]): XfrpMaterials =
+proc loadMaterials*(loader: XfrpLoader; ast: WithCodeInfo[XfrpModule]; flags: set[CompilerFlag] = {}; history: seq[XfrpModuleId] = @[]): XfrpMaterials =
   ## Load materials of given AST.
   var tbl = newTable[XfrpModuleId, WithCodeInfo[XfrpModule]]()
   tbl[ast.val.moduleId.val] = ast
@@ -85,8 +85,8 @@ proc loadMaterials*(loader: XfrpLoader; ast: WithCodeInfo[XfrpModule]; history: 
 
     try:
       let
-        depAst = loader.load(depModule.val)
-        depMaterials = loader.loadMaterials(depAst, history & ast.val.moduleId.val)
+        depAst = loader.load(depModule.val, flags)
+        depMaterials = loader.loadMaterials(depAst, flags, history & ast.val.moduleId.val)
 
       for (depMaterialId, depMaterialAst) in pairs(depMaterials):
         tbl[depMaterialId] = depMaterialAst

@@ -10,7 +10,7 @@ import options
 from strutils import parseInt, parseFloat
 import nimly
 
-import tokens, syntax, types, codeinfos, errors
+import tokens, syntax, types, codeinfos, errors, compilerflags
 from lexer import XfrpLexer
 
 export lexer.XfrpLexer
@@ -22,6 +22,9 @@ func ignores(tk: XfrpToken): bool =
 proc `~`[T](x: T): ref T =
   new result
   result[] = x
+
+
+var globalCompilerFlags: set[CompilerFlag] = {}
 
 
 when defined(nimdoc):
@@ -171,6 +174,15 @@ else:
       InfixNone Digits operator:
         return DefInfix($3, Natural(($2).intStr.parseInt()), assocNone) from ($1)..($3)
 
+      Init Id Equal expression:
+        if flagAutoInitExt in globalCompilerFlags:
+          return DefInit(($2).idStr from $2, $4) from ($1)..($4)
+
+        else:
+          let err = XfrpSyntaxError.newException("Initialize expression definition is not supported. Use -x=autoinit option.")
+          err.causedBy(($1)..($4))
+          raise err
+
     expression[WithCodeInfo[XfrpExpr]]:
       binaryExpression:
         return $1
@@ -247,8 +259,10 @@ else:
         return LitFloat(($1).floatStr.parseFloat()) from $1
 
 
-proc parse*(l: var XfrpLexer): WithCodeInfo[XfrpModule] =
+proc parse*(l: var XfrpLexer; flags: set[CompilerFlag] = {}): WithCodeInfo[XfrpModule] =
   ## Parse a token sequence with given lexer.
+  globalCompilerFlags = flags
+
   l.ignoreIf = ignores
 
   var p = xfrpParser.newParser()

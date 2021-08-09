@@ -1,18 +1,22 @@
 XfrpNodeId	xfrp/envs/nodes.html#XfrpNodeId	nodes: XfrpNodeId	
 XfrpNodeDescription	xfrp/envs/nodes.html#XfrpNodeDescription	nodes: XfrpNodeDescription	
 XfrpNodeEnv	xfrp/envs/nodes.html#XfrpNodeEnv	nodes: XfrpNodeEnv	
-makeNodeEnvironment	xfrp/envs/nodes.html#makeNodeEnvironment,XfrpMaterials,XfrpOpEnv	nodes: makeNodeEnvironment(materialTbl: XfrpMaterials; opEnv: XfrpOpEnv): XfrpNodeEnv	
+makeNodeEnvironment	xfrp/envs/nodes.html#makeNodeEnvironment,XfrpMaterials,XfrpOpEnv,set[CompilerFlag]	nodes: makeNodeEnvironment(materialTbl: XfrpMaterials; opEnv: XfrpOpEnv;\n                    flags: set[CompilerFlag] = {}): XfrpNodeEnv	
 getNode	xfrp/envs/nodes.html#getNode,XfrpNodeEnv,XfrpNodeId	nodes: getNode(env: XfrpNodeEnv; id: XfrpNodeId): XfrpNodeDescription	
 items	xfrp/envs/nodes.html#items.i,XfrpNodeEnv	nodes: items(env: XfrpNodeEnv): XfrpNodeId	
 innerNodeIds	xfrp/envs/nodes.html#innerNodeIds.i,XfrpNodeEnv	nodes: innerNodeIds(env: XfrpNodeEnv): XfrpNodeId	
 inputNodeIds	xfrp/envs/nodes.html#inputNodeIds.i,XfrpNodeEnv	nodes: inputNodeIds(env: XfrpNodeEnv): XfrpNodeId	
 outputNodeIds	xfrp/envs/nodes.html#outputNodeIds.i,XfrpNodeEnv	nodes: outputNodeIds(env: XfrpNodeEnv): XfrpNodeId	
+initNodesOfDelay	xfrp/envs/nodes.html#initNodesOfDelay.i,XfrpNodeEnv,int	nodes: initNodesOfDelay(env: XfrpNodeEnv; delay: int): XfrpNodeId	
 id	xfrp/envs/nodes.html#id,XfrpNodeDescription	nodes: id(desc: XfrpNodeDescription): WithCodeInfo[XfrpId]	
 initOpt	xfrp/envs/nodes.html#initOpt,XfrpNodeDescription	nodes: initOpt(desc: XfrpNodeDescription): Option[WithCodeInfo[XfrpExpr]]	
 isInput	xfrp/envs/nodes.html#isInput,XfrpNodeDescription	nodes: isInput(desc: XfrpNodeDescription): bool	
 inputType	xfrp/envs/nodes.html#inputType,XfrpNodeDescription	nodes: inputType(desc: XfrpNodeDescription): WithCodeInfo[XfrpType]	
 innerTypeOpt	xfrp/envs/nodes.html#innerTypeOpt,XfrpNodeDescription	nodes: innerTypeOpt(desc: XfrpNodeDescription): Option[WithCodeInfo[XfrpType]]	
 update	xfrp/envs/nodes.html#update,XfrpNodeDescription	nodes: update(desc: XfrpNodeDescription): WithCodeInfo[XfrpExpr]	
+maxDelay	xfrp/envs/nodes.html#maxDelay,XfrpNodeEnv	nodes: maxDelay(env: XfrpNodeEnv): int	
 exprs	xfrp/envs/nodes.html#exprs.i,XfrpNodeEnv	nodes: exprs(env: XfrpNodeEnv): WithCodeInfo[XfrpExpr]	
 depsNow	xfrp/envs/nodes.html#depsNow.i,XfrpNodeDescription	nodes: depsNow(desc: XfrpNodeDescription): XfrpNodeId	
 depsAtLast	xfrp/envs/nodes.html#depsAtLast.i,XfrpNodeDescription	nodes: depsAtLast(desc: XfrpNodeDescription): XfrpNodeId	
+initDepsNow	xfrp/envs/nodes.html#initDepsNow.i,XfrpNodeDescription	nodes: initDepsNow(desc: XfrpNodeDescription): XfrpNodeId	
+initDepsAtLast	xfrp/envs/nodes.html#initDepsAtLast.i,XfrpNodeDescription	nodes: initDepsAtLast(desc: XfrpNodeDescription): XfrpNodeId	

@@ -1,4 +1,4 @@
 XfrpLoader	xfrp/loaders.html#XfrpLoader	loaders: XfrpLoader	
 newXfrpLoader	xfrp/loaders.html#newXfrpLoader,seq[string]	loaders: newXfrpLoader(includeDirs: seq[string]): XfrpLoader	
-load	xfrp/loaders.html#load,XfrpLoader,string	loaders: load(loader: XfrpLoader; name: string; traverseIncludeDirs = true): WithCodeInfo[\n    XfrpModule]	
-loadMaterials	xfrp/loaders.html#loadMaterials,XfrpLoader,WithCodeInfo[XfrpModule],seq[XfrpModuleId]	loaders: loadMaterials(loader: XfrpLoader; ast: WithCodeInfo[XfrpModule];\n              history: seq[XfrpModuleId] = @[]): XfrpMaterials	
+load	xfrp/loaders.html#load,XfrpLoader,string,set[CompilerFlag]	loaders: load(loader: XfrpLoader; name: string; flags: set[CompilerFlag] = {};\n     traverseIncludeDirs = true): WithCodeInfo[XfrpModule]	
+loadMaterials	xfrp/loaders.html#loadMaterials,XfrpLoader,WithCodeInfo[XfrpModule],set[CompilerFlag],seq[XfrpModuleId]	loaders: loadMaterials(loader: XfrpLoader; ast: WithCodeInfo[XfrpModule];\n              flags: set[CompilerFlag] = {}; history: seq[XfrpModuleId] = @[]): XfrpMaterials	

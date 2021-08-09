@@ -8,7 +8,7 @@
 ## * `envs/typecheck <envs/typecheck.html>`_ for type environments and XFRP type system
 
 import strtabs
-import syntax, materials, codeinfos, types
+import syntax, materials, codeinfos, types, compilerflags
 import envs/[operators, functions, nodes, typecheck]
 
 export operators.XfrpOpId
@@ -18,7 +18,7 @@ export nodes.XfrpNodeId
 export operators.XfrpOpDescription, operators.availableArgTypes, operators.getBody
 export operators.XfrpOpBody, operators.args, operators.retType, operators.body
 export functions.XfrpFuncDescription, functions.args, functions.body
-export nodes.XfrpNodeDescription, nodes.initOpt, nodes.update, nodes.depsNow, nodes.depsAtLast
+export nodes.XfrpNodeDescription, nodes.initOpt, nodes.update, nodes.depsNow, nodes.depsAtLast, nodes.initDepsNow, nodes.initDepsAtLast
 
 export typecheck.XfrpFuncType
 
@@ -32,15 +32,17 @@ type
     nodeEnv: XfrpNodeEnv
     tyEnv: XfrpTypeEnv
     emits: StringTableRef
+    flags: set[CompilerFlag]
 
 
-proc makeEnvironment*(materials: XfrpMaterials): XfrpEnv =
+proc makeEnvironment*(materials: XfrpMaterials; flags: set[CompilerFlag] = {}): XfrpEnv =
   ## Construct new environment from materials.
   result.name = materials.getRootId()
   result.materials = materials
+  result.flags = flags
   result.opEnv = makeOperatorEnvironment(materials)
   result.funcEnv = makeFunctionEnvironment(materials, result.opEnv)
-  result.nodeEnv = makeNodeEnvironment(materials, result.opEnv)
+  result.nodeEnv = makeNodeEnvironment(materials, result.opEnv, flags)
 
   for exp in exprs(result.nodeEnv):
     result.funcEnv.checkFuncValidity(exp, materials.getRootId(), materials)
@@ -82,6 +84,10 @@ iterator outputNodeIds*(env: XfrpEnv): XfrpNodeId =
   for id in outputNodeIds(env.nodeEnv): yield id
 
 
+iterator initNodesOfDelay*(env: XfrpEnv; delay: int): XfrpNodeId =
+  for id in env.nodeEnv.initNodesOfDelay(delay): yield id
+
+
 proc getVarType*(env: XfrpEnv; id: XfrpNodeId): XfrpType =
   result = env.tyEnv.getVarType(id)
 
@@ -118,3 +124,7 @@ proc findOpId*(env: XfrpEnv; op: XfrpOperator; termTypes: seq[XfrpType]; defined
 
 proc findFuncId*(env: XfrpEnv; id: XfrpId; definedIn: XfrpModuleId): XfrpFuncId =
   env.funcEnv.findFuncId(id, definedIn, env.materials)
+
+
+func maxNodeDelay*(env: XfrpEnv): int =
+  env.nodeEnv.maxDelay

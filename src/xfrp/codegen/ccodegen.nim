@@ -5,7 +5,7 @@ import ropes, strtabs, random, options
 from strutils import indent, join, toUpperAscii, multiReplace
 from sequtils import mapIt, foldl, toSeq, unzip
 import patty
-import ".."/[envs, syntax, codeinfos, types]
+import ".."/[envs, syntax, codeinfos, types, compilerflags]
 
 type
   CCodeFiles* = tuple
@@ -254,7 +254,18 @@ proc codegenNodeInits(r: var Rope; env: XfrpEnv; nameTbl: NameTables) =
       initExprAst = nodeDesc.initOpt.get()
       (initCalc, initResult) = env.codegenExp(initExprAst, nameTbl)
 
-    r.add "static void init_" & nameTbl.varNameTable[nodeId] & "(" & ?ty & " *output) {\p"
+    r.add "static void init_" & nameTbl.varNameTable[nodeId] & "("
+
+    if flagAutoInitExt in env.flags:
+      for refNowNodeId in nodeDesc.initDepsNow:
+        let refNodeTy = env.getVarType(refNowNodeId)
+        r.add ?refNodeTy & " " & nameTbl.varNameTable[refNowNodeId] & ", "
+
+      for refAtLastNodeId in nodeDesc.initDepsAtLast:
+        let refNodeTy = env.getVarType(refAtLastNodeId)
+        r.add ?refNodeTy & " " & nameTbl.varNameTable[refAtLastNodeId] & "_atlast, "
+
+    r.add ?ty & " *output) {\p"
     if initCalc.len > 0: r.add indent(initCalc, 2) & "\p"
     r.add "  *output = " & initResult & ";\p}\p\p"
 
@@ -306,12 +317,43 @@ proc genFrpFile(env: XfrpEnv; nameTbl: NameTables): string =
   r.add "(void) {\p"
   r.add "  int current_side = 0, last_side = 1;\p\p"
   r.add "  /* Initialize nodes */\p"
-  for nodeId in env.nodeIds:
-    let nodeDesc = env.getNode(nodeId)
+  if env.maxNodeDelay == 0:
+    for nodeId in env.nodeIds:
+      let
+        nodeDesc = env.getNode(nodeId)
+        nodeCode = nameTbl.varNameTable[nodeId]
 
-    if nodeDesc.initOpt.isNone: continue
+      if nodeDesc.initOpt.isNone: continue
 
-    r.add "  init_" & nameTbl.varNameTable[nodeId] & "(&memory_" & nameTbl.varNameTable[nodeId] & "[current_side]);\p"
+      r.add "  init_" & nodeCode & "(&memory_" & nodeCode & "[last_side]);\p"
+
+  else:
+    r.add "  for (int k = " & $env.maxNodeDelay & "; k >= 0; --k) {\p"
+    r.add "    Input("
+    r.add toSeq(env.inputNodeIds).mapIt("&memory_" & nameTbl.varNameTable[it] & "[current_side]").join(", ")
+    r.add ");\p"
+    for k in countdown(env.maxNodeDelay, 0):
+      for nodeId in env.initNodesOfDelay(k):
+        let
+          nodeDesc = env.getNode(nodeId)
+          nodeCode = nameTbl.varNameTable[nodeId]
+
+        assert(nodeDesc.initOpt.isSome)
+
+        r.add "    init_" & nodeCode & "("
+
+        for refNowId in nodeDesc.initDepsNow:
+          r.add "memory_" & nameTbl.varNameTable[refNowId] & "[current_side], "
+        for refAtLastId in nodeDesc.initDepsAtLast:
+          r.add "memory_" & nameTbl.varNameTable[refAtLastId] & "[last_side], "
+
+        r.add "&memory_" & nodeCode & "[current_side]);\p"
+
+      if k > 0: r.add "    if (k >= " & $k & ") goto XFRP_INIT_FLIP_SIDE;\p"
+
+    r.add "XFRP_INIT_FLIP_SIDE:\p    current_side ^= 1;\p    last_side ^= 1;\p"
+    r.add "  }\p"
+
   r.add "\p"
   r.add "XFRP_LOOP_BEGIN:\p"
   r.add "  /* Get input values */\p"

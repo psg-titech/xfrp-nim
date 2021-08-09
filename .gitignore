@@ -5,6 +5,7 @@ xfrp
 # generated c codes
 *.c
 *.h
+*.c.gen
 a.out
 !main.c
 
