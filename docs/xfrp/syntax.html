@@ -181,7 +181,7 @@ function main() {
       magicArgs*: seq[WithCodeInfo[XfrpExpr]]">XfrpExpr</a></li>
   <li><a class="reference" href="#XfrpDefinitionKind"
     title="XfrpDefinitionKind {.pure.} = enum
-  DefNode, DefFunc, DefOp, DefInfix">XfrpDefinitionKind</a></li>
+  DefNode, DefFunc, DefOp, DefInfix, DefInit">XfrpDefinitionKind</a></li>
   <li><a class="reference" href="#XfrpDefinition"
     title="XfrpDefinition = object
   case kind*: XfrpDefinitionKind
@@ -205,7 +205,11 @@ function main() {
   of XfrpDefinitionKind.DefInfix:
       infixOp*: WithCodeInfo[XfrpOperator]
       infixLevel*: XfrpOperatorPrecedenceLevel
-      infixAssoc*: XfrpOperatorAssociativity">XfrpDefinition</a></li>
+      infixAssoc*: XfrpOperatorAssociativity
+
+  of XfrpDefinitionKind.DefInit:
+      initId*: WithCodeInfo[XfrpId]
+      initBody*: WithCodeInfo[XfrpExpr]">XfrpDefinition</a></li>
   <li><a class="reference" href="#XfrpInputKind"
     title="XfrpInputKind {.pure.} = enum
   InputWithoutInit, InputWithInit">XfrpInputKind</a></li>
@@ -356,6 +360,11 @@ function main() {
   <ul class="simple nested-toc-section">ExprAnnot
       <li><a class="reference" href="#ExprAnnot%2CWithCodeInfo%5BXfrpId%5D%2CWithCodeInfo%5BXfrpAnnotation%5D"
     title="ExprAnnot(annotId: WithCodeInfo[XfrpId]; annot: WithCodeInfo[XfrpAnnotation]): XfrpExpr">ExprAnnot,<wbr>WithCodeInfo[XfrpId],<wbr>WithCodeInfo[XfrpAnnotation]</a></li>
+
+  </ul>
+  <ul class="simple nested-toc-section">DefInit
+      <li><a class="reference" href="#DefInit%2CWithCodeInfo%5BXfrpId%5D%2CWithCodeInfo%5BXfrpExpr%5D"
+    title="DefInit(initId: WithCodeInfo[XfrpId]; initBody: WithCodeInfo[XfrpExpr]): XfrpDefinition">DefInit,<wbr>WithCodeInfo[XfrpId],<wbr>WithCodeInfo[XfrpExpr]</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">==
@@ -620,14 +629,14 @@ class="link-seesrc" target="_blank">Source</a>
 </dd>
 <a id="XfrpDefinitionKind"></a>
 <dt><pre><a href="syntax.html#XfrpDefinitionKind"><span class="Identifier">XfrpDefinitionKind</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">pure</span></span><span class="Other">.}</span></span> <span class="Other">=</span> <span class="Keyword">enum</span>
-  <span class="Identifier">DefNode</span><span class="Other">,</span> <span class="Identifier">DefFunc</span><span class="Other">,</span> <span class="Identifier">DefOp</span><span class="Other">,</span> <span class="Identifier">DefInfix</span></pre></dt>
+  <span class="Identifier">DefNode</span><span class="Other">,</span> <span class="Identifier">DefFunc</span><span class="Other">,</span> <span class="Identifier">DefOp</span><span class="Other">,</span> <span class="Identifier">DefInfix</span><span class="Other">,</span> <span class="Identifier">DefInit</span></pre></dt>
 <dd>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/syntax.nim#L56"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/syntax.nim#L57"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/syntax.nim#L56" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/syntax.nim#L57" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="XfrpDefinition"></a>
@@ -655,14 +664,18 @@ class="link-seesrc" target="_blank">Source</a>
       <span class="Identifier">infixLevel</span><span class="Operator">*</span><span class="Other">:</span> <a href="syntax.html#XfrpOperatorPrecedenceLevel"><span class="Identifier">XfrpOperatorPrecedenceLevel</span></a>
       <span class="Identifier">infixAssoc</span><span class="Operator">*</span><span class="Other">:</span> <a href="syntax.html#XfrpOperatorAssociativity"><span class="Identifier">XfrpOperatorAssociativity</span></a>
 
+  <span class="Keyword">of</span> <a href="syntax.html#XfrpDefinitionKind"><span class="Identifier">XfrpDefinitionKind</span></a><span class="Other">.</span><span class="Identifier">DefInit</span><span class="Other">:</span>
+      <span class="Identifier">initId</span><span class="Operator">*</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><a href="syntax.html#XfrpId"><span class="Identifier">XfrpId</span></a><span class="Other">]</span>
+      <span class="Identifier">initBody</span><span class="Operator">*</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><a href="syntax.html#XfrpExpr"><span class="Identifier">XfrpExpr</span></a><span class="Other">]</span>
+
   </pre></dt>
 <dd>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/syntax.nim#L56"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/syntax.nim#L57"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/syntax.nim#L56" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/syntax.nim#L57" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="XfrpInputKind"></a>
@@ -672,9 +685,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/syntax.nim#L61"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/syntax.nim#L62"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/syntax.nim#L61" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/syntax.nim#L62" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="XfrpInput"></a>
@@ -692,9 +705,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/syntax.nim#L61"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/syntax.nim#L62"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/syntax.nim#L61" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/syntax.nim#L62" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="XfrpEmit"></a>
@@ -703,9 +716,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/syntax.nim#L65"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/syntax.nim#L66"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/syntax.nim#L65" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/syntax.nim#L66" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="XfrpModuleKind"></a>
@@ -715,9 +728,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/syntax.nim#L68"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/syntax.nim#L69"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/syntax.nim#L68" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/syntax.nim#L69" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="XfrpModule"></a>
@@ -731,9 +744,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Either module or material.
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/syntax.nim#L72"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/syntax.nim#L73"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/syntax.nim#L72" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/syntax.nim#L73" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 
@@ -951,9 +964,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/syntax.nim#L56"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/syntax.nim#L57"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/syntax.nim#L56" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/syntax.nim#L57" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="DefNode,WithCodeInfo[XfrpIdAndTypeOpt],Option[WithCodeInfo[XfrpExpr]],WithCodeInfo[XfrpExpr]"></a>
@@ -1008,6 +1021,18 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/syntax.nim#L56"
+class="link-seesrc" target="_blank">Source</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/syntax.nim#L56" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+<a id="DefInit,WithCodeInfo[XfrpId],WithCodeInfo[XfrpExpr]"></a>
+<dt><pre><span class="Keyword">proc</span> <a href="#DefInit%2CWithCodeInfo%5BXfrpId%5D%2CWithCodeInfo%5BXfrpExpr%5D"><span class="Identifier">DefInit</span></a><span class="Other">(</span><span class="Identifier">initId</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><a href="syntax.html#XfrpId"><span class="Identifier">XfrpId</span></a><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">initBody</span><span class="Other">:</span> <a href="codeinfos.html#WithCodeInfo"><span class="Identifier">WithCodeInfo</span></a><span class="Other">[</span><a href="syntax.html#XfrpExpr"><span class="Identifier">XfrpExpr</span></a><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="syntax.html#XfrpDefinition"><span class="Identifier">XfrpDefinition</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma">
+    <span class="Identifier">used</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
 href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/syntax.nim#L52"
 class="link-seesrc" target="_blank">Source</a>
 <a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/syntax.nim#L52" class="link-seesrc" target="_blank" >Edit</a>
@@ -1019,9 +1044,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/syntax.nim#L61"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/syntax.nim#L62"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/syntax.nim#L61" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/syntax.nim#L62" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="InputWithoutInit,WithCodeInfo[XfrpIdAndType]"></a>
@@ -1031,9 +1056,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/syntax.nim#L60"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/syntax.nim#L61"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/syntax.nim#L60" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/syntax.nim#L61" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="InputWithInit,WithCodeInfo[XfrpIdAndType],WithCodeInfo[XfrpExpr]"></a>
@@ -1044,9 +1069,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/syntax.nim#L59"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/syntax.nim#L60"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/syntax.nim#L59" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/syntax.nim#L60" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="makeXfrpModule,WithCodeInfo[XfrpModuleId],seq[WithCodeInfo[XfrpInput]],seq[WithCodeInfo[XfrpIdAndTypeOpt]],seq[WithCodeInfo[XfrpModuleId]],seq[WithCodeInfo[XfrpEmit]],seq[WithCodeInfo[XfrpDefinition]]"></a>
@@ -1061,9 +1086,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Construct a normal module.
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/syntax.nim#L83"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/syntax.nim#L84"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/syntax.nim#L83" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/syntax.nim#L84" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="makeXfrpMaterial,WithCodeInfo[XfrpModuleId],seq[WithCodeInfo[XfrpModuleId]],seq[WithCodeInfo[XfrpEmit]],seq[WithCodeInfo[XfrpDefinition]]"></a>
@@ -1076,9 +1101,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Construct a material module.
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/syntax.nim#L90"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/syntax.nim#L91"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/syntax.nim#L90" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/syntax.nim#L91" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="split,XfrpIdAndTypeOpt"></a>
@@ -1088,9 +1113,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/syntax.nim#L98"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/syntax.nim#L99"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/syntax.nim#L98" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/syntax.nim#L99" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 <a id="split,XfrpInput"></a>
@@ -1102,9 +1127,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/syntax.nim#L107"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/syntax.nim#L108"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/syntax.nim#L107" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/syntax.nim#L108" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 
@@ -1117,7 +1142,7 @@ class="link-seesrc" target="_blank">Source</a>
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2021-08-08 04:59:20 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2021-08-09 14:50:13 UTC</small>
       </div>
     </div>
   </div>

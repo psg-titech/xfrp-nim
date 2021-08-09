@@ -17,10 +17,10 @@
 <link href='https://fonts.googleapis.com/css?family=Source+Code+Pro:400,500,600' rel='stylesheet' type='text/css'/>
 
 <!-- CSS -->
-<title>xfrp/codegen/ccodegen</title>
-<link rel="stylesheet" type="text/css" href="../../nimdoc.out.css">
+<title>xfrp/compilerflags</title>
+<link rel="stylesheet" type="text/css" href="../nimdoc.out.css">
 
-<script type="text/javascript" src="../../dochack.js"></script>
+<script type="text/javascript" src="../dochack.js"></script>
 
 <script type="text/javascript">
 function main() {
@@ -62,7 +62,7 @@ function main() {
 <body onload="main()">
 <div class="document" id="documentId">
   <div class="container">
-    <h1 class="title">xfrp/codegen/ccodegen</h1>
+    <h1 class="title">xfrp/compilerflags</h1>
     <div class="row">
   <div class="three columns">
   <div class="theme-switch-wrapper">
@@ -75,7 +75,7 @@ function main() {
   <div id="global-links">
     <ul class="simple">
     <li>
-      <a href="../../theindex.html">Index</a>
+      <a href="../theindex.html">Index</a>
     </li>
     </ul>
   </div>
@@ -92,27 +92,11 @@ function main() {
   </div>
   <ul class="simple simple-toc" id="toc-list">
 <li>
-  <a class="reference reference-toplevel" href="#6" id="56">Imports</a>
-  <ul class="simple simple-toc-section">
-    
-  </ul>
-</li>
-<li>
   <a class="reference reference-toplevel" href="#7" id="57">Types</a>
   <ul class="simple simple-toc-section">
-      <li><a class="reference" href="#CCodeFiles"
-    title="CCodeFiles = tuple[frpFile, frpHeaderFile, mainFile: string]">CCodeFiles</a></li>
-
-  </ul>
-</li>
-<li>
-  <a class="reference reference-toplevel" href="#12" id="62">Procs</a>
-  <ul class="simple simple-toc-section">
-      <ul class="simple nested-toc-section">codegen
-      <li><a class="reference" href="#codegen%2CXfrpEnv"
-    title="codegen(env: XfrpEnv): CCodeFiles">codegen,<wbr>XfrpEnv</a></li>
-
-  </ul>
+      <li><a class="reference" href="#CompilerFlag"
+    title="CompilerFlag = enum
+  flagAutoInitExt">CompilerFlag</a></li>
 
   </ul>
 </li>
@@ -123,42 +107,20 @@ function main() {
   <div class="nine columns" id="content">
   <div id="tocRoot"></div>
   
-  <p class="module-desc">Code generation to C. Generated code is based on ISO/IEC 9899:1999 (also known as C99).</p>
-  <div class="section" id="6">
-<h1><a class="toc-backref" href="#6">Imports</a></h1>
-<dl class="item">
-<a class="reference external" href="../envs.html">../envs</a>, <a class="reference external" href="../syntax.html">../syntax</a>, <a class="reference external" href="../codeinfos.html">../codeinfos</a>, <a class="reference external" href="../types.html">../types</a>, <a class="reference external" href="../compilerflags.html">../compilerflags</a>
-</dl></div>
-<div class="section" id="7">
+  <p class="module-desc">XFRP compiler flags.</p>
+  <div class="section" id="7">
 <h1><a class="toc-backref" href="#7">Types</a></h1>
 <dl class="item">
-<a id="CCodeFiles"></a>
-<dt><pre><a href="ccodegen.html#CCodeFiles"><span class="Identifier">CCodeFiles</span></a> <span class="Other">=</span> <span class="Keyword">tuple</span><span class="Other">[</span><span class="Identifier">frpFile</span><span class="Other">,</span> <span class="Identifier">frpHeaderFile</span><span class="Other">,</span> <span class="Identifier">mainFile</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">]</span></pre></dt>
+<a id="CompilerFlag"></a>
+<dt><pre><a href="compilerflags.html#CompilerFlag"><span class="Identifier">CompilerFlag</span></a> <span class="Other">=</span> <span class="Keyword">enum</span>
+  <span class="Identifier">flagAutoInitExt</span></pre></dt>
 <dd>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codegen/ccodegen.nim#L11"
+href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/compilerflags.nim#L4"
 class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codegen/ccodegen.nim#L11" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-
-</dl></div>
-<div class="section" id="12">
-<h1><a class="toc-backref" href="#12">Procs</a></h1>
-<dl class="item">
-<a id="codegen,XfrpEnv"></a>
-<dt><pre><span class="Keyword">proc</span> <a href="#codegen%2CXfrpEnv"><span class="Identifier">codegen</span></a><span class="Other">(</span><span class="Identifier">env</span><span class="Other">:</span> <a href="../envs.html#XfrpEnv"><span class="Identifier">XfrpEnv</span></a><span class="Other">)</span><span class="Other">:</span> <a href="ccodegen.html#CCodeFiles"><span class="Identifier">CCodeFiles</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma">
-    <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">KeyError</span><span class="Other">,</span> <span class="Identifier">XfrpTypeError</span><span class="Other">,</span> <span class="Identifier">XfrpReferenceError</span><span class="Other">,</span> <span class="Identifier">XfrpLanguageError</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-C code generation.
-&nbsp;&nbsp;<a
-href="https://github.com/psg-titech/xfrp-nim/tree/devel/src/xfrp/codegen/ccodegen.nim#L433"
-class="link-seesrc" target="_blank">Source</a>
-<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/codegen/ccodegen.nim#L433" class="link-seesrc" target="_blank" >Edit</a>
+<a href="https://github.com/psg-titech/xfrp-nim/edit/devel/src/xfrp/compilerflags.nim#L4" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 

@@ -1,15 +1,29 @@
 ## XFRP compiler written in Nim.
-## 
+##
 ## About XFRP
 ## ==========
-## 
-## **XFRP** is a general-purpose functional reactive programming (FRP) language [SW2018]_.
+##
+## **XFRP** is a general-purpose functional reactive programming (FRP) language.
 ## The language specifications are based on `Emfrp <https://github.com/sawaken/emfrp>`_,
 ## a FRP language for small-scale embedded systems.
-## 
-## .. [SW2018] Shibanai, K., Watanabe, T.: **Distributed Functional Reactive Programming on Actor-Based Runtime**,
-##    *Proceedings of the 8th ACM SIGPLAN International Workshop on Programming Based on Actors, Agents, and Decentralized Control*,
-##    Association for Computing Machinery, 13–22, 2018
+##
+## Command-line options
+## ====================
+##
+## -h, --help           show help message
+## -t, --target=TARGET  change target to TARGET (default: c)
+## -x, --extension=EXT  enable extension EXT
+## --nomain             prevent compiler from generating an entrypoint file
+##
+## Build
+## =====
+##
+## Nim compiler is required for build.
+##
+## .. code:: cmd
+##
+##   nimble build -d:release
+##
 
 import os, parseopt
 import xfrp/[loaders, envs, codeinfos, errors, compilerflags]

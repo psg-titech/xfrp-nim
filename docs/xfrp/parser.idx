@@ -1,1 +1,1 @@
-parse	xfrp/parser.html#parse,XfrpLexer	parser: parse(l: var XfrpLexer): WithCodeInfo[XfrpModule]	
+parse	xfrp/parser.html#parse,XfrpLexer,set[CompilerFlag]	parser: parse(l: var XfrpLexer; flags: set[CompilerFlag] = {}): WithCodeInfo[XfrpModule]	
