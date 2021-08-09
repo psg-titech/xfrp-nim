@@ -20,7 +20,7 @@ type
 
 const xfrpTypeDefinitionCode = """
 #define XFRP_UNIT int
-#define XFRP_BOOL _Bool
+#define XFRP_BOOL int
 #define XFRP_INT int
 #define XFRP_FLOAT float
 """

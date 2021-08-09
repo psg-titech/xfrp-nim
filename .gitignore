@@ -6,8 +6,11 @@ xfrp
 *.c
 *.h
 *.c.gen
+*.cpp
+*.cpp.gen
 a.out
 !main.c
+!main.cpp
 
 # Visual Studio Code
 .vscode/

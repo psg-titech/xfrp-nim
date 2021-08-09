@@ -1,5 +1,5 @@
-#include <stdio.h>
-#include <time.h>
+#include <iostream>
+#include <ctime>
 #include "TempAlert.h"
 
 #define AVE_TMP 25.0
@@ -10,14 +10,14 @@ void Input(XFRP_FLOAT *tmp) {
   clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &t);
   if (t.tv_sec % 2) {
     *tmp = AVE_TMP - 0.5 + (float)t.tv_nsec / 1e9;
-  } else{
+  } else {
     *tmp = AVE_TMP + 0.5 - (float)t.tv_nsec / 1e9;
   }
 }
 
 void Output(XFRP_BOOL *alert) {
   if (*alert) {
-    fprintf(stderr, "ALERT!!!\n");
+    std::cerr << "ALERT!!!" << std::endl;
   }
 }
 

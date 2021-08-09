@@ -110,6 +110,18 @@ when isMainModule:
       else:
         writeFile("main.c", mainFile)
 
+    of "cpp", "cxx", "cplusplus", "c++":
+      let (frpFile, headerFile, mainFile) = ccodegen.codegen(env)
+
+      writeFile(env.name & ".cpp", frpFile)
+      writeFile(env.name & ".h", headerFile)
+      if noMainFlag:
+        discard
+      elif fileExists("main.cpp"):
+        writeFile("main.cpp.gen", mainFile)
+      else:
+        writeFile("main.cpp", mainFile)
+
     else:
       stderr.writeLine "Unknown target: ", target
       quit QuitFailure
