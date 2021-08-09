@@ -12,7 +12,7 @@
 ##    Association for Computing Machinery, 13–22, 2018
 
 import os, parseopt
-import xfrp/[loaders, envs, codeinfos, errors]
+import xfrp/[loaders, envs, codeinfos, errors, compilerflags]
 import xfrp/codegen/ccodegen
 
 proc writeHelp =
@@ -20,7 +20,10 @@ proc writeHelp =
   echo "options:"
   echo "  -h, --help           show help message"
   echo "  -t, --target=TARGET  change target to TARGET (default: c)"
+  echo "  -x, --extension=EXT  enable extension EXT"
   echo "      --nomain         prevent compiler from generating an entrypoint file"
+  echo "available extensions:"
+  echo "  -x=autoinit          initialization expression, automatic initialization"
 
 when isMainModule:
   var
@@ -28,6 +31,7 @@ when isMainModule:
     entryFileName: string
     target = "c"
     noMainFlag = false
+    flags: set[CompilerFlag]
 
   let params = commandLineParams()
   var optParser = initOptParser(params, {'h'}, @["help", "nomain"])
@@ -44,6 +48,15 @@ when isMainModule:
 
       of "t", "target":
         target = paramValue
+
+      of "x", "extension":
+        case paramValue
+        of "autoinit":
+          flags.incl flagAutoInitExt
+
+        else:
+          stderr.writeLine "Unknown extension: ", paramValue
+          quit QuitFailure
 
       of "nomain":
         noMainFlag = true
@@ -66,9 +79,9 @@ when isMainModule:
     let
       (entryDir, _, _) = absolutePath(entryFileName).splitFile()
       loader = newXfrpLoader(@[entryDir, getAppDir() / "xfrp_include"])
-      ast = loader.load(absolutePath(entryFileName), false)
-      materials = loader.loadMaterials(ast)
-      env = makeEnvironment(materials)
+      ast = loader.load(absolutePath(entryFileName), flags, false)
+      materials = loader.loadMaterials(ast, flags)
+      env = makeEnvironment(materials, flags)
 
     case target
     of "c":

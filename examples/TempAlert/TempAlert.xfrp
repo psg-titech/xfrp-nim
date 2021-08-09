@@ -1,0 +1,8 @@
+# -x=autoinit is needed
+module TempAlert
+in  tmp: Float
+out alert: Bool
+use Std
+
+node d_tmp = tmp - tmp@last
+node alert = d_tmp > 2.0

@@ -54,6 +54,7 @@ variantp XfrpDefinition:
   DefFunc(funId: WithCodeInfo[XfrpId], funRetType: WithCodeInfo[XfrpType], funArgs: seq[WithCodeInfo[XfrpIdAndType]], funBody: WithCodeInfo[XfrpExpr])
   DefOp(operator: WithCodeInfo[XfrpOperator], opRetType: WithCodeInfo[XfrpType], opArgs: seq[WithCodeInfo[XfrpIdAndType]], opBody: WithCodeInfo[XfrpExpr])
   DefInfix(infixOp: WithCodeInfo[XfrpOperator], infixLevel: XfrpOperatorPrecedenceLevel, infixAssoc: XfrpOperatorAssociativity)
+  DefInit(initId: WithCodeInfo[XfrpId], initBody: WithCodeInfo[XfrpExpr])
 
 
 variantp XfrpInput:
