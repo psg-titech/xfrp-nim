@@ -16,6 +16,7 @@ emit in c """
 #define magic_float2int(x) ((XFRP_INT)(x))
 #define magic_int2float(x) ((XFRP_FLOAT)(x))
 #define magic_bool2int(x) (x)
+#define magic_minus(x) (-(x))
 """
 
 infixl 7 *
@@ -66,3 +67,6 @@ func ||(lhs: Bool, rhs: Bool): Bool = magic(op_logic_or: Bool, lhs, rhs)
 func not(x: Bool): Bool = magic(logic_not: Bool, x)
 
 func boolToInt(x: Bool): Int = magic(bool2int: Int, x)
+
+
+func abs(x: Float): Float = if x < 0.0 then magic(minus: Float, x) else x

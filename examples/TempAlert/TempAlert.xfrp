@@ -5,4 +5,4 @@ out alert: Bool
 use Std
 
 node d_tmp = tmp - tmp@last
-node alert = d_tmp > 2.0
+node alert = abs(d_tmp) > 2.0
