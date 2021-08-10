@@ -54,7 +54,7 @@ func `?->`(calcCode, resultCode: string): CodeList =
 
 
 func `?\`(x, y: string): string =
-  if x.len == 0: y else: x & "\p" & y
+  if x.len == 0: y elif y.len == 0: x else: x & "\p" & y
 
 
 func `?`(ty: XfrpType): string =
