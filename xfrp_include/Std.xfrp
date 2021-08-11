@@ -12,11 +12,11 @@ emit in c """
 #define magic_op_neq(lhs, rhs) ((lhs) != (rhs))
 #define magic_op_logic_and(lhs, rhs) ((lhs) && (rhs))
 #define magic_op_logic_or(lhs, rhs) ((lhs) || (rhs))
-#define magic_logic_not(x) (!(x))
+#define magic_op_logic_not(x) (!(x))
 #define magic_float2int(x) ((XFRP_INT)(x))
 #define magic_int2float(x) ((XFRP_FLOAT)(x))
 #define magic_bool2int(x) (x)
-#define magic_minus(x) (-(x))
+#define magic_op_minus(x) (-(x))
 """
 
 infixl 7 *
@@ -55,6 +55,8 @@ func !=(lhs: Int, rhs: Int): Bool = magic(op_neq: Bool, lhs, rhs)
 func !=(lhs: Float, rhs: Float): Bool = magic(op_neq: Bool, lhs, rhs)
 func /=(lhs: Int, rhs: Int): Bool = magic(op_neq: Bool, lhs, rhs)
 func /=(lhs: Float, rhs: Float): Bool = magic(op_neq: Bool, lhs, rhs)
+func -(x: Int): Int = magic(op_minus: Int, x)
+func -(x: Float): Float = magic(op_minus: Float, x)
 
 func floatToInt(x: Float): Int = magic(float2int: Int, x)
 func intToFloat(x: Int): Float = magic(int2float: Float, x)
@@ -64,9 +66,9 @@ infixr 2 ||
 
 func &&(lhs: Bool, rhs: Bool): Bool = magic(op_logic_and: Bool, lhs, rhs)
 func ||(lhs: Bool, rhs: Bool): Bool = magic(op_logic_or: Bool, lhs, rhs)
-func not(x: Bool): Bool = magic(logic_not: Bool, x)
+func !(x: Bool): Bool = magic(op_logic_not: Bool, x)
 
 func boolToInt(x: Bool): Int = magic(bool2int: Int, x)
 
 
-func abs(x: Float): Float = if x < 0.0 then magic(minus: Float, x) else x
+func abs(x: Float): Float = if x < 0.0 then -x else x
