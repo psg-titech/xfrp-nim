@@ -22,7 +22,7 @@ emit in c """
 #define magic_op_minus_float(x) (-(x))
 #define magic_op_logic_and(lhs, rhs) ((lhs) && (rhs))
 #define magic_op_logic_or(lhs, rhs) ((lhs) || (rhs))
-#define magic_logic_not(x) (!(x))
+#define magic_op_logic_not(x) (!(x))
 #define magic_float2int(x) ((XFRP_INT)(x))
 #define magic_int2float(x) ((XFRP_FLOAT)(x))
 #define magic_bool2int(x) (x)
@@ -75,7 +75,7 @@ infixr 2 ||
 
 func &&(lhs: Bool, rhs: Bool): Bool = magic(op_logic_and: Bool, lhs, rhs)
 func ||(lhs: Bool, rhs: Bool): Bool = magic(op_logic_or: Bool, lhs, rhs)
-func not(x: Bool): Bool = magic(logic_not: Bool, x)
+func !(x: Bool): Bool = magic(op_logic_not: Bool, x)
 
 func boolToInt(x: Bool): Int = magic(bool2int: Int, x)
 
