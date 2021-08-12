@@ -162,6 +162,17 @@ proc xfrpTypeOf*(env: XfrpTypeEnv; exp: WithCodeInfo[XfrpExpr]; definedIn: XfrpM
         err.causedBy(exp)
         raise err
 
+    ExprUnary(opAst, termAstRef):
+      let termType = env.xfrpTypeOf(termAstRef[], definedIn, materialTbl)
+
+      try:
+        return env.getOpType(opAst.val, @[termType], definedIn, materialTbl)
+
+      except XfrpReferenceError as err:
+        err.msg = "There are no implementations of an operator " & opAst.val & "."
+        err.causedBy(exp)
+        raise err
+
     ExprIf(ifExprRef, thenExprRef, elseExprRef):
       let (ifExpr, thenExpr, elseExpr) = (ifExprRef[], thenExprRef[], elseExprRef[])
       env.xfrpTypeCheck(ifExpr, TBool(), definedIn, materialTbl)

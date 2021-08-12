@@ -1,7 +1,7 @@
 ## (Binary) operator precedence controller and environments.
 
 import tables
-from sequtils import mapIt, anyIt
+from sequtils import mapIt, anyIt, toSeq
 import patty
 import ".."/[syntax, types, codeinfos, errors, materials]
 
@@ -126,6 +126,11 @@ proc reparseBinaryExpression*(opEnv: XfrpOpEnv; exp: WithCodeInfo[XfrpExpr]; def
 
       return ExprIf(~ifAstReparsed, ~thenAstReparsed, ~elseAstReparsed) from exp
 
+    ExprUnary(opAst, termAstRef):
+      let termReparsed = opEnv.reparseBinaryExpression(termAstRef[], definedIn, materialTbl)
+
+      return ExprUnary(opAst, ~termReparsed) from exp
+
     ExprApp(idAst, argAsts):
       let argsReparsed = argAsts.mapIt(opEnv.reparseBinaryExpression(it, definedIn, materialTbl))
 
@@ -144,6 +149,7 @@ proc hasOpOrFuncReference(exp: XfrpExpr): bool =
   match exp:
     ExprBin(_, _): return true
     ExprApp(_, _): return true
+    ExprUnary(_, _): return true
     ExprIf(ifAstRef, thenAstRef, elseAstRef):
       return hasOpOrFuncReference(ifAstRef[].val) or hasOpOrFuncReference(thenAstRef[].val) or hasOpOrFuncReference(elseAstRef[].val)
 
@@ -201,8 +207,12 @@ proc makeOperatorEnvironment*(materialTbl: XfrpMaterials): XfrpOpEnv =
         _: discard
 
   for (op, description) in mpairs(descriptionTbl):
+    if not toSeq(keys(description.body)).anyIt(it.len > 1):
+      # precedences of only prefix operators are not required
+      continue
+
     if op notin precedenceTbl:
-      let err = XfrpDefinitionError.newException("Operator " & $op & " is defined but its precedence.")
+      let err = XfrpDefinitionError.newException("Precedence of an operator " & $op & " is not defined.")
       raise err
 
     description.precedence = precedenceTbl[op]

@@ -74,6 +74,9 @@ proc extractNodeDeps(nodeTbl: XfrpNodeDescriptionTable; exp: WithCodeInfo[XfrpEx
       result.depsNow = deduplicate(concat(depsNow))
       result.depsAtLast = deduplicate(concat(depsAtLast))
 
+    ExprUnary(_, termAstRef):
+      (result.depsNow, result.depsAtLast) = nodeTbl.extractNodeDeps(termAstRef[], flags)
+
     ExprIf(ifAstRef, thenAstRef, elseAstRef):
       let
         (ifDepsNow, ifDepsAtLast) = nodeTbl.extractNodeDeps(ifAstRef[], flags)

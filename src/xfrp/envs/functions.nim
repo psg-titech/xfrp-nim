@@ -52,6 +52,10 @@ proc extractFuncDeps(funcTbl: XfrpFuncDescriptionTable; exp: WithCodeInfo[XfrpEx
       let termDeps = termAsts.mapIt(funcTbl.extractFuncDeps(it, definedIn, materialTbl)).concat()
       result = deduplicate(termDeps)
 
+    ExprUnary(_, termAstRef):
+      let termDeps = funcTbl.extractFuncDeps(termAstRef[], definedIn, materialTbl)
+      result = deduplicate(termDeps)
+
     ExprIf(ifAstRef, thenAstRef, elseAstRef):
       let
         ifDeps = funcTbl.extractFuncDeps(ifAstRef[], definedIn, materialTbl)
@@ -148,6 +152,9 @@ func checkFuncValidity*(env: XfrpFuncEnv; exp: WithCodeInfo[XfrpExpr]; definedIn
 
       env.checkFuncValidity(termAsts[0], definedIn, materialTbl)
       env.checkFuncValidity(termAsts[1], definedIn, materialTbl)
+
+    ExprUnary(_, termAstRef):
+      env.checkFuncValidity(termAstRef[], definedIn, materialTbl)
 
     ExprIf(ifAstRef, thenAstRef, elseAstRef):
       env.checkFuncValidity(ifAstRef[], definedIn, materialTbl)

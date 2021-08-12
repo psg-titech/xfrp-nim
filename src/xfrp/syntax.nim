@@ -44,6 +44,7 @@ variantp XfrpExpr:
   ExprId(id: WithCodeInfo[XfrpId])
   ExprAnnot(annotId: WithCodeInfo[XfrpId], annot: WithCodeInfo[XfrpAnnotation])
   ExprBin(binOps: seq[WithCodeInfo[XfrpOperator]], binTerms: seq[WithCodeInfo[XfrpExpr]])
+  ExprUnary(unaryOp: WithCodeInfo[XfrpOperator], unaryTerm: ref WithCodeInfo[XfrpExpr])
   ExprIf(ifExpr, thenExpr, elseExpr: ref WithCodeInfo[XfrpExpr])
   ExprApp(appId: WithCodeInfo[XfrpId], appArgs: seq[WithCodeInfo[XfrpExpr]])
   ExprMagic(magicIdAndType: WithCodeInfo[XfrpIdAndType], magicArgs: seq[WithCodeInfo[XfrpExpr]])

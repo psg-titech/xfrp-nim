@@ -155,6 +155,20 @@ proc codegenExp(env: XfrpEnv; exp: WithCodeInfo[XfrpExpr]; nameTbl: NameTables; 
       return (lhsCalc ?\ rhsCalc ?\ (?ty & " " & freshVar & " = " &
         (nameTbl.opNameTable[opKey(opId)] >?< termTypes) & "(" & lhsResult & ", " & rhsResult & ");")) ?-> freshVar
 
+    ExprUnary(opAst, termAstRef):
+      let
+        (termCalc, termResult) = env.codegenExp(termAstRef[], nameTbl, extraVarTbl)
+
+        ty = env.xfrpTypeOf(exp)
+        freshVar = genFreshVariableInCode()
+
+        termType = env.xfrpTypeOf(termAstRef[])
+
+        opId = env.findOpId(opAst.val, @[termType], definedIn)
+
+      return (termCalc ?\ (?ty & " " & freshVar & " = " &
+        (nameTbl.opNameTable[opKey(opId)] >?< @[termType]) & "(" & termResult & ");")) ?-> freshVar
+
     ExprIf(ifExprAstRef, thenExprAstRef, elseExprAstRef):
       let
         (ifCalc, ifResult) = env.codegenExp(ifExprAstRef[], nameTbl, extraVarTbl)

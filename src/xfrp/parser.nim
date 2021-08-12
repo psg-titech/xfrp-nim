@@ -210,6 +210,9 @@ else:
       Id At annotation:
         return ExprAnnot(($1).idStr from $1, $3) from ($1)..($3)
 
+      operator primitiveExpression:
+        return ExprUnary($1, ~($2)) from ($1)..($2)
+
       LParen expression RParen:
         return $2
 
